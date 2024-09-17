@@ -4,8 +4,11 @@ set -e
 gsettings set org.gnome.desktop.screensaver lock-enabled false
 gsettings set org.gnome.desktop.session idle-delay 0
 
-# Configure security measures
-source ./install/security.sh
+# Install initial required tools
+for installer in ./install/terminal/required/*.sh; do source $installer; done
+
+# Choose from optional apps
+source ./install/choices.sh
 
 # Install terminal tools
 source ./install/terminal.sh

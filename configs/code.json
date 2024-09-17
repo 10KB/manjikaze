@@ -1,0 +1,14 @@
+{
+    "editor.fontFamily": "CaskaydiaMono Nerd Font",
+    "editor.tabSize": 2,
+    "editor.minimap.enabled": false,
+
+    "explorer.confirmDelete": false,
+
+    "files.trimTrailingWhitespace": true,
+
+    "telemetry.telemetryLevel": "off",
+
+    "workbench.startupEditor": "none",
+    "workbench.activityBar.location": "hidden"
+}

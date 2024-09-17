@@ -2,12 +2,17 @@
 
 set -e
 
-echo -e "\n## Starting with updating installed packages...\n"
+function status() {
+    time=$(date +%T)
+    echo -e "\n\033[1;32m$time\033[0m - \033[0;32m$1\033[0m\n"
+}
+
+status "Starting with updating installed packages..."
 
 sudo pacman -Syu --noconfirm
 
-echo -e "\n## Pulling latest version of setup...\n"
+status "Pulling latest version of setup..."
 sudo pacman -Sy git --noconfirm
 
-echo -e "\n## Installation starting...\n"
+status "Installation starting..."
 source ./install.sh
