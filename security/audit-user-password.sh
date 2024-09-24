@@ -24,8 +24,7 @@ check_user_password() {
         sudo pacman -S libpwquality --noconfirm
     fi
 
-    echo "Please enter your current password to check its strength:"
-    read -s password
+    password=$(gum input --password --prompt "Please enter your current password to check its strength: ")
 
     if check_password_strength "$password"; then
         if verify_sudo_password "$password"; then

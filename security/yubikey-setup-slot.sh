@@ -1,5 +1,5 @@
 setup_yubikey_slot() {
-    read -p "Do you want to set up a new YubiKey? This will overwrite any existing 2nd slot on your YubiKey. (y/n): " setup_new_yubikey
+    setup_new_yubikey=$(gum confirm "Do you want to set up a new YubiKey? This will overwrite any existing 2nd slot on your YubiKey." --affirmative "Yes" --negative "No" && echo "true" || echo "false")
 
     if [[ $setup_new_yubikey =~ ^[Yy]$ ]]; then
         if ! pacman -Qi yubikey-manager &> /dev/null; then

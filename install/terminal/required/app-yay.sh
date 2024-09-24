@@ -1,3 +1,3 @@
 status "Installing yay package manager..."
-sudo pacman -Sy yay --noconfirm
-yay -Syu --noconfirm
+sudo pacman -Sy yay --noconfirm --noprogressbar --quiet
+yay -Syu --noconfirm --noprogressbar --quiet

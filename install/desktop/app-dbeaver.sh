@@ -1,2 +1,2 @@
 status "Installing DBeaver database tool..."
-sudo pacman -S dbeaver --noconfirm
+sudo pacman -S dbeaver --noconfirm --noprogressbar --quiet

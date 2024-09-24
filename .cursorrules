@@ -1,0 +1,25 @@
+# Environment
+- This provisioning code is designed to run on Manjaro Linux.
+
+# User Input
+- User input should be handled using the Gum package.
+- Gum documentation: https://github.com/charmbracelet/gum
+- For user choices, prefer `gum choose` or `gum confirm`.
+- For text input, use `gum input`.
+- For multi-line input, use `gum write`.
+
+# Script Design
+- All scripts should be designed to be re-runnable without causing issues.
+
+# Package Management
+- Use `pacman` for official repository packages.
+- Use `yay` for AUR packages.
+- Add `--noconfirm --noprogressbar --quiet` to all `yay` and `pacman` commands.
+- Add `-s` to all `curl` commands to enable silent mode.
+
+# Error Handling
+- Include proper error handling in scripts.
+- Use `set -e` at the beginning of scripts to exit on any error.
+
+# Logging
+- Use the `status` function for consistent logging across scripts.

@@ -1,2 +1,2 @@
 status "Installing Dropbox..."
-yay -S dropbox --noconfirm
+yay -S dropbox --noconfirm --noprogressbar --quiet

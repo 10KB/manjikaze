@@ -1,2 +1,2 @@
 status "Installing SSHS..."
-yay -S sshs --noconfirm
+yay -S sshs --noconfirm --noprogressbar --quiet

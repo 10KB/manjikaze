@@ -1,2 +1,2 @@
 status "Installing kubectl..."
-yay -S kubectl --noconfirm
+yay -S kubectl --noconfirm --noprogressbar --quiet

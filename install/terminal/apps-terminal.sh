@@ -1,2 +1,2 @@
 status "Installing terminal apps..."
-sudo pacman -S jq btop zoxide --noconfirm
+sudo pacman -S jq btop zoxide --noconfirm --noprogressbar --quiet

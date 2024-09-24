@@ -1,2 +1,2 @@
 status "Installing Bruno REST client..."
-# yay -S bruno --noconfirm
+yay -S bruno --noconfirm --noprogressbar --quiet
