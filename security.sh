@@ -8,7 +8,8 @@ source ./security/yubikey-setup-slot.sh
 source ./security/yubikey-full-disk-encryption.sh
 source ./security/yubikey-pam-authentication.sh
 source ./security/yubikey-suspend.sh
-# Main menu
+source ./security/yubikey-replace.sh
+
 while true; do
     CHOICE=$(gum choose \
         "Audit user password strength" \
@@ -17,6 +18,7 @@ while true; do
         "Setup Yubikey for full disk encryption" \
         "Setup Yubikey for PAM authentication" \
         "Setup YubiKey suspend" \
+        "Replace faulty YubiKey" \
         "Exit" \
         --header "Select a security task:")
 
@@ -38,6 +40,9 @@ while true; do
             ;;
         "Setup YubiKey suspend")
             setup_yubikey_suspend
+            ;;
+        "Replace faulty YubiKey")
+            replace_faulty_yubikey
             ;;
         "Exit")
             break
