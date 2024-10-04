@@ -7,7 +7,7 @@ source ./security/audit-luks-volume.sh
 source ./security/yubikey-setup-slot.sh
 source ./security/yubikey-full-disk-encryption.sh
 source ./security/yubikey-pam-authentication.sh
-
+source ./security/yubikey-suspend.sh
 # Main menu
 while true; do
     CHOICE=$(gum choose \
@@ -16,6 +16,7 @@ while true; do
         "Setup YubiKey slot" \
         "Setup Yubikey for full disk encryption" \
         "Setup Yubikey for PAM authentication" \
+        "Setup YubiKey suspend" \
         "Exit" \
         --header "Select a security task:")
 
@@ -34,6 +35,9 @@ while true; do
             ;;
         "Setup Yubikey for PAM authentication")
             configure_pam_auth
+            ;;
+        "Setup YubiKey suspend")
+            setup_yubikey_suspend
             ;;
         "Exit")
             break
