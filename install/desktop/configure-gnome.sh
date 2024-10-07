@@ -62,6 +62,7 @@ gsettings set org.gnome.shell.extensions.dash-to-dock extend-height true
 gsettings set org.gnome.shell.extensions.dash-to-dock isolate-monitors true
 gsettings set org.gnome.shell.extensions.dash-to-dock isolate-workspaces true
 gsettings set org.gnome.shell.extensions.dash-to-dock multi-monitor true
+gsettings set org.gnome.shell.extensions.dash-to-dock running-indicator-style 'DASHES'
 gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-always-in-the-edge true
 gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-at-top false
 gsettings set org.gnome.shell.extensions.dash-to-dock show-show-apps-button true

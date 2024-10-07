@@ -1,0 +1,9 @@
+theme "tokyo-night"
+default_layout "compact"
+on_force_close "quit"
+pane_frames false
+ui {
+    pane_frames {
+        hide_session_name true
+    }
+}
