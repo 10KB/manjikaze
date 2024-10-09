@@ -28,6 +28,7 @@ source ./app/security/yubikey-full-disk-encryption.sh
 source ./app/security/yubikey-pam-authentication.sh
 source ./app/security/yubikey-suspend.sh
 source ./app/security/yubikey-replace.sh
+source ./app/security/yubikey-bitwarden.sh
 source ./app/security/audit-user-password.sh
 source ./app/security/audit-luks-volume.sh
 source ./app/configuration/configure-font.sh
@@ -55,6 +56,7 @@ declare -A security_menu
 security_menu=(
     ["1:Yubikey setup"]="yubikey_setup_menu"
     ["2:Audit"]="audit_menu"
+    ["3:Bitwarden"]="bitwarden_menu"
 )
 
 declare -A yubikey_setup_menu
@@ -63,13 +65,21 @@ yubikey_setup_menu=(
     ["2:Setup Yubikey for full disk encryption"]="yubikey_full_disk_encryption"
     ["3:Setup Yubikey for PAM authentication"]="yubikey_pam_authentication"
     ["4:Setup YubiKey suspend"]="yubikey_suspend"
-    ["5:Replace faulty YubiKey"]="yubikey_replace"
+    ["5:Setup Yubikey for Bitwarden"]="yubikey_bitwarden"
+    ["6:Replace faulty YubiKey"]="yubikey_replace"
 )
 
 declare -A audit_menu
 audit_menu=(
     ["1:Audit user password strength"]="audit_user_password"
     ["2:Audit full disk encryption"]="audit_luks_volume"
+)
+
+declare -A bitwarden_menu
+bitwarden_menu=(
+    ["1:Pull SSH and GPG keys"]="bitwarden_pull_ssh_gpg_keys"
+    ["2:Push SSH keys"]="bitwarden_push_ssh_keys"
+    ["3:Pull AWS profiles"]="bitwarden_pull_aws_profiles"
 )
 
 declare -A configuration_menu
