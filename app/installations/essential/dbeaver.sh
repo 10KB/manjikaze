@@ -1,0 +1,1 @@
+install_if_not_present "dbeaver" "sudo pacman -S dbeaver --noconfirm --noprogressbar --quiet"

@@ -1,0 +1,1 @@
+install_if_not_present "kubectl" "yay -S kubectl --noconfirm --noprogressbar --quiet"

@@ -1,0 +1,2 @@
+install_if_not_present "postgresql-client" "sudo pacman -S postgresql-client --noconfirm --noprogressbar --quiet"
+install_if_not_present "mysql-clients" "yay -S mysql-clients --noconfirm --noprogressbar --quiet"

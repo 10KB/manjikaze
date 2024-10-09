@@ -1,0 +1,1 @@
+install_if_not_present "jre-openjdk" "sudo pacman -S jre-openjdk --noconfirm --noprogressbar --quiet"

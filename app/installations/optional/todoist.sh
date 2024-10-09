@@ -1,0 +1,1 @@
+install_if_not_present "todoist-appimage" "yay -S todoist-appimage --noconfirm --noprogressbar --quiet"

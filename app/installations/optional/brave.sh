@@ -1,0 +1,1 @@
+install_if_not_present "brave-bin" "yay -S brave-bin --noconfirm --noprogressbar --quiet"

@@ -1,0 +1,1 @@
+install_if_not_present "btop" "sudo pacman -S btop --noconfirm --noprogressbar --quiet"

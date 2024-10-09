@@ -1,0 +1,1 @@
+install_if_not_present "zoxide" "sudo pacman -S zoxide --noconfirm --noprogressbar --quiet"

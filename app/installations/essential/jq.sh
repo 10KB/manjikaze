@@ -1,0 +1,1 @@
+install_if_not_present "jq" "sudo pacman -S jq --noconfirm --noprogressbar --quiet"

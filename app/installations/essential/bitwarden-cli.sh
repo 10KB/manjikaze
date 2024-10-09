@@ -1,0 +1,1 @@
+install_if_not_present "bitwarden-cli" "sudo pacman -S bitwarden-cli --noconfirm --noprogressbar --quiet"

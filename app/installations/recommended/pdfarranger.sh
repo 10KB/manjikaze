@@ -1,0 +1,1 @@
+install_if_not_present "pdfarranger" "yay -S pdfarranger --noconfirm --noprogressbar --quiet"

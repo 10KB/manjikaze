@@ -1,0 +1,1 @@
+install_if_not_present "aws-vault" "yay -S aws-vault --noconfirm --noprogressbar --quiet"

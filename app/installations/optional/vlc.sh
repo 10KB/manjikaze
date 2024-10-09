@@ -1,0 +1,1 @@
+install_if_not_present "vlc" "sudo pacman -S vlc --noconfirm --noprogressbar --quiet"

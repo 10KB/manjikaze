@@ -1,0 +1,1 @@
+install_if_not_present "aws-cli-v2" "yay -S aws-cli-v2 --noconfirm --noprogressbar --quiet"

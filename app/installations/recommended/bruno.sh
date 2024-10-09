@@ -1,0 +1,1 @@
+install_if_not_present "bruno" "yay -S bruno --noconfirm --noprogressbar --quiet"

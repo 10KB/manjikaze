@@ -1,0 +1,1 @@
+install_if_not_present "signal-desktop" "yay -S signal-desktop --noconfirm --noprogressbar --quiet"

@@ -1,0 +1,1 @@
+install_if_not_present "google-chrome" "yay -S google-chrome --noconfirm --noprogressbar --quiet"

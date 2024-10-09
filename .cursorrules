@@ -10,6 +10,7 @@
 
 # Script Design
 - All scripts should be designed to be re-runnable without causing issues.
+- Don't add unnecessary comments to scripts. Only add comments if something is not obvious.
 
 # Package Management
 - Use `pacman` for official repository packages.
