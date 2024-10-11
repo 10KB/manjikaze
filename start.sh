@@ -23,14 +23,20 @@ source ./app/installations/install-essential-apps.sh
 source ./app/installations/install-recommended-apps.sh
 source ./app/installations/install-optional-apps.sh
 source ./app/installations/remove-preinstalled-apps.sh
-source ./app/security/yubikey-setup-slot.sh
-source ./app/security/yubikey-full-disk-encryption.sh
-source ./app/security/yubikey-pam-authentication.sh
-source ./app/security/yubikey-suspend.sh
-source ./app/security/yubikey-replace.sh
-source ./app/security/yubikey-bitwarden.sh
-source ./app/security/audit-user-password.sh
-source ./app/security/audit-luks-volume.sh
+source ./app/security/yubikey/yubikey-setup-slot.sh
+source ./app/security/yubikey/yubikey-full-disk-encryption.sh
+source ./app/security/yubikey/yubikey-pam-authentication.sh
+source ./app/security/yubikey/yubikey-suspend.sh
+source ./app/security/yubikey/yubikey-replace.sh
+source ./app/security/yubikey/yubikey-bitwarden.sh
+source ./app/security/audit/audit-user-password.sh
+source ./app/security/audit/audit-luks-volume.sh
+source ./app/security/bitwarden/bitwarden-pull-ssh-gpg-keys.sh
+source ./app/security/bitwarden/bitwarden-push-ssh-gpg-keys.sh
+source ./app/security/ssh/generate-ssh-key.sh
+source ./app/security/ssh/generate-gpg-key.sh
+source ./app/security/ssh/configure-git-gpg.sh
+source ./app/security/ssh/enable-ssh-agent.sh
 source ./app/configuration/configure-font.sh
 source ./app/configuration/configure-git.sh
 source ./app/configuration/configure-gnome.sh
@@ -39,8 +45,8 @@ source ./app/configuration/configure-nautilus.sh
 declare -A menu
 menu=(
     ["1:App installation"]="install_apps_menu"
-    ["2:Security"]="security_menu"
-    ["3:Configuration"]="configuration_menu"
+    ["2:Configuration"]="configuration_menu"
+    ["3:Security"]="security_menu"
 )
 
 declare -A install_apps_menu
@@ -52,15 +58,40 @@ install_apps_menu=(
     ["5:Remove preinstalled apps"]="remove_preinstalled_apps"
 )
 
-declare -A security_menu
-security_menu=(
-    ["1:Yubikey setup"]="yubikey_setup_menu"
-    ["2:Audit"]="audit_menu"
-    ["3:Bitwarden"]="bitwarden_menu"
+
+declare -A configuration_menu
+configuration_menu=(
+    ["1:GNOME"]="configure_gnome"
+    ["2:Nautilus file manager"]="configure_nautilus"
+    ["3:Monospace font"]="configure_font"
+    ["4:Git"]="configure_git"
 )
 
-declare -A yubikey_setup_menu
-yubikey_setup_menu=(
+declare -A security_menu
+security_menu=(
+    ["1:Bitwarden"]="bitwarden_menu"
+    ["2:SSH and GPG"]="ssh_gpg_menu"
+    ["3:Yubikey"]="yubikey_menu"
+    ["4:Audit"]="audit_menu"
+)
+
+declare -A bitwarden_menu
+bitwarden_menu=(
+    ["1:Pull SSH and GPG keys"]="bitwarden_pull_ssh_gpg_keys"
+    ["2:Push SSH and GPG keys"]="bitwarden_push_ssh_gpg_keys"
+    ["3:Pull AWS profiles"]="bitwarden_pull_aws_profiles"
+)
+
+declare -A ssh_gpg_menu
+ssh_gpg_menu=(
+    ["1:Generate SSH key"]="generate_ssh_key"
+    ["2:Generate GPG key"]="generate_gpg_key"
+    ["3:Configure Git GPG"]="configure_git_gpg"
+    ["4:Enable SSH agent"]="enable_ssh_agent"
+)
+
+declare -A yubikey_menu
+yubikey_menu=(
     ["1:Setup Yubikey slot"]="yubikey_setup_slot"
     ["2:Setup Yubikey for full disk encryption"]="yubikey_full_disk_encryption"
     ["3:Setup Yubikey for PAM authentication"]="yubikey_pam_authentication"
@@ -73,21 +104,6 @@ declare -A audit_menu
 audit_menu=(
     ["1:Audit user password strength"]="audit_user_password"
     ["2:Audit full disk encryption"]="audit_luks_volume"
-)
-
-declare -A bitwarden_menu
-bitwarden_menu=(
-    ["1:Pull SSH and GPG keys"]="bitwarden_pull_ssh_gpg_keys"
-    ["2:Push SSH keys"]="bitwarden_push_ssh_keys"
-    ["3:Pull AWS profiles"]="bitwarden_pull_aws_profiles"
-)
-
-declare -A configuration_menu
-configuration_menu=(
-    ["1:GNOME"]="configure_gnome"
-    ["2:Nautilus file manager"]="configure_nautilus"
-    ["3:Monospace font"]="configure_font"
-    ["4:Git"]="configure_git"
 )
 
 handle_menu() {
