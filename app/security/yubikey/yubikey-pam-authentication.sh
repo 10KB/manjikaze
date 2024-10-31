@@ -2,11 +2,6 @@ yubikey_pam_authentication() {
     setup_yubikey_pam=$(gum confirm "Do you want to set up YubiKey PAM authentication?" --affirmative "Yes" --negative "No" --default=false && echo "true" || echo "false")
 
     if [[ $setup_yubikey_pam == "true" ]]; then
-        if ! is_installed "yubico-pam"; then
-            status "Installing yubico-pam..."
-            sudo pacman -S yubico-pam --noconfirm
-        fi
-
         status "Setting up YubiKey challenge-response..."
         mkdir -p ~/.yubico
         ykpamcfg -2 -v

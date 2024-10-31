@@ -29,6 +29,7 @@ source ./app/security/yubikey/yubikey-pam-authentication.sh
 source ./app/security/yubikey/yubikey-suspend.sh
 source ./app/security/yubikey/yubikey-replace.sh
 source ./app/security/yubikey/yubikey-bitwarden.sh
+source ./app/security/yubikey/yubikey-setup-gpg.sh
 source ./app/security/audit/audit-user-password.sh
 source ./app/security/audit/audit-luks-volume.sh
 source ./app/security/bitwarden/bitwarden-pull-ssh-gpg-keys.sh
@@ -92,12 +93,13 @@ ssh_gpg_menu=(
 
 declare -A yubikey_menu
 yubikey_menu=(
-    ["1:Setup Yubikey slot"]="yubikey_setup_slot"
-    ["2:Setup Yubikey for full disk encryption"]="yubikey_full_disk_encryption"
-    ["3:Setup Yubikey for PAM authentication"]="yubikey_pam_authentication"
-    ["4:Setup YubiKey suspend"]="yubikey_suspend"
-    ["5:Setup Yubikey for Bitwarden"]="yubikey_bitwarden"
-    ["6:Replace faulty YubiKey"]="yubikey_replace"
+    ["1:Setup disk encryption slot"]="yubikey_setup_slot"
+    ["2:Setup disk encryption MFA"]="yubikey_full_disk_encryption"
+    ["3:Setup PAM authentication"]="yubikey_pam_authentication"
+    ["4:Setup suspend"]="yubikey_suspend"
+    ["5:Setup Bitwarden MFA"]="yubikey_bitwarden"
+    ["6:Setup GPG"]="yubikey_setup_gpg"
+    ["7:Replace faulty YubiKey"]="yubikey_replace"
 )
 
 declare -A audit_menu

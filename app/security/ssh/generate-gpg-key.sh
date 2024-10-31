@@ -1,4 +1,4 @@
-function generate_gpg_key() {
+generate_gpg_key() {
     local setup_gpg=$(gum confirm "Do you want to generate a new GPG key?" --affirmative "Yes" --negative "No" --default=false && echo "true" || echo "false")
 
     if [[ $setup_gpg == "true" ]]; then

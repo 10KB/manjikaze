@@ -1,5 +1,6 @@
 # Environment
 - This provisioning code is designed to run on Manjaro Linux.
+- The default shell is `zsh`.
 
 # User Input
 - User input should be handled using the Gum package.

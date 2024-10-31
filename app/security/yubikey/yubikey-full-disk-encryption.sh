@@ -2,10 +2,6 @@ yubikey_full_disk_encryption() {
     setup_full_disk_encryption=$(gum confirm "Do you want to set up full disk encryption with a YubiKey?" --affirmative "Yes" --negative "No" --default=false && echo "true" || echo "false")
 
     if [[ $setup_full_disk_encryption == "true" ]]; then
-        if ! pacman -Qi yubikey-full-disk-encryption &> /dev/null; then
-            sudo pacman -S yubikey-full-disk-encryption --noconfirm
-        fi
-
         encrypted_device_name=$(findmnt -no SOURCE / | sed 's/\/dev\/mapper\///')
         encrypted_device_location="$(lsblk -npo NAME,PKNAME | grep "$encrypted_device_name" | awk '{print $2}')"
 
