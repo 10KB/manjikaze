@@ -1,0 +1,1 @@
+install_if_not_present "ttf-cmu-serif" "yay -S ttf-cmu-serif --noconfirm --noprogressbar --quiet" 
