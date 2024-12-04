@@ -1,0 +1,1 @@
+install_if_not_present "libreoffice-fresh" "sudo pacman -S libreoffice-fresh --noconfirm --noprogressbar --quiet" 

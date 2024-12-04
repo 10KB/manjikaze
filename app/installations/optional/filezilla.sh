@@ -1,0 +1,1 @@
+install_if_not_present "filezilla" "sudo pacman -S filezilla --noconfirm --noprogressbar --quiet"
