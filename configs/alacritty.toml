@@ -1,7 +1,7 @@
 [env]
 TERM = "xterm-256color"
 
-[shell]
+[terminal.shell]
 program = "zellij"
 
 [keyboard]
@@ -13,3 +13,5 @@ bindings = [
 normal = { family = "CaskaydiaMono Nerd Font", style = "Regular" }
 bold = { family = "CaskaydiaMono Nerd Font", style = "Bold" }
 italic = { family = "CaskaydiaMono Nerd Font", style = "Italic" }
+
+[terminal]
