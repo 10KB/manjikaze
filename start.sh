@@ -4,7 +4,7 @@ set -e
 
 source ./utils/common.sh
 
-prerequisites=(archlinux-keyring base-devel git gum)
+prerequisites=(archlinux-keyring base-devel git gum jq)
 to_install=()
 
 for pkg in "${prerequisites[@]}"; do
