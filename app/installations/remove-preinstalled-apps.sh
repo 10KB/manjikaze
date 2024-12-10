@@ -27,7 +27,7 @@ remove_preinstalled_apps() {
 
     for app in "${apps[@]}"; do
         if pacman -Qi "$app" &> /dev/null; then
-            sudo pacman -R "$app" --noconfirm --noprogressbar --quiet
+            sudo pacman -R "$app" --noconfirm --noprogressbar
         fi
     done
 
