@@ -1,0 +1,1 @@
+install_if_not_present "grim" "pacman -S grim --noconfirm --noprogressbar --quiet"

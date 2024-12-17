@@ -1,0 +1,1 @@
+install_if_not_present "slurp" "pacman -S slurp --noconfirm --noprogressbar --quiet"

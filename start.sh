@@ -42,7 +42,7 @@ source ./app/configuration/configure-font.sh
 source ./app/configuration/configure-git.sh
 source ./app/configuration/configure-gnome.sh
 source ./app/configuration/configure-nautilus.sh
-
+source ./app/configuration/configure-printing.sh
 declare -A menu
 menu=(
     ["1:App installation"]="install_apps_menu"
@@ -115,7 +115,7 @@ handle_menu() {
 
     while true; do
         readarray -t sorted_keys < <(printf '%s\n' "${!menu_ref[@]}" | sort)
-        
+
         local options=()
         for key in "${sorted_keys[@]}"; do
             options+=("${key#*:}")  # Remove the number prefix

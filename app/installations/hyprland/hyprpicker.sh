@@ -1,0 +1,1 @@
+install_if_not_present "hyprpicker" "pacman -S hyprpicker --noconfirm --noprogressbar --quiet"

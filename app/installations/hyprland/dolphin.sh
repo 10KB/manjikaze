@@ -1,0 +1,1 @@
+install_if_not_present "dolphin" "pacman -S dolphin --noconfirm --noprogressbar --quiet"
