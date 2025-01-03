@@ -3,6 +3,8 @@ default_layout "compact"
 on_force_close "quit"
 pane_frames false
 
+default_shell "zsh"
+
 ui {
     pane_frames {
         hide_session_name true
