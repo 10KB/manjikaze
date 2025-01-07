@@ -18,11 +18,11 @@ install_docker() {
     fi
 
     # Configure userns-remap to use the current user
-    current_user=$(whoami)
-    if ! sudo jq --arg user "$current_user" '. + {"userns-remap": $user}' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json > /dev/null; then
-        status "Failed to configure userns-remap."
-        return 1
-    fi
+    # current_user=$(whoami)
+    # if ! sudo jq --arg user "$current_user" '. + {"userns-remap": $user}' /etc/docker/daemon.json | sudo tee /etc/docker/daemon.json > /dev/null; then
+    #     status "Failed to configure userns-remap."
+    #     return 1
+    # fi
 
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p "$DOCKER_CONFIG/cli-plugins"
