@@ -3,7 +3,7 @@ yubikey_full_disk_encryption() {
 
     if [[ $setup_full_disk_encryption == "true" ]]; then
         encrypted_device_name=$(findmnt -no SOURCE / | sed 's/\/dev\/mapper\///')
-        encrypted_device_location="$(lsblk -npo NAME,PKNAME | grep "$encrypted_device_name" | awk '{print $2}')"
+        encrypted_device_location="$(lsblk -npo NAME,PKNAME | grep "$encrypted_device_name" | awk '{print $NF}')"
 
         sudo sed -i 's/^#YKFDE_CHALLENGE_SLOT="2"/YKFDE_CHALLENGE_SLOT="2"/' /etc/ykfde.conf
         sudo sed -i 's/^#YKFDE_CHALLENGE=""/YKFDE_CHALLENGE="'$(openssl rand -hex 32)'"/' /etc/ykfde.conf
