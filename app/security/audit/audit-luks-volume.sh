@@ -1,7 +1,10 @@
 audit_luks_volume() {
     root_device=$(findmnt -no SOURCE /)
     if [[ $root_device == /dev/mapper/* ]]; then
-        encrypted_device=$(lsblk -npo NAME,PKNAME | grep "$root_device" | awk '{print $2}')
+        # Get the physical device that's encrypted
+        encrypted_device=$(lsblk -npo NAME,PKNAME | grep "$root_device" | awk '{print $NF}')
+
+        # Check if the physical device is LUKS encrypted
         if sudo cryptsetup isLuks "$encrypted_device"; then
             echo "Verification successful: The system is running on a LUKS encrypted volume."
             echo "Encrypted device: $encrypted_device"
