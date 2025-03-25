@@ -8,9 +8,6 @@ yubikey_suspend() {
             return 1
         fi
 
-        vendor_id=$(echo $yubikey_info | awk '{print $6}' | cut -d: -f1)
-        product_id=$(echo $yubikey_info | awk '{print $6}' | cut -d: -f2)
-
         mkdir -p ~/.config/systemd/user/
         tee ~/.config/systemd/user/yubikey-logout.service > /dev/null << EOL
 [Unit]
@@ -47,7 +44,7 @@ esac
 EOL
         sudo chmod +x /usr/local/bin/yubikey-remove-action.sh
         sudo tee /etc/udev/rules.d/90-yubikey-remove.rules > /dev/null << EOL
-ACTION=="remove", SUBSYSTEM=="usb", ATTRS{idVendor}=="$vendor_id", ATTRS{idProduct}=="$product_id", RUN+="/usr/bin/sudo -E /usr/local/bin/yubikey-remove-action.sh"
+ACTION=="remove", SUBSYSTEM=="input", ATTRS{name}=="Yubico YubiKey OTP+FIDO+CCID", RUN+="/usr/bin/logger -t yubikey \"YubiKey removed - executing action\"", RUN+="/usr/bin/sudo -E /usr/local/bin/yubikey-remove-action.sh"
 EOL
 
         ACTION=$(gum choose \
