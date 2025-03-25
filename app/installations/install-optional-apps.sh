@@ -1,8 +1,8 @@
 install_optional_apps() {
-    OPTIONAL_APPS=("Brave" "Dropbox" "Filezilla" "GitKraken" "Kubectl" "Libreoffice" "Signal" "Smartgit" "Spotify" "Todoist" "VLC")
-    DEFAULT_OPTIONAL_APPS='Dropbox,Signal,Smartgit,Spotify'
+    OPTIONAL_APPS=($(ls app/installations/optional/*.sh | xargs -n1 basename | sed 's/\.sh$//'))
+    DEFAULT_OPTIONAL_APPS='dropbox,signal,smartgit,spotify'
 
-    SELECTED_OPTIONAL_APPS=$(gum choose "${OPTIONAL_APPS[@]}" --no-limit --selected $DEFAULT_OPTIONAL_APPS --height 10 --header "Select optional apps" | tr ' ' '-')
+    SELECTED_OPTIONAL_APPS=$(gum choose "${OPTIONAL_APPS[@]}" --no-limit --selected $DEFAULT_OPTIONAL_APPS --height 20 --header "Select optional apps" | tr ' ' '-')
 
     if [ -z "$SELECTED_OPTIONAL_APPS" ]; then
         status "No optional apps selected. Skipping installation."

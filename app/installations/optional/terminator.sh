@@ -1,0 +1,1 @@
+install_if_not_present "terminator" "sudo pacman -S terminator --noconfirm --noprogressbar --quiet"
