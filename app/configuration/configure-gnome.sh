@@ -22,12 +22,14 @@ configure_gnome() {
         # Make it easy to maximize like you can fill left/right
         gsettings set org.gnome.desktop.wm.keybindings maximize "['<Super>Up']"
 
-        # Install gnome extension manager
-        install_if_not_present "extension-manager" "yay -S extension-manager --noconfirm --noprogressbar --quiet"
+        # Install gnome extension manager (not working, so only gnome-extensions-cli is installed)
+        #install_if_not_present "extension-manager" "yay -S extension-manager --noconfirm --noprogressbar --quiet"
         install_if_not_present "gnome-extensions-cli" "yay -S gnome-extensions-cli --noconfirm --noprogressbar --quiet"
 
         # Tactile window organizer extension
         gext install tactile@lundal.io
+
+        
 
         # Remove window decorations (Cursor and VScode)
         gext install undecorate@sun.wxg@gmail.com
@@ -76,6 +78,7 @@ configure_gnome() {
         gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-always-in-the-edge true
         gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-at-top false
         gsettings set org.gnome.shell.extensions.dash-to-dock show-show-apps-button true
+
 
         status "GNOME and extensions configuration completed."
     fi
