@@ -33,6 +33,12 @@ yubikey_pam_authentication() {
         add_yubikey_auth /etc/pam.d/system-auth
         add_yubikey_auth /etc/pam.d/login
         add_yubikey_auth /etc/pam.d/polkit-1
+        add_yubikey_auth /etc/pam.d/gnome-keyring
+
+        if ! sudo grep -q "pam_gnome_keyring.so" /etc/pam.d/login; then
+            sudo sed -i '/^session/a\session    optional     pam_gnome_keyring.so auto_start' /etc/pam.d/login
+            sudo sed -i '/^auth/a\auth       optional     pam_gnome_keyring.so' /etc/pam.d/login
+        fi
 
         echo "PAM authentication with YubiKey has been configured for system-wide use."
         echo "This includes sudo, login, and GUI password prompts."
