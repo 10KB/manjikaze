@@ -42,6 +42,7 @@ source ./app/configuration/configure-font.sh
 source ./app/configuration/configure-git.sh
 source ./app/configuration/configure-gnome.sh
 source ./app/configuration/configure-nautilus.sh
+source ./app/configuration/set_zsh_default.sh
 
 declare -A menu
 menu=(
@@ -66,6 +67,7 @@ configuration_menu=(
     ["2:Nautilus file manager"]="configure_nautilus"
     ["3:Monospace font"]="configure_font"
     ["4:Git"]="configure_git"
+    ["5:Set zsh as default shell"]="set_zsh_as_default"
 )
 
 declare -A security_menu
