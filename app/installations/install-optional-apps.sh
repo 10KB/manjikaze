@@ -1,5 +1,5 @@
 install_optional_apps() {
-    OPTIONAL_APPS=("Brave" "Dropbox" "Filezilla" "GitKraken" "Kubectl" "Libreoffice" "Signal" "Smartgit" "Spotify" "Todoist" "VLC")
+    OPTIONAL_APPS=("Brave" "Dropbox" "Filezilla" "GitKraken" "Kubectl" "Libreoffice" "Signal" "Smartgit" "Spotify" "Todoist" "VLC" "yt-dlp")
     DEFAULT_OPTIONAL_APPS='Dropbox,Signal,Smartgit,Spotify'
 
     SELECTED_OPTIONAL_APPS=$(gum choose "${OPTIONAL_APPS[@]}" --no-limit --selected $DEFAULT_OPTIONAL_APPS --height 10 --header "Select optional apps" | tr ' ' '-')
