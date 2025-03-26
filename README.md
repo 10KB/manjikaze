@@ -27,16 +27,12 @@ Manjikaze emerged from our need to:
 On a fresh Manjaro installation:
 
 ```bash
-curl -s https://raw.githubusercontent.com/10kb/manjikaze/main/start.sh | bash
+curl -s https://raw.githubusercontent.com/10kb/manjikaze/main/install.sh | bash
 ```
 
 ## Documentation
 
-Our documentation is available in the [docs](docs/README.md) directory. You can:
-
-- Start with the [Quick Setup Guide](docs/getting-started/quick-setup.md)
-- Read about [Security Features](docs/features/security/yubikey.md)
-- Learn about [Maintenance](docs/maintenance/updates.md)
+Our documentation is available in the [docs](docs/README.md) directory.
 
 ## License
 

@@ -9,28 +9,42 @@ load_module() {
 # Menu definitions
 declare -A menu=(
     ["1:🔧 Setup"]="setup_menu"
-    ["2:⚙️ Configuration"]="configuration_menu"
+    ["2:⚙️  Configuration"]="configuration_menu"
     ["3:🔒 Security"]="security_menu"
-    ["4:📦 Applications"]="applications_menu"
-    ["5:🔍 System"]="system_menu"
+    # ["4:📦 Applications"]="applications_menu"
+    # ["5:🔍 System"]="system_menu"
 )
-
 
 declare -A setup_menu
 setup_menu=(
-    ["1:Essential apps"]="load_module installations/install-essential-apps.sh"
-    ["2:Recommended apps"]="load_module installations/install-recommended-apps.sh"
-    ["3:Optional apps"]="load_module installations/install-optional-apps.sh"
+    ["1:Install essential apps"]="load_module installations/install-essential-apps.sh"
+    ["2:Install recommended apps"]="load_module installations/install-recommended-apps.sh"
+    ["3:Choose optional apps"]="load_module installations/install-optional-apps.sh"
     ["4:Update installed apps"]="load_module installations/update-installed-apps.sh"
     ["5:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
 )
 
 declare -A configuration_menu=(
-    ["1:GNOME desktop"]="load_module configuration/gnome.sh"
-    ["2:File manager"]="load_module configuration/nautilus.sh"
-    ["3:Terminal"]="load_module configuration/terminal.sh"
-    ["4:Git"]="load_module configuration/git.sh"
-    ["5:Printing"]="load_module configuration/printing.sh"
+    ["1:GNOME desktop"]="load_module configuration/configure-gnome.sh"
+    ["2:Nautilus file manager"]="load_module configuration/configure-nautilus.sh"
+    ["3:Monospace font"]="load_module configuration/configure-font.sh"
+    ["4:Git"]="load_module configuration/configure-git.sh"
+    ["5:Network printer discovery"]="load_module configuration/configure-printing.sh"
+)
+
+declare -A security_menu=(
+    ["1:Audit"]="audit_menu"
+    ["2:Generate Yubikey secret for disk encryption"]="load_module security/yubikey/yubikey-setup-slot.sh"
+    ["3:Configure Yubikey as MFA for disk encryption"]="load_module security/yubikey/yubikey-full-disk-encryption.sh"
+    ["4:Configure Yubikey as MFA for system"]="load_module security/yubikey/yubikey-pam-authentication.sh"
+    ["5:Auto lock on Yubikey removal"]="load_module security/yubikey/yubikey-suspend.sh"
+    ["6:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
+)
+
+declare -A audit_menu
+audit_menu=(
+    ["1:Audit user password strength"]="audit_user_password"
+    ["2:Audit full disk encryption"]="audit_luks_volume"
 )
 
 handle_menu() {
@@ -38,26 +52,18 @@ handle_menu() {
     local menu_name=$2
     local header="${menu_name:-Main Menu}"
 
-    while true; {
-        clear
-        gum style \
-            --border normal \
-            --align left \
-            --width 50 \
-            --margin "1 2" \
-            "$header"
-
+    while true; do
         readarray -t sorted_keys < <(printf '%s\n' "${!menu_ref[@]}" | sort)
-        
+
         local options=()
         for key in "${sorted_keys[@]}"; do
-            options+=("${key#*:}")
+            options+=("${key#*:}")  # Remove the number prefix
         done
-        options+=("↩️  Back")
+        options+=("Back")
 
-        CHOICE=$(gum choose "${options[@]}")
+        CHOICE=$(gum choose "${options[@]}" --header "$header")
 
-        if [[ "$CHOICE" == "↩️  Back" ]]; then
+        if [[ "$CHOICE" == "Back" ]]; then
             return
         else
             for key in "${sorted_keys[@]}"; do
@@ -66,12 +72,13 @@ handle_menu() {
                     if [[ "$action" == *"_menu" ]]; then
                         handle_menu "$action" "$CHOICE"
                     else
-                        eval "$action"
-                        gum confirm "Press enter to continue..." || true
+                        $action
+                        echo "Press Enter to continue..."
+                        read
                     fi
                     break
                 fi
             done
         fi
-    }
+    done
 }
