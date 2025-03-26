@@ -1,0 +1,1 @@
+install_if_not_present "fd" "sudo pacman -S fd --noconfirm --noprogressbar --quiet"

@@ -1,0 +1,1 @@
+install_if_not_present "bat" "sudo pacman -S bat --noconfirm --noprogressbar --quiet"
