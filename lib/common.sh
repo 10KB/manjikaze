@@ -1,3 +1,13 @@
+#!/bin/bash
+
+# Color formatting
+FMT_RED=$(printf '\033[31m')
+FMT_GREEN=$(printf '\033[32m')
+FMT_YELLOW=$(printf '\033[33m')
+FMT_BLUE=$(printf '\033[34m')
+FMT_BOLD=$(printf '\033[1m')
+FMT_RESET=$(printf '\033[0m')
+
 status() {
     time=$(date +%T)
     echo -e "\n\033[1;32m$time\033[0m - \033[0;32m$1\033[0m\n"

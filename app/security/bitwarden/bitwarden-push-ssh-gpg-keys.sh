@@ -1,4 +1,4 @@
-source ./utils/bitwarden.sh
+source ./lib/bitwarden.sh
     
 bitwarden_push_ssh_gpg_keys() {
     if ! unlock_bitwarden; then

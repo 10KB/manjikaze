@@ -1,4 +1,4 @@
-source ./utils/bitwarden.sh
+source ./lib/bitwarden.sh
 
 yubikey_setup_gpg() {
     local setup_gpg_ssh=$(gum confirm "Do you want to set up GPG and SSH with your YubiKey? This will reset any existing keys and configurations." --affirmative "Yes" --negative "No" --default=false && echo "true" || echo "false")

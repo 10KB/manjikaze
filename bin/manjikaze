@@ -1,0 +1,62 @@
+#!/bin/bash
+set -e
+
+MANJIKAZE_DIR="$HOME/.manjikaze"
+source "$MANJIKAZE_DIR/lib/common.sh"
+source "$MANJIKAZE_DIR/lib/menus.sh"
+
+# Check for updates
+check_updates() {
+    if [ -d "$MANJIKAZE_DIR/.git" ]; then
+        git -C "$MANJIKAZE_DIR" fetch origin >/dev/null 2>&1
+        local_rev=$(git -C "$MANJIKAZE_DIR" rev-parse HEAD)
+        remote_rev=$(git -C "$MANJIKAZE_DIR" rev-parse @{u})
+        if [ "$local_rev" != "$remote_rev" ]; then
+            if gum confirm "Updates available. Would you like to update Manjikaze?"; then
+                git -C "$MANJIKAZE_DIR" pull
+                exec "$0" "$@"  # Restart the script with the same arguments
+            fi
+        fi
+    fi
+}
+
+# Check prerequisites
+check_prerequisites() {
+    local prerequisites=(archlinux-keyring base-devel git gum jq)
+    local to_install=()
+
+    for pkg in "${prerequisites[@]}"; do
+        if ! is_installed "$pkg"; then
+            to_install+=("$pkg")
+        fi
+    done
+
+    if [ ${#to_install[@]} -ne 0 ]; then
+        status "Installing prerequisites: ${to_install[*]}..."
+        sudo pacman -Sy "${to_install[@]}" --noconfirm --noprogressbar --quiet
+    fi
+}
+
+main() {
+    # Show header
+    clear
+    gum style \
+        --border double \
+        --align center \
+        --width 50 \
+        --margin "1 2" \
+        --padding "1 2" \
+        "Manjikaze $(get_version)" \
+        "10KB Development Environment"
+
+    # Check for updates
+    check_updates "$@"
+    
+    # Check prerequisites
+    check_prerequisites
+
+    # Show main menu
+    handle_menu menu "Main Menu"
+}
+
+main "$@"
