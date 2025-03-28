@@ -33,7 +33,7 @@ yubikey_setup_gpg() {
         local value="$2"
         local line="$key${value:+ $value}"
         local gpg_agent_conf=~/.gnupg/gpg-agent.conf
-        
+
         if grep -q "^$key" "$gpg_agent_conf"; then
             # If the key exists, replace the line
             sed -i "s|^$key.*|$line|" "$gpg_agent_conf"
@@ -63,9 +63,13 @@ yubikey_setup_gpg() {
 
         if [[ $reset_yubikey == "true" ]]; then
             status "Resetting YubiKey OpenPGP applet..."
-            ykman openpgp reset
+            gpgconf --kill all
+            sudo systemctl restart pcscd
+            sleep 2
+            ykman openpgp reset --force
             gpg-connect-agent "scd serialno" /bye
             gpgsm --learn
+            status "YubiKey OpenPGP applet has been reset."
         else
             status "Operation cancelled. YubiKey must be reset to proceed."
             return 1
@@ -79,12 +83,12 @@ yubikey_setup_gpg() {
     local email=$(gum input --header "Enter your email:")
     local admin_pin=$(gum input --placeholder "12345678" --header "Enter YubiKey admin PIN (default: 12345678):")
     admin_pin=${admin_pin:-12345678}
-    
+
     status "Generating GPG key..."
     gpg --batch --passphrase '' --quick-generate-key "$name <$email>" $key_type cert never
     key_id=$(gpg -k --with-colons "$name <$email>" | awk -F: '/^pub:/ { print $5; exit }')
     key_fp=$(gpg -k --with-colons "$name <$email>" | awk -F: '/^fpr:/ { print $10; exit }')
-    
+
     status "Generating subkeys..."
     for subkey in sign encrypt auth; do
         gpg --batch --passphrase '' --quick-add-key $key_fp $key_type $subkey $expiration
@@ -129,7 +133,7 @@ Created: $(date +%F)"
     transfer_subkey() {
         local keynum=$1
         local keytype=$2
-        
+
         expect <<EOF
 spawn gpg --edit-key $key_fp
 expect "gpg>"
@@ -213,6 +217,22 @@ Host *
     IdentityFile ~/.ssh/id_rsa_yubikey.pub
 EOF
 
+    status "Adding GPG/SSH environment variables to shell config..."
+    cat << EOF >> ~/.zshrc
+
+# YubiKey GPG/SSH agent configuration
+export GPG_TTY=\$(tty)
+export SSH_AUTH_SOCK=\$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
+gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+EOF
+
+    # Source these variables for the current session
+    export GPG_TTY=$(tty)
+    export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+    gpgconf --launch gpg-agent
+    gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+
     status "Starting gpg-agent on startup..."
     mkdir -p ~/.config/systemd/user/
     cat << EOF > ~/.config/systemd/user/gpg-agent-restart.service
@@ -241,7 +261,7 @@ EOF
     status "YubiKey GPG and SSH setup complete."
 
     local change_pins=$(gum confirm "Do you want to change your YubiKey OpenPGP PINs?" --affirmative "Yes" --negative "No" --default=false && echo "true" || echo "false")
-    
+
     if [[ $change_pins == "true" ]]; then
         gpg_agent_configuration "pinentry-program" "/usr/bin/pinentry-curses" # Temporary pinentry program for unattended operations
         gpg-connect-agent /bye
@@ -316,6 +336,25 @@ Admin PIN: $new_admin_pin"
         fi
     fi
 
-    # TODOs
-    # - Add touch-detector https://github.com/maximbaz/yubikey-touch-detector
+    status "Testing GPG and SSH functionality..."
+    if gpg --card-status > /dev/null 2>&1; then
+        status "✓ YubiKey GPG card status check passed"
+    else
+        status "✗ YubiKey GPG card status check failed"
+    fi
+
+    if ssh-add -L | grep -q "cardno:"; then
+        status "✓ SSH key from YubiKey detected"
+    else
+        # Try to refresh SSH connection to gpg-agent
+        gpg-connect-agent updatestartuptty /bye > /dev/null
+        export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+        if ssh-add -L | grep -q "cardno:"; then
+            status "✓ SSH key from YubiKey detected after refresh"
+        else
+            status "✗ SSH key from YubiKey not detected"
+        fi
+    fi
+
+    status "YubiKey setup complete. Please restart your terminal or run 'source ~/.zshrc' to apply changes."
 }
