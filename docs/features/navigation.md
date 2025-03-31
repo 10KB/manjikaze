@@ -43,6 +43,17 @@ Efficiently manage your windows with these shortcuts:
 | `Alt + F4` | Close window |
 | `Alt + Tab` | Switch between windows |
 
+### Undecorate Extension
+
+Manjikaze includes the Undecorate extension which allows you to remove window decorations:
+
+- **What it fixes**: Applications like Cursor render with a double toolbar, creating wasted space
+- **How to use**: Right-click the top toolbar of a window and select "Undecorate" from the menu
+- **Moving undecorated windows**: Press `Super + BackSpace` to begin resize/move mode
+- **Better alternative**: Use the Tactile tiling shortcuts (see [Tiling documentation](tiling.md)) for more efficient window management
+
+![Undecorate Menu Option](screenshots/undecorate.png)
+
 ## Multi-Monitor Setup
 
 Manjikaze is optimized for multi-monitor configurations:
