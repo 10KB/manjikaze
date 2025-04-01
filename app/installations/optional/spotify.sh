@@ -1,2 +1,2 @@
-install_if_not_present "spotify" "yay -S spotify --noconfirm --noprogressbar --quiet"
-install_if_not_present "xdg-desktop-portal-gtk" "sudo pacman -S xdg-desktop-portal-gtk --noconfirm --noprogressbar --quiet"
+install_package "spotify" aur
+install_package "xdg-desktop-portal-gtk" repo

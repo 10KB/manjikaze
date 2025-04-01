@@ -14,9 +14,8 @@
 - Don't add unnecessary comments to scripts. Only add comments if something is not obvious.
 
 # Package Management
-- Use `pacman` for official repository packages.
-- Use `yay` for AUR packages.
-- Add `--noconfirm --noprogressbar --quiet` to all `yay` and `pacman` commands.
+- Use `pamac` for installing official repository and AUR packages.
+- Use the install_package helper to make installs consistent and DRY.
 - Add `-s` to all `curl` commands to enable silent mode.
 
 # Error Handling

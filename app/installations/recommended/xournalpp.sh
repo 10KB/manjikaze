@@ -1,1 +1,1 @@
-install_if_not_present "xournalpp" "sudo pacman -S xournalpp --noconfirm --noprogressbar --quiet"
+install_package "xournalpp" repo

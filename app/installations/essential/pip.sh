@@ -1,1 +1,2 @@
-install_if_not_present "python-pip" "sudo pacman -S python-pip --noconfirm --noprogressbar --quiet"
+install_package "python-pip" repo
+install_package "python-pipx" repo

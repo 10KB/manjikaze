@@ -1,4 +1,4 @@
-install_if_not_present "flameshot" "sudo pacman --sync flameshot --noconfirm --noprogressbar --quiet"
+install_package "flameshot" repo
 
 if [ ! -d ~/.config/flameshot ]; then
     mkdir -p ~/.config/flameshot

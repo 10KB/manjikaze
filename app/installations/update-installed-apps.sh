@@ -1,3 +1,2 @@
-status "Updating installed packages..."
-sudo pacman -Syu --noconfirm --noprogressbar --quiet
-yay -Syu --noconfirm --noprogressbar --quiet
+status "Updating installed packages (Repositories and AUR)..."
+pamac upgrade -a --no-confirm

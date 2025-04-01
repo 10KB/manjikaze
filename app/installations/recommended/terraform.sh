@@ -1,1 +1,1 @@
-install_if_not_present "terraform" "yay -S terraform --noconfirm --noprogressbar --quiet" 
+install_package "terraform" aur

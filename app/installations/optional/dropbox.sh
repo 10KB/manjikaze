@@ -1,1 +1,1 @@
-install_if_not_present "dropbox" "yay -S dropbox --noconfirm --noprogressbar --quiet"
+install_package "dropbox" aur

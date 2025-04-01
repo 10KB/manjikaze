@@ -1,1 +1,1 @@
-install_if_not_present "smartgit" "yay -S smartgit --noconfirm --noprogressbar --quiet"
+install_package "smartgit" aur

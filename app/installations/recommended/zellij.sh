@@ -1,4 +1,4 @@
-install_if_not_present "zellij" "sudo pacman -S zellij --noconfirm --noprogressbar --quiet"
+install_package "zellij" repo
 
 mkdir -p ~/.config/zellij
 if [ ! -f ~/.config/zellij/config.kdl ] || ! cmp -s ./configs/zellij.kdl ~/.config/zellij/config.kdl; then

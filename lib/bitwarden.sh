@@ -3,7 +3,7 @@ unlock_bitwarden() {
     if [[ "$bw_status" != "unlocked" ]]; then
         status "Bitwarden vault is locked. Attempting to unlock..."
         master_password=$(gum input --password --prompt "Enter your Bitwarden master password: ")
-    
+
         export BW_PASSWORD="$master_password"
 
         unlock_output=$(bw unlock --passwordenv BW_PASSWORD --raw)
@@ -26,13 +26,19 @@ unlock_bitwarden() {
 
 ensure_folder() {
     local folder_name="$1"
-    
+
     local folder_id=$(bw list folders | jq -r ".[] | select(.name==\"$folder_name\") | .id")
     if [[ -z "$folder_id" ]]; then
         status "Creating '$folder_name' folder in Bitwarden..."
-        folder_id=$(bw get template folder | jq --arg name "$folder_name" '.name=$name' | bw encode | bw create folder | jq -r '.id')
-        if [[ -z "$folder_id" ]]; then
-            status "Failed to create '$folder_name' folder in Bitwarden."
+        local creation_output
+        creation_output=$(bw get template folder | jq --arg name "$folder_name" '.name=$name' | bw encode | bw create folder)
+        if [[ $? -ne 0 ]]; then
+            status "Failed to execute 'bw create folder' for '$folder_name'."
+            return 1
+        fi
+        folder_id=$(echo "$creation_output" | jq -r '.id')
+        if [[ -z "$folder_id" || "$folder_id" == "null" ]]; then
+            status "Failed to create '$folder_name' folder in Bitwarden (ID not found)."
             return 1
         fi
     fi
@@ -48,19 +54,35 @@ upsert_note() {
     local item_id
 
     if [[ -n "$existing_item" ]]; then
+        status "Updating note '$note_name' in Bitwarden..."
         bw get item "$existing_item" | \
             jq --arg notes "$note_content" '.notes = $notes' | \
             bw encode | \
             bw edit item "$existing_item" > /dev/null
+        if [[ $? -ne 0 ]]; then
+            status "Failed to update note '$note_name' (ID: $existing_item) in Bitwarden."
+            return 1
+        fi
         item_id="$existing_item"
     else
-        item_id=$(bw get template item | \
+        status "Creating note '$note_name' in Bitwarden..."
+        local creation_output
+        creation_output=$(bw get template item | \
             jq --arg name "$note_name" \
                --arg folder_id "$folder_id" \
                --arg notes "$note_content" \
             '.type = 2 | .secureNote.type = 0 | .name = $name | .folderId = $folder_id | .notes = $notes' | \
             bw encode | \
-            bw create item | jq -r '.id')
+            bw create item)
+        if [[ $? -ne 0 ]]; then
+            status "Failed to execute 'bw create item' for '$note_name'."
+            return 1
+        fi
+         item_id=$(echo "$creation_output" | jq -r '.id')
+         if [[ -z "$item_id" || "$item_id" == "null" ]]; then
+             status "Failed to create note '$note_name' in Bitwarden (ID not found)."
+             return 1
+         fi
     fi
     echo "$item_id"
 }
@@ -68,7 +90,7 @@ upsert_note() {
 add_attachment() {
     local item_id="$1"
     local file_path="$2"
-    
+
     if [[ ! -f "$file_path" ]]; then
         status "Error: File not found: $file_path"
         return 1
@@ -76,4 +98,8 @@ add_attachment() {
 
     status "Adding attachment: $(basename "$file_path")..."
     bw create attachment --file "$file_path" --itemid "$item_id" > /dev/null
+    if [[ $? -ne 0 ]]; then
+        status "Failed to add attachment '$file_path' to item ID '$item_id'."
+        return 1
+    fi
 }

@@ -10,13 +10,8 @@ fi
 
 status "Installing essential apps..."
 
-# Install yay first
-source "app/installations/essential/yay.sh"
-
 for app in "${essential_apps[@]}"; do
-    if [ "$app" != "yay" ]; then
-        source "app/installations/essential/${app}.sh"
-    fi
+    source "app/installations/essential/${app}.sh"
 done
 
 status "Essential apps installation completed."

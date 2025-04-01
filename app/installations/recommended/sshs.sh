@@ -1,1 +1,1 @@
-install_if_not_present "sshs" "yay -S sshs --noconfirm --noprogressbar --quiet"
+install_package "sshs" aur

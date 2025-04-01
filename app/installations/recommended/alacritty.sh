@@ -1,4 +1,4 @@
-install_if_not_present "alacritty" "sudo pacman -S alacritty --noconfirm --noprogressbar --quiet"
+install_package "alacritty" repo
 
 if [ ! -d ~/.config/alacritty ]; then
     mkdir -p ~/.config/alacritty

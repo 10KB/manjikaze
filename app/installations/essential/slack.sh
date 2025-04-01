@@ -1,1 +1,1 @@
-install_if_not_present "slack-desktop" "yay -S slack-desktop --noconfirm --noprogressbar --quiet"
+install_package "slack-desktop" aur

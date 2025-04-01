@@ -1,1 +1,1 @@
-install_if_not_present "bc" "sudo pacman -S bc --noconfirm --noprogressbar --quiet" 
+install_package "bc" repo
