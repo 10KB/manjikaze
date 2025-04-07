@@ -3,11 +3,13 @@ set -e
 
 MANJIKAZE_DIR="$HOME/.manjikaze"
 source "$MANJIKAZE_DIR/lib/common.sh"
+source "$MANJIKAZE_DIR/lib/state.sh"
+source "$MANJIKAZE_DIR/lib/migrations.sh"
 source "$MANJIKAZE_DIR/lib/menus.sh"
 
-# Check for updates
 check_updates() {
     if [ -d "$MANJIKAZE_DIR/.git" ]; then
+        status "Checking for Manjikaze updates..."
         git -C "$MANJIKAZE_DIR" fetch origin >/dev/null 2>&1
         local_rev=$(git -C "$MANJIKAZE_DIR" rev-parse HEAD)
         remote_rev=$(git -C "$MANJIKAZE_DIR" rev-parse @{u})
@@ -20,9 +22,9 @@ check_updates() {
     fi
 }
 
-# Check prerequisites
 check_prerequisites() {
-    local prerequisites=(archlinux-keyring base-devel git gum jq)
+    status "Checking system prerequisites..."
+    local prerequisites=(archlinux-keyring base-devel git gum jq yay)
     local to_install=()
 
     for pkg in "${prerequisites[@]}"; do
@@ -37,9 +39,7 @@ check_prerequisites() {
     fi
 }
 
-main() {
-    # Show header
-    clear
+show_header() {
     gum style \
         --border double \
         --align center \
@@ -48,14 +48,25 @@ main() {
         --padding "1 2" \
         "Manjikaze $(get_version)" \
         "10KB Development Environment"
+}
 
-    # Check for updates
+main() {
+    clear
+    show_header
+
+    status "Requesting administrator privileges for system commands..."
+    sudo -v
+    (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &)
+
     check_updates "$@"
-    
-    # Check prerequisites
+
     check_prerequisites
 
-    # Show main menu
+    run_migrations || status "Migration check/run finished with errors or cancellation."
+
+    clear
+    show_header
+
     handle_menu menu "Main Menu"
 }
 

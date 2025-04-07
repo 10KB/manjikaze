@@ -1,4 +1,4 @@
-install_if_not_present "code" "sudo pacman -S code --noconfirm --noprogressbar --quiet"
+install_package "code" repo
 
 if [ ! -d ~/.config/Code\ -\ OSS/User ]; then
     mkdir -p ~/.config/Code\ -\ OSS/User

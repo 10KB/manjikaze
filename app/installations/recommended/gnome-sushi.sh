@@ -1,1 +1,1 @@
-install_if_not_present "sushi" "sudo pacman -S sushi --noconfirm --noprogressbar --quiet"
+install_package "sushi" repo

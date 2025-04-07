@@ -1,5 +1,5 @@
-install_if_not_present "yubikey-touch-detector" "yay -S --noconfirm --noprogressbar --quiet yubikey-touch-detector"
-install_if_not_present "libnotify" "sudo pacman -S --noconfirm --noprogressbar --quiet libnotify"
+install_package "yubikey-touch-detector" aur
+install_package "libnotify" repo
 
 mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/yubikey-touch-detector"
 

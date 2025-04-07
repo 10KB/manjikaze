@@ -1,3 +1,3 @@
-install_if_not_present "nodejs-lts-iron" "sudo pacman -S nodejs-lts-iron --noconfirm --noprogressbar --quiet"
-install_if_not_present "npm" "sudo pacman -S npm --noconfirm --noprogressbar --quiet"
+install_package "nodejs-lts-iron" repo
+install_package "npm" repo
 sudo npm --global --silent install yarn

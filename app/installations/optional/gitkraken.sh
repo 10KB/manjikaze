@@ -1,1 +1,1 @@
-install_if_not_present "gitkraken" "yay -S gitkraken --noconfirm --noprogressbar --quiet"
+install_package "gitkraken" aur

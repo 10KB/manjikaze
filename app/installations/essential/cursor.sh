@@ -1,4 +1,4 @@
-install_if_not_present "cursor-bin" "yay -S cursor-bin --noconfirm --noprogressbar --quiet"
+install_package "cursor-bin" aur
 
 if [ ! -d ~/.config/Code\ -\ OSS/User ]; then
     mkdir -p ~/.config/Code\ -\ OSS/User

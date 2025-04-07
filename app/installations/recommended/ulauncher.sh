@@ -1,4 +1,4 @@
-install_if_not_present "ulauncher" "yay -S ulauncher --noconfirm --noprogressbar --quiet"
+install_package "ulauncher" aur
 
 mkdir -p ~/.config/autostart/
 if [ ! -f ~/.config/autostart/ulauncher.desktop ]; then
