@@ -17,6 +17,7 @@ if ! gum confirm "Do you want to proceed with the installation?"; then
 fi
 
 status "Installing optional apps..."
+disable_sleep
 
 for app in ${SELECTED_OPTIONAL_APPS//-/ }; do
     app_file="$MANJIKAZE_DIR/app/installations/optional/${app,,}.sh"
@@ -27,4 +28,5 @@ for app in ${SELECTED_OPTIONAL_APPS//-/ }; do
     fi
 done
 
+enable_sleep
 status "Optional apps installation completed."

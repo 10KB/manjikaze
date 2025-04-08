@@ -13,6 +13,22 @@ is_installed() {
     pacman -Qi "$1" &> /dev/null
 }
 
+disable_sleep() {
+    if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
+        status "Disabling screen lock and sleep during installation..."
+        gsettings set org.gnome.desktop.screensaver lock-enabled false
+        gsettings set org.gnome.desktop.session idle-delay 0
+    fi
+}
+
+enable_sleep() {
+    if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
+        status "Re-enabling screen lock and sleep..."
+        gsettings set org.gnome.desktop.screensaver lock-enabled true
+        gsettings set org.gnome.desktop.session idle-delay 300
+    fi
+}
+
 install_package() {
     local package=$1
     local type=${2:-repo} # Default to repo

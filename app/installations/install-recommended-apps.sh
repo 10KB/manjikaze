@@ -11,9 +11,11 @@ if ! gum confirm "Do you want to proceed with the installation?"; then
 fi
 
 status "Installing recommended apps..."
+disable_sleep
 
 for app in "${recommended_apps[@]}"; do
     source "$MANJIKAZE_DIR/app/installations/recommended/${app}.sh"
 done
 
+enable_sleep
 status "Recommended apps installation completed."

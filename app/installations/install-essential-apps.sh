@@ -9,9 +9,11 @@ if ! gum confirm "Do you want to proceed with the installation?"; then
 fi
 
 status "Installing essential apps..."
+disable_sleep
 
 for app in "${essential_apps[@]}"; do
     source "$MANJIKAZE_DIR/app/installations/essential/${app}.sh"
 done
 
+enable_sleep
 status "Essential apps installation completed."
