@@ -5,6 +5,7 @@ MANJIKAZE_DIR="$HOME/.manjikaze"
 source "$MANJIKAZE_DIR/lib/common.sh"
 source "$MANJIKAZE_DIR/lib/state.sh"
 source "$MANJIKAZE_DIR/lib/migrations.sh"
+source "$MANJIKAZE_DIR/lib/audits.sh"
 source "$MANJIKAZE_DIR/lib/menus.sh"
 
 check_updates() {
@@ -63,6 +64,8 @@ main() {
     check_prerequisites
 
     run_migrations || status "Migration check/run finished with errors or cancellation."
+
+    run_audits || status "Audit check/run finished with errors or cancellation."
 
     clear
     show_header

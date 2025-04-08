@@ -33,18 +33,11 @@ declare -A configuration_menu=(
 )
 
 declare -A security_menu=(
-    ["1:Audit"]="audit_menu"
-    ["2:Generate Yubikey secret for disk encryption"]="load_module security/yubikey/yubikey-setup-slot.sh"
-    ["3:Configure Yubikey as MFA for disk encryption"]="load_module security/yubikey/yubikey-full-disk-encryption.sh"
-    ["4:Configure Yubikey as MFA for system"]="load_module security/yubikey/yubikey-pam-authentication.sh"
-    ["5:Auto lock on Yubikey removal"]="load_module security/yubikey/yubikey-suspend.sh"
-    ["6:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
-)
-
-declare -A audit_menu
-audit_menu=(
-    ["1:Audit user password strength"]="load_module security/audit/audit-user-password.sh"
-    ["2:Audit full disk encryption"]="load_module security/audit/audit-luks-volume.sh"
+    ["1:Generate Yubikey secret for disk encryption"]="load_module security/yubikey/yubikey-setup-slot.sh"
+    ["2:Configure Yubikey as MFA for disk encryption"]="load_module security/yubikey/yubikey-full-disk-encryption.sh"
+    ["3:Configure Yubikey as MFA for system"]="load_module security/yubikey/yubikey-pam-authentication.sh"
+    ["4:Auto lock on Yubikey removal"]="load_module security/yubikey/yubikey-suspend.sh"
+    ["5:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
 )
 
 handle_menu() {
