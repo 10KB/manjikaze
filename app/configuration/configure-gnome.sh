@@ -25,6 +25,11 @@ if [[ $setup_gnome == "true" ]]; then
     install_package "extension-manager" "aur"
     install_package "gnome-extensions-cli" "aur"
 
+    # Disable Pamac Updates Indicator extension (buggy - can show persistent icon)
+    if gnome-extensions list | grep -q "pamac-updates@manjaro.org"; then
+        gnome-extensions disable "pamac-updates@manjaro.org"
+    fi
+
     # Tactile window organizer extension
     gext install tactile@lundal.io
 
