@@ -43,8 +43,8 @@ declare -A security_menu=(
 
 declare -A audit_menu
 audit_menu=(
-    ["1:Audit user password strength"]="audit_user_password"
-    ["2:Audit full disk encryption"]="audit_luks_volume"
+    ["1:Audit user password strength"]="load_module security/audit/audit-user-password.sh"
+    ["2:Audit full disk encryption"]="load_module security/audit/audit-luks-volume.sh"
 )
 
 handle_menu() {
