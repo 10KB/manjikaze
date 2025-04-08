@@ -1,7 +1,23 @@
 #!/bin/bash
 set -e
 
-MANJIKAZE_DIR="$HOME/.manjikaze"
+# Determine the actual script path regardless of symlinks
+SCRIPT_PATH=$(readlink -f "$0")
+SCRIPT_DIR=$(dirname "$SCRIPT_PATH")
+
+# Default installation directory
+DEFAULT_MANJIKAZE_DIR="$HOME/.manjikaze"
+
+# Check if we're running from the default installation directory
+if [[ "$SCRIPT_DIR" != "$DEFAULT_MANJIKAZE_DIR/bin" ]]; then
+    # We're in dev mode - set MANJIKAZE_DIR to the parent of the script directory
+    export MANJIKAZE_DIR=$(dirname "$SCRIPT_DIR")
+    export DEV_MODE=true
+else
+    export MANJIKAZE_DIR="$DEFAULT_MANJIKAZE_DIR"
+    export DEV_MODE=false
+fi
+
 source "$MANJIKAZE_DIR/lib/common.sh"
 source "$MANJIKAZE_DIR/lib/state.sh"
 source "$MANJIKAZE_DIR/lib/migrations.sh"
@@ -9,7 +25,7 @@ source "$MANJIKAZE_DIR/lib/audits.sh"
 source "$MANJIKAZE_DIR/lib/menus.sh"
 
 check_updates() {
-    if [ -d "$MANJIKAZE_DIR/.git" ]; then
+    if [ -d "$MANJIKAZE_DIR/.git" ] && [ "$DEV_MODE" = false ]; then
         status "Checking for Manjikaze updates..."
         git -C "$MANJIKAZE_DIR" fetch origin >/dev/null 2>&1
         local_rev=$(git -C "$MANJIKAZE_DIR" rev-parse HEAD)
@@ -41,14 +57,22 @@ check_prerequisites() {
 }
 
 show_header() {
+    local title="Manjikaze $(get_version)"
+    local subtitle="10KB Development Environment"
+
+    if [ "$DEV_MODE" = true ]; then
+        title="$title [DEVELOPMENT MODE]"
+        subtitle="$subtitle (path: $MANJIKAZE_DIR)"
+    fi
+
     gum style \
         --border double \
         --align center \
-        --width 50 \
+        --width 70 \
         --margin "1 2" \
         --padding "1 2" \
-        "Manjikaze $(get_version)" \
-        "10KB Development Environment"
+        "$title" \
+        "$subtitle"
 }
 
 main() {
