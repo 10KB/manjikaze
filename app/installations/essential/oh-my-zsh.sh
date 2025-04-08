@@ -1,4 +1,11 @@
 configure_oh_my_zsh() {
+    install_package "zsh" repo
+
+    if [ "$SHELL" != "/usr/bin/zsh" ]; then
+        status "Setting zsh as default shell..."
+        chsh -s /usr/bin/zsh
+    fi
+
     if [ -d ~/.oh-my-zsh ]; then
         status "Oh My Zsh is already installed."
         return 0
