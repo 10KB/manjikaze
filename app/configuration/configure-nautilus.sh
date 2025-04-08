@@ -4,7 +4,8 @@ if [[ $setup_nautilus == "true" ]]; then
     status "Configuring Nautilus file manager..."
 
     # Install required packages
-    install_if_not_present "imagemagick" "yay -S imagemagick nautilus-image-converter --noconfirm --noprogressbar --quiet"
+    install_package "imagemagick" "repo"
+    install_package "nautilus-image-converter" "aur"
 
     # Configure Nautilus to open in list view and use smallest icon size
     gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view'

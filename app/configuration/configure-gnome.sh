@@ -22,8 +22,8 @@ if [[ $setup_gnome == "true" ]]; then
     gsettings set org.gnome.desktop.wm.keybindings maximize "['<Super>Up']"
 
     # Install gnome extension manager
-    install_if_not_present "extension-manager" "yay -S extension-manager --noconfirm --noprogressbar --quiet"
-    install_if_not_present "gnome-extensions-cli" "yay -S gnome-extensions-cli --noconfirm --noprogressbar --quiet"
+    install_package "extension-manager" "aur"
+    install_package "gnome-extensions-cli" "aur"
 
     # Tactile window organizer extension
     gext install tactile@lundal.io
