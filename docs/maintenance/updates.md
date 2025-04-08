@@ -30,3 +30,7 @@ It's recommended to run the update command at least every two weeks to keep your
 - Compatibility with new software
 
 For Arch-based systems like Manjaro, staying current is especially important due to the rolling release nature of the distribution.
+
+---
+
+[← Maintenance](README.md) | [Migrations →](migrations.md)

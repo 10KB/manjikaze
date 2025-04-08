@@ -20,10 +20,12 @@ Welcome to the Manjikaze documentation. This guide will help you understand and 
 
 ### [Security](security/README.md)
 
+- [Security Audits](security/audits.md)
 - [Yubikey Integration](security/yubikey.md)
 - [Disk Encryption](security/disk-encryption.md)
 
 ### [Maintenance](maintenance/README.md)
 
 - [Updates](maintenance/updates.md)
+- [Migrations](maintenance/migrations.md)
 - [Troubleshooting](maintenance/troubleshooting.md)

@@ -44,14 +44,13 @@ The Configuration menu helps you customize your environment:
 
 The Security menu includes options for hardening your system:
 
-1. **Audit** - Checks and verifies system security settings to ensure they meet security requirements.
-   - **Audit user password strength** - Verifies if your user password meets the minimum security requirements (length and complexity).
-   - **Audit full disk encryption** - Checks if full disk encryption is properly configured and active to protect your data.
-2. **Generate Yubikey secret for disk encryption** - Generates a secret key on your Yubikey that is used for disk encryption.
-3. **Configure Yubikey as MFA for disk encryption** - Sets up Yubikey as a multi-factor authentication method to unlock the encrypted disk during boot.
-4. **Configure Yubikey as MFA for system** - Enables Yubikey authentication as a second factor for system login, enhancing login security.
-5. **Auto lock on Yubikey removal** - Automatically locks the system when the Yubikey is removed, preventing unauthorized access.
-6. **Replace faulty Yubikey** - Provides a process for replacing a damaged or lost Yubikey.
+1. **Generate Yubikey secret for disk encryption** - Generates a secret key on your Yubikey that is used for disk encryption.
+2. **Configure Yubikey as MFA for disk encryption** - Sets up Yubikey as a multi-factor authentication method to unlock the encrypted disk during boot.
+3. **Configure Yubikey as MFA for system** - Enables Yubikey authentication as a second factor for system login, enhancing login security.
+4. **Auto lock on Yubikey removal** - Automatically locks the system when the Yubikey is removed, preventing unauthorized access.
+5. **Replace faulty Yubikey** - Provides a process for replacing a damaged or lost Yubikey.
+
+Note: Security audits run automatically at startup. See the [Security Audits](../security/audits.md) documentation for more details.
 
 ## Next Steps
 

@@ -88,4 +88,4 @@ Follow the prompts to configure your new Yubikey with the same security features
 
 ---
 
-[← Security](README.md) | [Disk Encryption →](disk-encryption.md)
+[← Security Audits](audits.md) | [Disk Encryption →](disk-encryption.md)

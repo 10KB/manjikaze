@@ -25,11 +25,7 @@ Before you begin installing Manjikaze, ensure you have the following:
 
 - Prepare a secure password for unlocking your computer that meets our security requirements
 - Your password must be at least 12 characters long and include lowercase, uppercase, numbers, and special characters
-- You can verify your password strength using our password audit tool:
-
-```bash
-./app/security/audit/audit-user-password.sh
-```
+- The system will automatically audit your password strength during the first startup
 
 ## Important Security Notes
 
