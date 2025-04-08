@@ -24,7 +24,7 @@ fi
 
 # Install required packages
 status "Installing required packages..."
-sudo pacman -S --noconfirm --noprogressbar --quiet git gum
+sudo pacman -Syu --noconfirm --noprogressbar --quiet git gum
 
 # Clone/update repository
 if [ -d "$MANJIKAZE" ]; then
@@ -69,4 +69,4 @@ You can now:
 For documentation, visit:
 https://github.com/10kb/manjikaze/tree/main/docs
 
-EOF 
+EOF
