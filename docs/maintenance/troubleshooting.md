@@ -9,22 +9,24 @@ This guide covers common issues you might encounter while using Manjikaze and ho
 This error occurs when another package manager instance is running.
 
 **Solution:**
+Make sure to check if any package managers are running in the background (Software Update, Pamac, etc.). Wait till they're finished or close them. If that doesn't work you can try to manually remove the lock:
+
 ```bash
 sudo rm /var/lib/pacman/db.lck
 ```
 
 If that doesn't work, try:
+
 ```bash
 sudo rm /var/tmp/pamac/dbs/db.lc
 ```
-
-Make sure to also check if any package managers are running in the background (Software Update, Pamac, etc.) and close them.
 
 ### "Unrecognized archive format" Error
 
 This error occurs when the package database files are corrupted or incomplete.
 
 **Solution:**
+
 ```bash
 sudo pacman-mirrors -c Global
 sudo pacman -Syu
@@ -35,6 +37,7 @@ sudo pacman -Syu
 If you encounter key or signature verification errors:
 
 **Solution:**
+
 ```bash
 sudo pacman-key --refresh-keys
 sudo pacman-key --populate archlinux manjaro
@@ -46,10 +49,13 @@ sudo pacman -Syu
 When pacman reports conflicting files:
 
 **Solution:**
+
 1. Identify which package owns the file:
+
    ```bash
    pacman -Qo /path/to/file
    ```
+
 2. Either remove the conflicting package or back up and delete the conflicting file.
 
 ## System Issues
@@ -59,11 +65,15 @@ When pacman reports conflicting files:
 If your system becomes slow after an update:
 
 **Solution:**
+
 1. Check for service issues:
+
    ```bash
    systemctl --failed
    ```
+
 2. Check journal logs for errors:
+
    ```bash
    journalctl -p 3 -xb
    ```
@@ -73,11 +83,15 @@ If your system becomes slow after an update:
 For applications crashing after an update:
 
 **Solution:**
+
 1. Try reinstalling the application:
+
    ```bash
    sudo pacman -S application-name
    ```
+
 2. Check if downgrading helps (use with caution):
+
    ```bash
    sudo downgrade application-name
    ```
