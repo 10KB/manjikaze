@@ -1,4 +1,4 @@
-essential_apps=($(ls app/installations/essential/*.sh | xargs -n1 basename | sed 's/\.sh$//'))
+essential_apps=($(ls "$MANJIKAZE_DIR/app/installations/essential/"*.sh | xargs -n1 basename | sed 's/\.sh$//'))
 
 echo "The following essential apps will be installed:"
 printf "  - %s\n" "${essential_apps[@]}"
@@ -11,7 +11,7 @@ fi
 status "Installing essential apps..."
 
 for app in "${essential_apps[@]}"; do
-    source "app/installations/essential/${app}.sh"
+    source "$MANJIKAZE_DIR/app/installations/essential/${app}.sh"
 done
 
 status "Essential apps installation completed."

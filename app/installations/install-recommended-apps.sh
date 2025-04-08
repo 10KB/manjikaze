@@ -1,6 +1,6 @@
 status "Installing recommended apps..."
 
-recommended_apps=($(ls app/installations/recommended/*.sh | xargs -n1 basename | sed 's/\.sh$//'))
+recommended_apps=($(ls "$MANJIKAZE_DIR/app/installations/recommended/"*.sh | xargs -n1 basename | sed 's/\.sh$//'))
 
 echo "The following recommended apps will be installed:"
 printf "  - %s\n" "${recommended_apps[@]}"
@@ -13,7 +13,7 @@ fi
 status "Installing recommended apps..."
 
 for app in "${recommended_apps[@]}"; do
-    source "app/installations/recommended/${app}.sh"
+    source "$MANJIKAZE_DIR/app/installations/recommended/${app}.sh"
 done
 
 status "Recommended apps installation completed."
