@@ -20,6 +20,11 @@ if [[ $setup_yubikey_pam == "true" ]]; then
         local pam_file="$1"
         local auth_line="auth sufficient pam_yubico.so mode=challenge-response chalresp_path=/var/yubico"
 
+        if [ ! -f "$pam_file" ]; then
+            status "PAM file $pam_file does not exist. Skipping."
+            return
+        fi
+
         if ! sudo grep -q "$auth_line" "$pam_file"; then
             status "Adding YubiKey authentication to $pam_file..."
             sudo sed -i "1i$auth_line" "$pam_file"
@@ -34,7 +39,7 @@ if [[ $setup_yubikey_pam == "true" ]]; then
     add_yubikey_auth /etc/pam.d/polkit-1
     add_yubikey_auth /etc/pam.d/gnome-keyring
 
-    if ! sudo grep -q "pam_gnome_keyring.so" /etc/pam.d/login; then
+    if [ -f "/etc/pam.d/login" ] && ! sudo grep -q "pam_gnome_keyring.so" /etc/pam.d/login; then
         sudo sed -i '/^session/a\session    optional     pam_gnome_keyring.so auto_start' /etc/pam.d/login
         sudo sed -i '/^auth/a\auth       optional     pam_gnome_keyring.so' /etc/pam.d/login
     fi
