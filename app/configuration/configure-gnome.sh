@@ -66,6 +66,29 @@ if [[ $setup_gnome == "true" ]]; then
     # Remove the ImageMagick icon
     sudo rm -rf /usr/share/applications/display-im6.q16.desktop
 
+    # Set dark mode preference
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+
+    # Configure background image
+    BACKGROUND_SRC="$MANJIKAZE_DIR/assets/background.jpg"
+    BACKGROUND_DEST_DIR="$HOME/.local/share/backgrounds"
+    BACKGROUND_DEST_PATH="$BACKGROUND_DEST_DIR/manjikaze-background.jpg"
+
+    if [ -f "$BACKGROUND_SRC" ]; then
+        # Create backgrounds directory if it doesn't exist
+        if [ ! -d "$BACKGROUND_DEST_DIR" ]; then
+            mkdir -p "$BACKGROUND_DEST_DIR"
+        fi
+
+        # Copy background image to backgrounds directory
+        cp "$BACKGROUND_SRC" "$BACKGROUND_DEST_PATH"
+
+        # Set the background image
+        gsettings set org.gnome.desktop.background picture-uri "file://$BACKGROUND_DEST_PATH"
+        gsettings set org.gnome.desktop.background picture-uri-dark "file://$BACKGROUND_DEST_PATH"
+        gsettings set org.gnome.desktop.background picture-options 'zoom'
+    fi
+
     # Additional settings for window manager
     gext install just-perfection-desktop@just-perfection
 
