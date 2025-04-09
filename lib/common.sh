@@ -32,24 +32,24 @@ enable_sleep() {
 install_package() {
     local package=$1
     local type=${2:-repo} # Default to repo
-    local cmd
 
     if is_installed "$package"; then
         status "Package '$package' is already installed. Skipping."
         return 0
     fi
 
+    set +e
+    local output
     if [[ "$type" == "aur" ]]; then
         status "Installing AUR package $package..."
-        cmd="yay -S $package --noconfirm --noprogressbar --quiet"
+        output=$(yay -S "$package" --noconfirm --noprogressbar --quiet 2>&1)
     else
         status "Installing repository package $package..."
-        cmd="sudo pacman -S $package --noconfirm --noprogressbar --quiet"
+        output=$(sudo pacman -S "$package" --noconfirm --noprogressbar --quiet 2>&1)
     fi
+    local exit_code=$?
 
-    set +e
-    output=$(eval $cmd 2>&1)
-    if [[ $? -ne 0 ]]; then
+    if [[ $exit_code -ne 0 ]]; then
         status "Failed to install $package"
 
         if ! gum confirm "Continue with installation of other packages?"; then
