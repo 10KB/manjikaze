@@ -97,7 +97,7 @@ if [[ $setup_gnome == "true" ]]; then
 
     # Configure Dash to Dock settings
     gsettings set org.gnome.shell.extensions.dash-to-dock autohide false
-    gsettings set org.gnome.shell.extensions.dash-to-dock background-opacity 0.8
+    gsettings set org.gnome.shell.extensions.dash-to-dock background-opacity 0.5
     gsettings set org.gnome.shell.extensions.dash-to-dock dash-max-icon-size 24
     gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed true
     gsettings set org.gnome.shell.extensions.dash-to-dock dock-position 'BOTTOM'
@@ -105,10 +105,12 @@ if [[ $setup_gnome == "true" ]]; then
     gsettings set org.gnome.shell.extensions.dash-to-dock isolate-monitors true
     gsettings set org.gnome.shell.extensions.dash-to-dock isolate-workspaces true
     gsettings set org.gnome.shell.extensions.dash-to-dock multi-monitor true
-    gsettings set org.gnome.shell.extensions.dash-to-dock running-indicator-style 'DASHES'
+    gsettings set org.gnome.shell.extensions.dash-to-dock running-indicator-style 'SQUARES'
     gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-always-in-the-edge true
     gsettings set org.gnome.shell.extensions.dash-to-dock show-apps-at-top false
     gsettings set org.gnome.shell.extensions.dash-to-dock show-show-apps-button true
+    gsettings set org.gnome.shell.extensions.dash-to-dock custom-background-color true
+    gsettings set org.gnome.shell.extensions.dash-to-dock background-color '#0f231c'
 
     status "GNOME and extensions configuration completed."
 fi
