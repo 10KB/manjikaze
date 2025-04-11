@@ -38,6 +38,7 @@ declare -A security_menu=(
     ["3:Configure Yubikey as MFA for system"]="load_module security/yubikey/yubikey-pam-authentication.sh"
     ["4:Auto lock on Yubikey removal"]="load_module security/yubikey/yubikey-suspend.sh"
     ["5:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
+    ["6:Configure Firewall (UFW)"]="load_module security/configure-firewall.sh"
 )
 
 handle_menu() {
