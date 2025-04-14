@@ -9,7 +9,8 @@ if [[ $setup_new_yubikey == "true" ]]; then
     rm yk_output.tmp
     if [ -n "$secret_key" ]; then
         echo "Secret key: $secret_key" > "$MANJIKAZE_DIR/secrets/yubikey-fde-key"
-        status "Secret key has been saved to $MANJIKAZE_DIR/secrets/yubikey-fde-key. Store this file securely."
+        status "Secret key has been saved to $MANJIKAZE_DIR/secrets/yubikey-fde-key."
+        status "Store the content of the file securely in Bitwarden and delete the file from your system."
     else
         status "Failed to retrieve the secret key. Please try again."
         exit 1
