@@ -5,7 +5,7 @@ STATE_FILE="$MANJIKAZE_DIR/.manjikaze_state.json"
 
 init_state_file() {
     if [[ ! -f "$STATE_FILE" ]]; then
-        echo '{"migrations": {}, "audits": {}}' > "$STATE_FILE"
+        echo '{"migrations": {}, "audits": {}, "updates": {}}' > "$STATE_FILE"
     fi
 }
 
@@ -35,4 +35,16 @@ set_audit_state() {
     init_state_file
     local temp_state=$(mktemp)
     jq --arg id "$audit_id" --arg ts "$timestamp" '.audits += {($id): $ts}' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
+}
+
+get_update_check_time() {
+    init_state_file
+    jq -r '.updates.last_check // ""' "$STATE_FILE"
+}
+
+set_update_check_time() {
+    local timestamp="$1"
+    init_state_file
+    local temp_state=$(mktemp)
+    jq --arg ts "$timestamp" '.updates.last_check = $ts' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
 }

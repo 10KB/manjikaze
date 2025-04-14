@@ -76,6 +76,12 @@ show_header() {
 }
 
 main() {
+    if [[ "$1" == "update" ]]; then
+        show_header
+        source "$MANJIKAZE_DIR/app/installations/update-installed-apps.sh"
+        exit 0
+    fi
+
     clear
     show_header
 
