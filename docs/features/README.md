@@ -9,7 +9,8 @@ This section documents the various features and capabilities of Manjikaze.
 - [Terminal](terminal.md) - Terminal configuration and usage
 - [Shell Tools](shell-tools.md) - Command-line utilities and tools
 - [GUIs](gui.md) - Graphical applications and utilities
-- [AWS Tools](aws-tools.md) - AWS CLI and AWS Vault configuration
+- [Runtimes](mise-runtime-manager.md) - Language runtimes and package managers
+- [AWS tools](aws-tools.md) - AWS CLI and AWS Vault configuration
 
 ---
 
