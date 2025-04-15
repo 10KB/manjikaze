@@ -91,4 +91,4 @@ For more detailed information about AWS Vault, refer to the [official GitHub rep
 
 ---
 
-[← GUIs](gui.md) | [Documentation Home](../README.md)
+[← Runtimes](mise-runtime-manager.md) | [Documentation Home](../README.md)

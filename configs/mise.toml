@@ -1,0 +1,9 @@
+[settings]
+experimental = false
+jobs = 4
+verbose = false
+
+# Global tool versions go here
+[tools]
+node = "lts"
+python = "latest"

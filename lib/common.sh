@@ -29,6 +29,65 @@ enable_sleep() {
     fi
 }
 
+activate_zsh_plugin() {
+    local plugin="$1"
+    local zshrc="$HOME/.zshrc"
+    local plugins_line=$(grep -E "^plugins=\([^)]*\)" "$zshrc")
+
+    if [ -z "$plugins_line" ]; then
+        status "No plugins line found in .zshrc. Skipping oh-my-zsh plugin activation."
+        return 1
+    fi
+
+    if [[ "$plugins_line" == *"$plugin"* ]]; then
+        status "Plugin '$plugin' is already activated."
+        return 0
+    fi
+
+    local plugins_content=$(echo "$plugins_line" | sed -E 's/^plugins=\((.*)\)/\1/')
+    local new_plugins_content
+
+    if [ -z "$plugins_content" ]; then
+        new_plugins_content="$plugin"
+    else
+        new_plugins_content="$plugins_content $plugin"
+    fi
+
+    sed -i "s/^plugins=([^)]*)$/plugins=($new_plugins_content)/" "$zshrc"
+
+    status "Activated oh-my-zsh plugin: $plugin"
+    return 0
+}
+
+deactivate_zsh_plugin() {
+    local plugin="$1"
+    local zshrc="$HOME/.zshrc"
+    local plugins_line=$(grep -E "^plugins=\([^)]*\)" "$zshrc")
+
+    if [ -z "$plugins_line" ]; then
+        status "No plugins line found in .zshrc. Skipping oh-my-zsh plugin deactivation."
+        return 1
+    fi
+
+    if [[ "$plugins_line" != *"$plugin"* ]]; then
+        status "Plugin '$plugin' is not activated."
+        return 0
+    fi
+
+    # Handle various cases where plugin might be in the middle, start, or end of the list
+    sed -i -E "s/plugins=\(([^)]*)$plugin([^)]*)\)/plugins=(\1\2)/" "$zshrc"
+
+    # Clean up any duplicate spaces
+    sed -i -E "s/plugins=\(([^)]*) {2,}([^)]*)\)/plugins=(\1 \2)/" "$zshrc"
+
+    # Clean up leading/trailing spaces in plugin list
+    sed -i -E "s/plugins=\( (.*)\)/plugins=(\1)/" "$zshrc"
+    sed -i -E "s/plugins=\((.*) \)/plugins=(\1)/" "$zshrc"
+
+    status "Deactivated oh-my-zsh plugin: $plugin"
+    return 0
+}
+
 install_package() {
     local package=$1
     local type=${2:-repo} # Default to repo

@@ -17,6 +17,8 @@ Welcome to the Manjikaze documentation. This guide will help you understand and 
 - [Terminal](features/terminal.md)
 - [Shell tools](features/shell-tools.md)
 - [GUIs](features/gui.md)
+- [Runtimes](features/mise-runtime-manager.md)
+- [AWS tools](features/aws-tools.md)
 
 ### [Security](security/README.md)
 
