@@ -7,6 +7,7 @@ install_package "pcsclite" repo
 install_package "hopenpgp-tools" repo
 install_package "yubikey-personalization" repo
 install_package "expect" repo
+install_package "pamtester" aur
 
 sudo systemctl enable pcscd.service
 sudo systemctl start pcscd.service
