@@ -62,6 +62,19 @@ Manjikaze is optimized for multi-monitor configurations:
 - Workspaces are isolated per monitor, allowing different workspaces on each screen
 - The dash (app launcher) is configured to appear on each monitor independently
 
+## Clipboard Management
+
+Access and manage your clipboard history with these shortcuts:
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + F9` | Show clipboard history |
+| `Ctrl + F10` | Clear clipboard history |
+| `Ctrl + F11` | Select previous clipboard history entry |
+| `Ctrl + F12` | Select next clipboard history entry |
+
+For more details on clipboard features, see the [Clipboard Indicator extension](https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator).
+
 ## Screenshots
 
 | Shortcut | Action |
