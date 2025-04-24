@@ -30,6 +30,9 @@ if [[ $setup_gnome == "true" ]]; then
         gnome-extensions disable "pamac-updates@manjaro.org"
     fi
 
+    # Clipboard history extension
+    gext install clipboard-indicator@tudmotu.com
+
     # Tactile window organizer extension
     gext install tactile@lundal.io
 
