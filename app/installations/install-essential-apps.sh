@@ -16,4 +16,13 @@ for app in "${essential_apps[@]}"; do
 done
 
 enable_sleep
+
+status "A system reboot is recommended to ensure Docker functions correctly and user group changes take effect."
+if gum confirm "Do you want to reboot the system now?"; then
+    status "Rebooting system..."
+    sudo reboot
+else
+    status "Reboot cancelled by user. Please remember to reboot your system soon for Docker to work correctly."
+fi
+
 status "Essential apps installation completed."
