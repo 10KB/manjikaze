@@ -1,5 +1,26 @@
 #!/bin/bash
 
+REBOOT_PATTERNS=(
+    "firmware"    # For packages like linux-firmware, or other firmware blobs
+    "ucode"       # For microcode updates (amd-ucode, intel-ucode)
+    "dbus"
+    "glibc"
+    "systemd"
+    "gnutls"
+    "openssl"
+    "mesa"        # Graphics stack
+    "nvidia"      # NVIDIA drivers
+    "xf86-video-" # Common prefix for Xorg video drivers
+    "docker"
+    "containerd"
+    "runc"
+    "virtualbox"  # Virtualization software often has kernel modules
+    "vmware"      # Virtualization software often has kernel modules
+    "qemu"
+    "libvirt"
+    "kernel"      # Catch any explicit 'kernel' named packages if not 'linux*'
+)
+
 # Function to clean up and return
 cleanup_and_return() {
     local return_code=$1
@@ -9,6 +30,9 @@ cleanup_and_return() {
 
 status "Checking for available updates..."
 disable_sleep
+
+reboot_suggested=false
+reboot_trigger_message=""
 
 # Update package databases
 status "Updating package databases..."
@@ -37,10 +61,44 @@ if [ "$total_count" -eq 0 ]; then
     return 0  # Ensure script execution stops here
 fi
 
-# Create a summary of updates
+# Check for packages that require a reboot
+all_updates_list_names=""
+if [ "$repo_count" -gt 0 ]; then
+    repo_package_names=$(echo "$repo_updates" | awk '{print $1}' | tr '\n' ' ')
+    all_updates_list_names="${all_updates_list_names}${repo_package_names}"
+fi
+if [ "$aur_count" -gt 0 ]; then
+    aur_package_names=$(echo "$aur_updates" | awk '{print $1}' | tr '\n' ' ')
+    all_updates_list_names="${all_updates_list_names}${aur_package_names}"
+fi
+
+if [ -n "$all_updates_list_names" ]; then
+    for pkg_name in $all_updates_list_names; do
+        pkg_name_lower="${pkg_name,,}"
+
+        if [[ "$pkg_name_lower" == linux* ]]; then
+            reboot_suggested=true
+            reboot_trigger_message="An update to a kernel package ('$pkg_name') was found."
+            break
+        fi
+
+        for pattern in "${REBOOT_PATTERNS[@]}"; do
+            pattern_lower="${pattern,,}"
+            if [[ "$pkg_name_lower" == *"$pattern_lower"* ]]; then
+                reboot_suggested=true
+                reboot_trigger_message="An update to '$pkg_name' (matches general pattern '$pattern') was found."
+                break
+            fi
+        done
+
+        if [ "$reboot_suggested" = true ]; then
+            break
+        fi
+    done
+fi
+
 status "Found $total_count package(s) that can be updated"
 
-# Format and display the updates
 if [ "$repo_count" -gt 0 ]; then
     echo "System repository updates ($repo_count):"
     echo "$repo_updates" | sort | awk '{print "  • " $1 " (" $2 " → " $4 ")"}'
@@ -53,13 +111,19 @@ if [ "$aur_count" -gt 0 ]; then
     echo ""
 fi
 
-# Ask for confirmation
+if [ "$reboot_suggested" = true ]; then
+    echo ""
+    status "$reboot_trigger_message"
+    status "IMPORTANT: This update may require a system reboot to apply fully and ensure stability."
+    echo "             It's recommended to reboot after the update completes."
+    echo ""
+fi
+
 if ! gum confirm "Do you want to proceed with the updates?"; then
     status "Update cancelled."
     cleanup_and_return 0
 fi
 
-# Perform the update
 status "Updating installed packages..."
 if [ "$repo_count" -gt 0 ]; then
     status "Updating system packages..."
@@ -72,4 +136,20 @@ if [ "$aur_count" -gt 0 ]; then
 fi
 
 status "System update completed."
+
+if [ "$reboot_suggested" = true ]; then
+    status "Reminder: $reboot_trigger_message"
+    status "A system reboot is highly recommended to apply these changes fully and ensure system stability."
+    if gum confirm "Do you want to reboot the system now?"; then
+        status "Rebooting system..."
+        # Attempt to re-enable sleep if disable_sleep was used, though reboot will reset states
+        if type enable_sleep &>/dev/null; then
+            enable_sleep
+        fi
+        sudo reboot
+    else
+        status "Reboot cancelled by user. Please remember to reboot your system soon."
+    fi
+fi
+
 cleanup_and_return 0
