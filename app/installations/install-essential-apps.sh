@@ -11,8 +11,16 @@ fi
 status "Installing essential apps..."
 disable_sleep
 
+# Install oh-my-zsh first
+if [ -f "$MANJIKAZE_DIR/app/installations/essential/oh-my-zsh.sh" ]; then
+    source "$MANJIKAZE_DIR/app/installations/essential/oh-my-zsh.sh"
+fi
+
+# Install remaining apps
 for app in "${essential_apps[@]}"; do
-    source "$MANJIKAZE_DIR/app/installations/essential/${app}.sh"
+    if [ "$app" != "oh-my-zsh" ]; then
+        source "$MANJIKAZE_DIR/app/installations/essential/${app}.sh"
+    fi
 done
 
 enable_sleep
