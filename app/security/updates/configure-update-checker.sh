@@ -4,12 +4,12 @@ set -e
 status "Checking if update checker is already configured..."
 if systemctl --user is-enabled manjikaze-update-check.timer &>/dev/null; then
     status "Update checker is already configured."
-    exit 0
+    return 0
 fi
 
 if ! gum confirm "Would you like to enable weekly system update checks?"; then
     status "Weekly update checks not enabled. You can enable them later from the security menu."
-    exit 0
+    return 0
 fi
 
 status "Ensuring systemd user directory exists..."
