@@ -28,6 +28,9 @@ cleanup_and_return() {
     return $return_code
 }
 
+# Source Cursor installation functions
+source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
+
 status "Checking for available updates..."
 disable_sleep
 
@@ -53,7 +56,28 @@ if command -v yay >/dev/null 2>&1; then
     aur_count=$(echo "$aur_updates" | grep -v "^$" | wc -l)
 fi
 
+# Check for Cursor updates
+cursor_update_available=false
+cursor_version_info=""
+if [ -d ~/.local/share/cursor ]; then
+    status "Checking for Cursor updates..."
+    installed_version=$(get_cursor_installed_version)
+
+    if [[ -n "$installed_version" ]]; then
+        latest_url=$(get_cursor_download_url)
+        latest_version=$(echo "$latest_url" | grep -oP 'Cursor-\K[0-9]+\.[0-9]+\.[0-9]+' || echo "")
+
+        if [[ -n "$latest_version" && "$installed_version" != "$latest_version" ]]; then
+            cursor_update_available=true
+            cursor_version_info="$installed_version → $latest_version"
+        fi
+    fi
+fi
+
 total_count=$((repo_count + aur_count))
+if [ "$cursor_update_available" = true ]; then
+    total_count=$((total_count + 1))
+fi
 
 if [ "$total_count" -eq 0 ]; then
     status "No updates available. Your system is up to date."
@@ -111,6 +135,12 @@ if [ "$aur_count" -gt 0 ]; then
     echo ""
 fi
 
+if [ "$cursor_update_available" = true ]; then
+    echo "Application updates:"
+    echo "  • Cursor ($cursor_version_info)"
+    echo ""
+fi
+
 if [ "$reboot_suggested" = true ]; then
     echo ""
     status "$reboot_trigger_message"
@@ -133,6 +163,14 @@ fi
 if [ "$aur_count" -gt 0 ]; then
     status "Updating AUR packages..."
     yay -Sua --noconfirm --noprogressbar
+fi
+
+# Update Cursor if available
+if [ "$cursor_update_available" = true ]; then
+    status "Updating Cursor..."
+    download_cursor_appimage "$latest_url"
+    install_cursor_from_appimage
+    status "Cursor update complete!"
 fi
 
 status "System update completed."

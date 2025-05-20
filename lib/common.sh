@@ -1,8 +1,7 @@
 #!/bin/bash
 
 status() {
-    time=$(date +%T)
-    echo -e "\033[1;32m$time\033[0m - \033[0;32m$1\033[0m"
+    gum log --time "$(date +%T)" --structured --level info "$1"
 }
 
 get_version() {
