@@ -122,3 +122,38 @@ install_package() {
     set -e
 }
 
+uninstall_package() {
+    local package=$1
+    local type=${2:-repo} # Default to repo
+
+    if ! is_installed "$package"; then
+        status "Package '$package' is not installed. Skipping."
+        return 0
+    fi
+
+    set +e
+    local output
+    if [[ "$type" == "aur" ]]; then
+        status "Uninstalling AUR package $package..."
+        output=$(yay -R "$package" --noconfirm --noprogressbar 2>&1)
+    else
+        status "Uninstalling repository package $package..."
+        output=$(sudo pacman -R "$package" --noconfirm --noprogressbar --quiet 2>&1)
+    fi
+    local exit_code=$?
+
+    if [[ $exit_code -ne 0 ]]; then
+        status "Failed to uninstall $package"
+
+        if ! gum confirm "Continue with uninstallation of other packages?"; then
+            return 2 # Special code to indicate user-requested abort
+        fi
+
+        status "Continuing uninstallation process..."
+        return 1 # Indicate failure but script continues
+    else
+        status "Package '$package' uninstalled successfully."
+    fi
+    set -e
+}
+
