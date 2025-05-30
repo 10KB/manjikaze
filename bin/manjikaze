@@ -32,8 +32,24 @@ check_updates() {
         remote_rev=$(git -C "$MANJIKAZE_DIR" rev-parse @{u})
         if [ "$local_rev" != "$remote_rev" ]; then
             if gum confirm "Updates available. Would you like to update Manjikaze?"; then
-                git -C "$MANJIKAZE_DIR" pull
-                exec "$0" "$@"  # Restart the script with the same arguments
+                if ! git -C "$MANJIKAZE_DIR" pull --ff-only; then
+                    if git -C "$MANJIKAZE_DIR" diff --quiet HEAD; then
+                        status "Update failed. Please resolve conflicts in $MANJIKAZE_DIR and try again."
+                        exit 1
+                    fi
+
+                    if gum confirm "Update failed due to local changes. Would you like to discard local changes and force update?"; then
+                        status "Discarding local changes and forcing update..."
+                        git -C "$MANJIKAZE_DIR" reset --hard HEAD >/dev/null 2>&1
+                        git -C "$MANJIKAZE_DIR" pull --ff-only
+                        exec "$0" "$@"
+                    else
+                        status "Update cancelled. Please commit or stash your changes in $MANJIKAZE_DIR."
+                        exit 1
+                    fi
+                else
+                    exec "$0" "$@"
+                fi
             fi
         fi
     fi
