@@ -1,7 +1,7 @@
 #!/bin/bash
 
 status() {
-    gum log --time "$(date +%T)" --structured --level info "$1"
+    gum log --time TimeOnly --structured --level info "$1"
 }
 
 get_version() {
