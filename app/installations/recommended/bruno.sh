@@ -1,1 +1,1 @@
-install_package "bruno" aur
+install_package "bruno-bin" aur
