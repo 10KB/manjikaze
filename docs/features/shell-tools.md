@@ -148,6 +148,10 @@ Manjikaze includes tools for working with AWS:
 
 Detailed documentation for AWS tools is available in the [AWS-specific documentation](aws-tools.md).
 
+## Azure Tools
+
+Manjikaze optionally includes the Azure CLI and Azure Kubelogin for working with Azure and AKS (Azure Kubernetes Service).
+
 ## Customizing Your Shell
 
 You can customize your shell environment by editing the following files:
