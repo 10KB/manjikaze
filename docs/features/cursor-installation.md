@@ -24,6 +24,7 @@ By extracting the AppImage, Cursor runs directly on the host system without thes
 ### 2. Better Update Management
 
 This approach also allows Manjikaze to:
+
 - Detect the installed Cursor version more accurately (from its package.json)
 - Compare it with the latest available version
 - Provide seamless updates through the `manjikaze update` command
