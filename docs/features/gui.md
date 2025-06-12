@@ -59,6 +59,15 @@ Spotify is the world's most popular streaming music service, and the Linux appli
 
 Dropbox is a way to sync files between machines while keeping a backup in the cloud.
 
+### Kubernetes tools
+
+To manage Kubernetes clusters, Manjikaze includes the following tools:
+
+- `kubectl`: Command-line interface for Kubernetes
+- `helm`: Package manager for Kubernetes
+- `eksctl`: CLI for Amazon EKS (Amazon Elastic Kubernetes Service)
+- `lens-bin`: Lens IDE for Kubernetes
+
 ## Installing Optional Applications
 
 To install optional applications:
