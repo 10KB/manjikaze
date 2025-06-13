@@ -21,6 +21,9 @@ for app in "${essential_apps[@]}"; do
     if [ "$app" != "oh-my-zsh" ]; then
         source "$MANJIKAZE_DIR/app/installations/essential/${app}.sh"
     fi
+    if [ "$app" == "cursor" ]; then
+        install_cursor
+    fi
 done
 
 enable_sleep
