@@ -77,7 +77,6 @@ install_cursor() {
     local download_url=$(get_cursor_download_url)
     download_cursor_appimage "$download_url"
     install_cursor_from_appimage
-    create_cursor_desktop_entry
 
     status "Package 'cursor' installed successfully."
 }
