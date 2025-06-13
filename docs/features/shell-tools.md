@@ -10,39 +10,39 @@ Manjikaze uses Zsh as the default shell, enhanced with the Oh My Zsh framework t
 
 Manjikaze uses the Agnoster theme, which provides:
 
-- Git status information directly in your prompt
-- Visual indicators for command success/failure
-- Directory path with intelligent truncation
-- Special symbols for superuser and virtual environment status
+-   Git status information directly in your prompt
+-   Visual indicators for command success/failure
+-   Directory path with intelligent truncation
+-   Special symbols for superuser and virtual environment status
 
 ### Enabled Oh My Zsh Plugins
 
 Manjikaze comes with several useful Oh My Zsh plugins pre-configured:
 
-| Plugin | Description |
-|--------|-------------|
-| [`archlinux`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/archlinux) | Provides aliases for common Arch Linux commands like package management |
-| [`aws`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/aws) | AWS CLI completion and prompt integration |
-| [`docker`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/docker) | Docker command completion and shortcuts |
-| [`docker-compose`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/docker-compose) | Completion and shortcuts for Docker Compose |
-| [`git`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git) | Comprehensive Git aliases and functions |
-| [`git-flow`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git-flow) | Completion and shortcuts for Git Flow workflow |
-| [`zoxide`](https://github.com/ajeetdsouza/zoxide) | Smarter directory navigation that learns your habits |
+| Plugin                                                                                    | Description                                                             |
+| ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`archlinux`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/archlinux)           | Provides aliases for common Arch Linux commands like package management |
+| [`aws`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/aws)                       | AWS CLI completion and prompt integration                               |
+| [`docker`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/docker)                 | Docker command completion and shortcuts                                 |
+| [`docker-compose`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/docker-compose) | Completion and shortcuts for Docker Compose                             |
+| [`git`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git)                       | Comprehensive Git aliases and functions                                 |
+| [`git-flow`](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/git-flow)             | Completion and shortcuts for Git Flow workflow                          |
+| [`zoxide`](https://github.com/ajeetdsouza/zoxide)                                         | Smarter directory navigation that learns your habits                    |
 
 #### Docker Compose Plugin
 
 The Docker Compose plugin provides helpful aliases to streamline your workflow:
 
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `dco` | `docker-compose` | Docker Compose shorthand |
-| `dcb` | `docker-compose build` | Build containers |
-| `dce` | `docker-compose exec` | Execute command in a container |
-| `dcps` | `docker-compose ps` | List containers |
-| `dcr` | `docker-compose run` | Run a command in a new container |
-| `dcup` | `docker-compose up` | Create and start containers |
-| `dcdown` | `docker-compose down` | Stop and remove containers |
-| `dcl` | `docker-compose logs` | View output from containers |
+| Alias    | Command                | Description                      |
+| -------- | ---------------------- | -------------------------------- |
+| `dco`    | `docker-compose`       | Docker Compose shorthand         |
+| `dcb`    | `docker-compose build` | Build containers                 |
+| `dce`    | `docker-compose exec`  | Execute command in a container   |
+| `dcps`   | `docker-compose ps`    | List containers                  |
+| `dcr`    | `docker-compose run`   | Run a command in a new container |
+| `dcup`   | `docker-compose up`    | Create and start containers      |
+| `dcdown` | `docker-compose down`  | Stop and remove containers       |
+| `dcl`    | `docker-compose logs`  | View output from containers      |
 
 For a complete list, run `alias | grep docker-compose` in your terminal.
 
@@ -50,16 +50,16 @@ For a complete list, run `alias | grep docker-compose` in your terminal.
 
 The git plugin provides many helpful aliases for common Git operations:
 
-| Alias | Command | Description |
-|-------|---------|-------------|
-| `g` | `git` | Shorthand for git |
-| `gst` | `git status` | Check repository status |
-| `ga` | `git add` | Stage files |
-| `gc` | `git commit` | Commit changes |
-| `gp` | `git push` | Push to remote |
-| `gl` | `git pull` | Pull from remote |
+| Alias | Command        | Description                      |
+| ----- | -------------- | -------------------------------- |
+| `g`   | `git`          | Shorthand for git                |
+| `gst` | `git status`   | Check repository status          |
+| `ga`  | `git add`      | Stage files                      |
+| `gc`  | `git commit`   | Commit changes                   |
+| `gp`  | `git push`     | Push to remote                   |
+| `gl`  | `git pull`     | Pull from remote                 |
 | `gco` | `git checkout` | Switch branches or restore files |
-| `gd` | `git diff` | Show changes |
+| `gd`  | `git diff`     | Show changes                     |
 
 For a complete list of Git aliases, run `alias | grep git` in your terminal.
 
@@ -125,12 +125,26 @@ svgo icon.svg
 svgo -f ./icons/
 ```
 
+### OpenVPN 3
+
+[OpenVPN 3](https://codeberg.org/OpenVPN/openvpn3-linux) is an OpenVPN platform that provides a VPN client. You can manage your VPN connections using simple commands:
+
+```bash
+# Load a config file
+openvpn3 config-import --config ${client.ovpn}
+
+# Start a VPN session
+openvpn3 session-start --config ${client.ovpn}
+```
+
+Or read the full tutorial [here](https://openvpn.net/as-docs/tutorials/tutorial--connect-with-linux.html)
+
 ## AWS Tools
 
 Manjikaze includes tools for working with AWS:
 
-- **AWS CLI** - Command-line interface for interacting with AWS services
-- **AWS Vault** - Tool for securely storing and accessing AWS credentials
+-   **AWS CLI** - Command-line interface for interacting with AWS services
+-   **AWS Vault** - Tool for securely storing and accessing AWS credentials
 
 Detailed documentation for AWS tools is available in the [AWS-specific documentation](aws-tools.md).
 
@@ -138,8 +152,8 @@ Detailed documentation for AWS tools is available in the [AWS-specific documenta
 
 You can customize your shell environment by editing the following files:
 
-- `~/.zshrc` - Main Zsh configuration file
-- `~/.oh-my-zsh/custom/` - Directory for custom plugins and themes
+-   `~/.zshrc` - Main Zsh configuration file
+-   `~/.oh-my-zsh/custom/` - Directory for custom plugins and themes
 
 To add new Oh My Zsh plugins, edit the plugins line in your `.zshrc` file:
 
