@@ -36,7 +36,7 @@ configure_oh_my_zsh() {
     fi
 
     # Hide user@host
-    if ! echo 'export DEFAULT_USER=rolandboon' >> ~/.zshrc; then
+    if ! echo 'export DEFAULT_USER=$(whoami)' >> ~/.zshrc; then
         status "Failed to set DEFAULT_USER in .zshrc."
         return 1
     fi
