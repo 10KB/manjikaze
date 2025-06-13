@@ -23,7 +23,7 @@ if [[ $setup_gnome == "true" ]]; then
 
     # Install gnome extension manager
     install_package "extension-manager" "aur"
-    install_package "gnome-extensions-cli" "aur"
+    pip3 install --user gnome-extensions-cli
 
     # Disable Pamac Updates Indicator extension (buggy - can show persistent icon)
     if gnome-extensions list | grep -q "pamac-updates@manjaro.org"; then
