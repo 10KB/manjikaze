@@ -1,3 +1,8 @@
+# Alacritty requires this font to render properly.
+if ! fc-list | grep -q "CaskaydiaMono Nerd Font"; then
+    source "$MANJIKAZE_DIR/app/configuration/configure-font.sh"
+fi
+
 install_package "alacritty" repo
 
 if [ ! -d ~/.config/alacritty ]; then
