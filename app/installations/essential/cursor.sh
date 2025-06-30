@@ -7,8 +7,11 @@
 # - Allows for better version detection and management
 # - Minimizes sandbox-related permission issues
 
+# User-Agent header to bypass Cloudflare's anti-bot checks
+CURL_UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+
 get_cursor_download_url() {
-    local download_url=$(curl -s "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=latest" | jq -r '.downloadUrl')
+    local download_url=$(curl -s -H "User-Agent: $CURL_UA" "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=latest" | jq -r '.downloadUrl')
 
     if [[ -z "$download_url" ]]; then
         status "Failed to get Cursor download URL."
@@ -34,7 +37,7 @@ download_cursor_appimage() {
     local output_file="${2:-/tmp/cursor.AppImage}"
 
     status "Downloading Cursor AppImage..."
-    curl -s -L "$download_url" -o "$output_file"
+    curl -s -L -H "User-Agent: $CURL_UA" "$download_url" -o "$output_file"
     chmod +x "$output_file"
 }
 
