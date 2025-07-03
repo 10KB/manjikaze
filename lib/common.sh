@@ -13,7 +13,7 @@ is_installed() {
 }
 
 disable_sleep() {
-    if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
+    if [[ $(get_window_manager) == "gnome" ]]; then
         status "Disabling screen lock and sleep during installation..."
         gsettings set org.gnome.desktop.screensaver lock-enabled false
         gsettings set org.gnome.desktop.session idle-delay 0
@@ -21,7 +21,7 @@ disable_sleep() {
 }
 
 enable_sleep() {
-    if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
+    if [[ $(get_window_manager) == "gnome" ]]; then
         status "Re-enabling screen lock and sleep..."
         gsettings set org.gnome.desktop.screensaver lock-enabled true
         gsettings set org.gnome.desktop.session idle-delay 300
