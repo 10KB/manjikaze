@@ -1,0 +1,8 @@
+{
+    "height": 30,
+    "spacing": 8,
+    "modules-center": [
+        "hyprland/workspaces"
+    ],
+    "include": "~/.config/waybar/modules.jsonc"
+}

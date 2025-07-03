@@ -1,3 +1,8 @@
+if [[ ! $(get_window_manager) == "gnome" ]] ; then
+    status "GNOME is not the current window manager. Skipping..."
+    return
+fi
+
 setup_gnome=$(gum confirm "Do you want to configure GNOME and extensions?" --affirmative "Yes" --negative "No" --default=false && echo "true" || echo "false")
 
 if [[ $setup_gnome == "true" ]]; then
