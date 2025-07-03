@@ -44,6 +44,34 @@ if [[ $setup_yubikey_pam == "true" ]]; then
         sudo sed -i '/^auth/a\auth       optional     pam_gnome_keyring.so' /etc/pam.d/login
     fi
 
+    local prompt_line="auth optional pam_echo.so Please touch your yubikey."
+
+    if ! sudo grep -q "$prompt_line" "/etc/pam.d/sudo"; then
+        status "Adding prompt to /etc/pam.d/sudo..."
+        sudo sed -i "1i$prompt_line" "/etc/pam.d/sudo"
+    fi
+
+    if sudo test -f "/etc/sudoers.d/99-yubikey-prompt" ; then
+        status "Prompt already configured in /etc/sudoers.d/99-yubikey-prompt."
+    else
+        tmp=$(mktemp)
+        cat >"$tmp" <<'EOF'
+# added by manjikaze-setup – YubiKey touch prompt
+Defaults !pam_silent
+EOF
+
+        if ! sudo visudo -cf "$tmp"; then
+            echo "ERROR: sudoers syntax check failed"
+            rm -f "$tmp"
+            return 1
+        fi
+
+        sudo install -o root -g root -m 0440 "$tmp" /etc/sudoers.d/99-yubikey-prompt
+        rm -f "$tmp"
+    else
+        status "Prompt already configured in /etc/pam.d/sudo."
+    fi
+
     echo "PAM authentication with YubiKey has been configured for system-wide use."
     echo "This includes sudo, login, and GUI password prompts."
     echo "Please test it by running 'sudo ls' in a new terminal."
