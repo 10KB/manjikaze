@@ -25,11 +25,12 @@ setup_menu=(
 )
 
 declare -A configuration_menu=(
-    ["1:GNOME desktop"]="load_module configuration/configure-gnome.sh"
-    ["2:Nautilus file manager"]="load_module configuration/configure-nautilus.sh"
-    ["3:Monospace font"]="load_module configuration/configure-font.sh"
-    ["4:Git"]="load_module configuration/configure-git.sh"
-    ["5:Network printer discovery"]="load_module configuration/configure-printing.sh"
+    ["1:Select window manager"]="load_module configuration/select-window-manager.sh"
+    ["2:GNOME desktop"]="load_module configuration/configure-gnome.sh"
+    ["3:Nautilus file manager"]="load_module configuration/configure-nautilus.sh"
+    ["4:Monospace font"]="load_module configuration/configure-font.sh"
+    ["5:Git"]="load_module configuration/configure-git.sh"
+    ["6:Network printer discovery"]="load_module configuration/configure-printing.sh"
 )
 
 declare -A security_menu=(

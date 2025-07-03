@@ -52,4 +52,4 @@ install_cursor
 
 ---
 
-[← AWS Tools](aws-tools.md) | [Documentation Home](../README.md)
+[← AWS Tools](aws-tools.md) | [Hyprland](hyprland.md)
