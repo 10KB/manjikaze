@@ -154,6 +154,13 @@ if ! gum confirm "Do you want to proceed with the updates?"; then
     cleanup_and_return 0
 fi
 
+# Handle specific known package conflicts (e.g. Node.js LTS transitions)
+if echo "$repo_updates" | grep -q "^nodejs-lts-jod " && pacman -Qqe | grep -q "^nodejs-lts-iron$"; then
+    status "Removing obsolete nodejs-lts-iron package to resolve conflict with nodejs-lts-jod..."
+    # Cascade remove to automatically uninstall packages that strictly depend on nodejs-lts-iron
+    sudo pacman -Rcns --noconfirm nodejs-lts-iron
+fi
+
 status "Updating installed packages..."
 if [ "$repo_count" -gt 0 ]; then
     status "Updating system packages..."
