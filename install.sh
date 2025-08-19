@@ -24,6 +24,9 @@ fi
 
 # Install required packages
 status "Installing required packages..."
+sudo pacman -Sy archlinux-keyring manjaro-keyring
+sudo pacman-key --init
+sudo pacman-key --populate archlinux manjaro
 sudo pacman -Syu --noconfirm --noprogressbar --quiet git gum
 
 # Clone/update repository
