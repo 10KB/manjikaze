@@ -1,0 +1,84 @@
+/**
+ * Modern Gruvbox theme for Rofi
+ * Inspired by Waybar styling
+ */
+* {
+    /* Core colors */
+    background:     rgba(40, 40, 40, 0.5);
+    foreground:     #ebdbb2;
+    selected-bg:    #504945;
+    selected-fg:    #ebdbb2;
+    border:         rgba(168, 153, 132, 0.5);
+
+    /* Theme colors */
+    background-color: transparent;
+    text-color:      var(foreground);
+    border-color:    var(border);
+}
+
+window {
+    background-color: var(background);
+    // border:       2px 0px 0px;
+    // border-color:     var(border);
+    border-radius:    10px 10px 0px 0px;
+    padding:          0px 8px 0px 8px;
+    width:           40%;
+    transparency:    "real";
+    margin:          0px;
+}
+
+mainbox {
+    padding: 0;
+}
+
+listview {
+    border:       0px;
+    scrollbar:    false;
+    padding:      8px 4px;
+}
+
+element {
+    padding: 8px 8px;
+    border-radius: 8px 8px 8px 8px;
+}
+
+element selected {
+    border: 2px;
+    background-color: var(selected-bg);
+    text-color:      var(selected-fg);
+}
+
+inputbar {
+    border: 2px;
+    border-radius: 0px 0px 8px 8px;
+    background-color: var(selected-bg);
+    text-color:      var(selected-fg);
+    spacing:    0;
+    padding:    8px 12px;
+    margin:     0 0 8px 0;
+    children:   [ prompt, textbox-prompt-sep, entry ];
+}
+
+prompt,
+entry {
+    text-color: var(foreground);
+}
+
+textbox-prompt-sep {
+    expand:     false;
+    str:        ":";
+    text-color: var(foreground);
+    margin:     0 0.3em 0 0;
+}
+
+button {
+    border:       2px 2px 0px 2px;
+    border-color: var(border);
+    border-radius: 8px 8px 0px 0px;
+    margin: 0px 56px;
+}
+
+button selected {
+    background-color: var(selected-bg);
+    text-color:      var(selected-fg);
+}

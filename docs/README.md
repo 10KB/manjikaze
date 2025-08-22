@@ -19,6 +19,7 @@ Welcome to the Manjikaze documentation. This guide will help you understand and 
 - [GUIs](features/gui.md)
 - [Runtimes](features/mise-runtime-manager.md)
 - [AWS tools](features/aws-tools.md)
+- [Hyprland](feature/hyprland.md)
 
 ### [Security](security/README.md)
 
