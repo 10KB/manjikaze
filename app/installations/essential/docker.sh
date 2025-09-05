@@ -33,8 +33,19 @@ install_docker() {
         return 1
     fi
 
-    if ! curl -sSL "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-linux-x86_64" -o "$DOCKER_CONFIG/cli-plugins/docker-compose"; then
+    # Download to a temporary file first to avoid partially-written files on errors, then move atomically
+    tmp_compose="${DOCKER_CONFIG}/cli-plugins/docker-compose.tmp"
+    rm -f "$tmp_compose"
+
+    if ! curl -fLsS "https://github.com/docker/compose/releases/download/${LATEST_COMPOSE_VERSION}/docker-compose-linux-x86_64" -o "$tmp_compose"; then
         status "Failed to download Docker Compose."
+        rm -f "$tmp_compose"
+        return 1
+    fi
+
+    if ! mv "$tmp_compose" "$DOCKER_CONFIG/cli-plugins/docker-compose"; then
+        status "Failed to move Docker Compose into place."
+        rm -f "$tmp_compose"
         return 1
     fi
 
