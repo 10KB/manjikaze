@@ -1,0 +1,17 @@
+[
+    {
+        "output": "DP-1",
+        "name": "DP-1",
+        "include": "~/.config/waybar/bar_DP-1.jsonc"
+    },
+    {
+        "output": "DP-2",
+        "name": "DP-2",
+        "include": "~/.config/waybar/bar_DP-2.jsonc"
+    },
+    {
+        "output": "DP-3",
+        "name": "DP-3",
+        "include": "~/.config/waybar/bar_DP-3.jsonc"
+    }
+]
