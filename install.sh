@@ -24,10 +24,13 @@ fi
 
 # Install required packages
 status "Installing required packages..."
-sudo pacman -Sy archlinux-keyring manjaro-keyring
-sudo pacman-key --init
-sudo pacman-key --populate archlinux manjaro
-sudo pacman -Syu --noconfirm --noprogressbar --quiet git gum
+# Run everything through a single sudo call to avoid multiple password prompts when the script is
+# executed non-interactively (e.g. via curl | bash). We refresh keyrings, initialize pacman-key and
+# perform a full system upgrade while installing the required tools.
+sudo bash -c 'pacman -Sy --noconfirm --noprogressbar --quiet archlinux-keyring manjaro-keyring && \
+    pacman-key --init && \
+    pacman-key --populate archlinux manjaro && \
+    pacman -Syu --noconfirm --noprogressbar --quiet git gum'
 
 # Clone/update repository
 if [ -d "$MANJIKAZE" ]; then
