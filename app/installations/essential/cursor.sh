@@ -11,10 +11,14 @@
 CURL_UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 
 get_cursor_download_url() {
-    local download_url=$(curl -s -H -L "User-Agent: $CURL_UA" "https://cursor.com/api/download?platform=linux-x64&releaseTrack=latest" | jq -r '.downloadUrl')
+    local html
+    html=$(curl -s -L -H "User-Agent: $CURL_UA" "https://cursor.com/api/download")
+
+    local download_url
+    download_url=$(echo "$html" | grep -oE 'https://downloads\.cursor\.com/[^\"]+x86_64\.AppImage' | head -n 1)
 
     if [[ -z "$download_url" ]]; then
-        status "Failed to get Cursor download URL."
+        status "Failed to find Cursor AppImage download URL."
         exit 1
     fi
 
