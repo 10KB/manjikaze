@@ -1,0 +1,28 @@
+configuration {
+	modes: "run";
+	modi: "run,Projects:$HOME/.config/rofi/run_code.sh";
+	font: "JetBrainsMono Nerd Font 12";
+	location: 6;
+	drun-display-format: "{name}";
+	disable-history: false;
+	sidebar-mode: true;
+    display-run: "Applications";
+    kb-move-char-back: "Control+b";
+    kb-move-char-forward: "Control+f";
+    kb-mode-next: "Right,Control+Tab";
+    kb-mode-previous: "Left,Control+ISO_Left_Tab";
+    timeout {
+        action: "kb-cancel";
+        delay:  0;
+    }
+    filebrowser {
+        directories-first: true;
+        sorting-method:    "name";
+    }
+    animation {
+        enabled: true;
+        window-enter: "slide-down";
+        window-exit: "slide-up";
+    }
+}
+@theme "$HOME/.config/rofi/theme.rasi"
