@@ -11,7 +11,7 @@
 CURL_UA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
 
 get_cursor_download_url() {
-    local download_url=$(curl -s -H -L "User-Agent: $CURL_UA" "https://cursor.com/api/download?platform=linux-x64&releaseTrack=latest" | jq -r '.downloadUrl')
+    local download_url=$(curl -s -H -L "User-Agent: $CURL_UA" "https://cursor.com/api/download?platform=linux-x64&releaseTrack=stable" | jq -r '.downloadUrl')
 
     if [[ -z "$download_url" ]]; then
         status "Failed to get Cursor download URL."
