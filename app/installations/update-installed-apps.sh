@@ -152,6 +152,7 @@ fi
 if ! gum confirm "Do you want to proceed with the updates?"; then
     status "Update cancelled."
     cleanup_and_return 0
+    return 0 # Ensure script execution stops here
 fi
 
 # Handle specific known package conflicts (e.g. Node.js LTS transitions)
