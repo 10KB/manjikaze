@@ -11,6 +11,7 @@ if pacman -Q "bruno" 2>/dev/null | grep -q "^bruno "; then
     uninstall_package "electron33" aur
 
     source "$MANJIKAZE_DIR/app/installations/recommended/bruno.sh"
+    install
 
     status "Bruno migration completed successfully!"
 fi

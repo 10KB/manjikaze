@@ -5,6 +5,7 @@ if ! command -v mise &> /dev/null; then
     status "Migrating runtimes to mise management..."
 
     source "$MANJIKAZE_DIR/app/installations/essential/mise.sh"
+    install
 
     PACKAGES_TO_REMOVE=("nodejs-lts-iron" "npm" "python-pip" "python-pipx")
     REMOVED_PACKAGES=()

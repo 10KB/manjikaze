@@ -74,7 +74,7 @@ EOL
     chmod +x ~/.local/share/applications/cursor.desktop
 }
 
-install_cursor() {
+install() {
     status "Installing Cursor from extracted AppImage..."
 
     local download_url=$(get_cursor_download_url)
@@ -84,7 +84,10 @@ install_cursor() {
     status "Package 'cursor' installed successfully."
 }
 
-# If this script is being sourced, don't run the installation
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    install_cursor
-fi
+uninstall() {
+    status "Uninstalling Cursor..."
+    rm -rf ~/.local/share/cursor
+    rm -f ~/.local/bin/cursor
+    rm -f ~/.local/share/applications/cursor.desktop
+    status "Package 'cursor' uninstalled successfully."
+}
