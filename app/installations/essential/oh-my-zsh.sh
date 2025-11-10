@@ -1,4 +1,4 @@
-configure_oh_my_zsh() {
+install() {
     install_package "zsh" repo
 
     if [ "$SHELL" != "/usr/bin/zsh" ]; then
@@ -50,4 +50,6 @@ configure_oh_my_zsh() {
     status "Oh My Zsh configuration completed successfully."
 }
 
-configure_oh_my_zsh
+uninstall() {
+    uninstall_package "zsh" repo
+}

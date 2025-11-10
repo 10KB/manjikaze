@@ -15,6 +15,7 @@ disable_sleep
 
 for app in "${recommended_apps[@]}"; do
     source "$MANJIKAZE_DIR/app/installations/recommended/${app}.sh"
+    install
 done
 
 enable_sleep

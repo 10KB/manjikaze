@@ -13,5 +13,5 @@ if gum confirm $'Would you like to convert your Cursor installation to an extrac
     status "Installing Cursor as an extracted AppImage..."
     source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
 
-    install_cursor
+    install
 fi

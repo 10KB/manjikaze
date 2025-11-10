@@ -21,7 +21,9 @@ setup_menu=(
     ["2:Install recommended apps"]="load_module installations/install-recommended-apps.sh"
     ["3:Choose optional apps"]="load_module installations/install-optional-apps.sh"
     ["4:Update installed apps"]="load_module installations/update-installed-apps.sh"
-    ["5:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
+    ["5:Uninstall apps"]="load_module installations/uninstall-apps.sh"
+    ["6:Rebuild installed apps"]="load_module installations/rebuild-installed-apps.sh"
+    ["7:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
 )
 
 declare -A configuration_menu=(

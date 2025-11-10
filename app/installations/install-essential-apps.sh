@@ -14,15 +14,14 @@ disable_sleep
 # Install oh-my-zsh first
 if [ -f "$MANJIKAZE_DIR/app/installations/essential/oh-my-zsh.sh" ]; then
     source "$MANJIKAZE_DIR/app/installations/essential/oh-my-zsh.sh"
+    install
 fi
 
 # Install remaining apps
 for app in "${essential_apps[@]}"; do
     if [ "$app" != "oh-my-zsh" ]; then
         source "$MANJIKAZE_DIR/app/installations/essential/${app}.sh"
-    fi
-    if [ "$app" == "cursor" ]; then
-        install_cursor
+        install
     fi
 done
 

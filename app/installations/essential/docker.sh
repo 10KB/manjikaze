@@ -1,4 +1,4 @@
-install_docker() {
+install() {
     status "Installing Docker..."
     if ! sudo pamac install docker docker-buildx --no-confirm; then
         status "Failed to install Docker packages."
@@ -62,4 +62,7 @@ install_docker() {
     status "Docker installation completed successfully."
 }
 
-install_docker
+uninstall() {
+    uninstall_package "docker" repo
+    uninstall_package "docker-buildx" repo
+}

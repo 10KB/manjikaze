@@ -13,3 +13,4 @@ if pacman -Q "aws-cli-v2" &>/dev/null; then
 fi
 
 source "$MANJIKAZE_DIR/app/installations/essential/aws-cli.sh"
+install

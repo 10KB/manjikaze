@@ -123,6 +123,31 @@ install_package() {
     set -e
 }
 
+rebuild_package() {
+    local package=$1
+    local type=${2:-repo} # Default to repo
+
+    set +e
+    local output
+    if [[ "$type" == "aur" ]]; then
+        status "Rebuilding AUR package $package..."
+        # Ensure system tools use system Python for building AUR packages
+        output=$(PATH=/usr/bin:$PATH yay -S "$package" --noconfirm --noprogressbar--rebuild 2>&1)
+    else
+        status "Reinstalling repository package $package..."
+        output=$(sudo pacman -S "$package" --noprogressbar --noconfirm 2>&1)
+    fi
+    local exit_code=$?
+
+    if [[ $exit_code -ne 0 ]]; then
+        status "Failed to rebuild $package"
+        return 1
+    else
+        status "Package '$package' rebuilt successfully."
+    fi
+    set -e
+}
+
 uninstall_package() {
     local package=$1
     local type=${2:-repo} # Default to repo

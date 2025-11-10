@@ -22,6 +22,7 @@ for app in ${SELECTED_OPTIONAL_APPS//+/ }; do
     app_file="$MANJIKAZE_DIR/app/installations/optional/${app,,}.sh"
     if [ -f "$app_file" ]; then
         source "$app_file"
+        install
     else
         status "Installation script for $app not found. Skipping."
     fi
