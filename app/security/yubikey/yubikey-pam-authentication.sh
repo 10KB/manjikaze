@@ -68,8 +68,6 @@ EOF
 
         sudo install -o root -g root -m 0440 "$tmp" /etc/sudoers.d/99-yubikey-prompt
         rm -f "$tmp"
-    else
-        status "Prompt already configured in /etc/pam.d/sudo."
     fi
 
     echo "PAM authentication with YubiKey has been configured for system-wide use."
