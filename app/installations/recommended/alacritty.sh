@@ -11,7 +11,7 @@ if [ ! -d ~/.config/alacritty ]; then
 fi
 
 # Pin Alacritty to dock and remove default terminal if using GNOME
-if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
+if [[ $(get_window_manager) == "gnome" ]]; then
     status "Pinning Alacritty to dock and removing default terminal..."
 
     # Get current favorites

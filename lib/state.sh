@@ -5,7 +5,7 @@ STATE_FILE="$MANJIKAZE_DIR/.manjikaze_state.json"
 
 init_state_file() {
     if [[ ! -f "$STATE_FILE" ]]; then
-        echo '{"migrations": {}, "audits": {}, "updates": {}}' > "$STATE_FILE"
+        echo '{"migrations": {}, "audits": {}, "updates": {}, "window_manager": "gnome"}' > "$STATE_FILE"
     fi
 }
 
@@ -47,4 +47,16 @@ set_update_check_time() {
     init_state_file
     local temp_state=$(mktemp)
     jq --arg ts "$timestamp" '.updates.last_check = $ts' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
+}
+
+get_window_manager() {
+    init_state_file
+    jq -r '.window_manager // ""' "$STATE_FILE"
+}
+
+set_window_manager() {
+    local window_manager="$1"
+    init_state_file
+    local temp_state=$(mktemp)
+    jq --arg wm "$window_manager" '.window_manager = $wm' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
 }

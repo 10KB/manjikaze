@@ -1,0 +1,45 @@
+#!/bin/bash
+set -e
+
+current_window_manager=$(get_window_manager)
+
+status "Current window manager: $current_window_manager"
+
+SELECTED_WINDOW_MANAGER=$(gum choose "gnome" "hyprland" --header "Select your window manager" --selected "$current_window_manager" --limit 1 --height 20)
+
+if [ -z "$SELECTED_WINDOW_MANAGER" ]; then
+    status "No window manager selected. Skipping..."
+    return
+fi
+
+if [ "$SELECTED_WINDOW_MANAGER" == "$current_window_manager" ]; then
+    status "Window manager is already set to: $SELECTED_WINDOW_MANAGER. No further action required."
+    return
+fi
+
+if [[ "$SELECTED_WINDOW_MANAGER" == "hyprland" ]]; then
+    if ! is_installed "hyprland"; then
+        status "Hyprland is not installed. Hyprland needs to be installed before enabling it. Do you want to install Hyprland now? (This will install Hyprland and all related packages)"
+        if ! gum confirm "Do you want to install Hyprland?"; then
+            status "Hyprland installation cancelled."
+            return
+        fi
+        source $MANJIKAZE_DIR/app/installations/hyprland/hyprland.sh
+        return
+    fi
+fi
+
+if gum confirm "Do you want to change the window manager to $SELECTED_WINDOW_MANAGER?"; then
+    set_window_manager "$SELECTED_WINDOW_MANAGER"
+    status "Window manager changed to: $SELECTED_WINDOW_MANAGER"
+
+    USER_FILE="/var/lib/AccountsService/users/$USER"
+    if [[ -f "$USER_FILE" ]]; then
+        status "Setting auto-login session to: $SELECTED_WINDOW_MANAGER"
+        sudo sed -i -E "s/^Session=.*/Session=$SELECTED_WINDOW_MANAGER/" "$USER_FILE"
+    else
+        status "Warning: AccountsService entry $USER_FILE not found – unable to adjust auto-login session automatically."
+    fi
+else
+    status "Window manager not changed."
+fi

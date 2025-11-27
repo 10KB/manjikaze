@@ -1,0 +1,21 @@
+{
+    "user": {
+        "format": "{work_H}:{work_M}:{work_S}",
+        "interval": 1
+    },
+    "clock": {
+        "interval": 1,
+        "format": "{:%Y-%m-%d %H:%M:%S}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "format-alt": "{:%Y-%m-%d}"
+    },
+    "custom/colorpicker": {
+        "format": "",
+        "on-click": "hyprpicker -a",
+        "tooltip": false
+    },
+    "hyprland/workspaces": {
+        "format": "{name}",
+        "on-click": "activate"
+    }
+}
