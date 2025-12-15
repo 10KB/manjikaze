@@ -170,7 +170,14 @@ fi
 
 if [ "$aur_count" -gt 0 ]; then
     status "Updating AUR packages..."
-    yay -Sua --noconfirm --noprogressbar
+    # Ensure system tools like brz use system Python for building AUR packages
+    PATH=/usr/bin:$PATH yay -Sua --noconfirm --noprogressbar
+fi
+
+# Sync mise runtimes if mise is installed
+if command -v mise &>/dev/null; then
+    status "Syncing mise runtimes..."
+    mise install
 fi
 
 # Update Cursor if available

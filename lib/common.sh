@@ -100,7 +100,8 @@ install_package() {
     local output
     if [[ "$type" == "aur" ]]; then
         status "Installing AUR package $package..."
-        output=$(yay -S "$package" --noconfirm --noprogressbar --quiet 2>&1)
+        # Ensure system tools use system Python for building AUR packages
+        output=$(PATH=/usr/bin:$PATH yay -S "$package" --noconfirm --noprogressbar --quiet 2>&1)
     else
         status "Installing repository package $package..."
         output=$(sudo pacman -S "$package" --noconfirm --noprogressbar --quiet 2>&1)
