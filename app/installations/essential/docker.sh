@@ -1,6 +1,6 @@
 install_docker() {
     status "Installing Docker..."
-    if ! sudo pamac install docker docker-buildx --no-confirm; then
+    if ! sudo pamac install docker docker-buildx iptables-nft --no-confirm; then
         status "Failed to install Docker packages."
         return 1
     fi
