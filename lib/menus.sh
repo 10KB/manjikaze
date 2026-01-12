@@ -32,6 +32,7 @@ declare -A configuration_menu=(
     ["3:Monospace font"]="load_module configuration/configure-font.sh"
     ["4:Git"]="load_module configuration/configure-git.sh"
     ["5:Network printer discovery"]="load_module configuration/configure-printing.sh"
+    ["6:Logitech C920 microphone"]="load_module configuration/configure-webcam-mic.sh"
 )
 
 declare -A security_menu=(
