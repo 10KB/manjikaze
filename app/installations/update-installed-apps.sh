@@ -28,6 +28,21 @@ cleanup_and_return() {
     return $return_code
 }
 
+# Function to refresh package signing keys
+# This fixes "signature is unknown trust" errors that occur when keyring
+# packages are outdated or the local keyring hasn't been refreshed
+refresh_keyrings() {
+    status "Refreshing package signing keys..."
+    if ! sudo pacman -S --needed --noconfirm archlinux-keyring manjaro-keyring 2>/dev/null; then
+        # If standard update fails, try a full keyring refresh
+        status "Standard keyring update failed, performing full keyring refresh..."
+        sudo pacman-key --init
+        sudo pacman-key --populate archlinux manjaro
+    else
+        sudo pacman-key --populate archlinux manjaro 2>/dev/null || true
+    fi
+}
+
 # Source Cursor installation functions
 source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
 
@@ -40,8 +55,13 @@ reboot_trigger_message=""
 # Update package databases
 status "Updating package databases..."
 if ! sudo pacman -Sy --noconfirm --noprogressbar; then
-    status "Error updating package databases. Please check your internet connection or run 'sudo pacman -Sy' manually to see detailed errors."
-    cleanup_and_return 1
+    # Database sync failed, might be a keyring issue - try refreshing keyrings first
+    refresh_keyrings
+    status "Retrying database sync..."
+    if ! sudo pacman -Sy --noconfirm --noprogressbar; then
+        status "Error updating package databases. Please check your internet connection or run 'sudo pacman -Sy' manually to see detailed errors."
+        cleanup_and_return 1
+    fi
 fi
 
 # Get list of repo packages to update, filtering out ignored packages
@@ -165,8 +185,19 @@ fi
 
 status "Updating installed packages..."
 if [ "$repo_count" -gt 0 ]; then
+    # Update keyrings first if there are keyring updates pending
+    keyring_updates=$(echo "$repo_updates" | grep -E "keyring" || true)
+    if [ -n "$keyring_updates" ]; then
+        refresh_keyrings
+    fi
+
     status "Updating system packages..."
-    sudo pacman -Su --noconfirm --noprogressbar
+    if ! sudo pacman -Su --noconfirm --noprogressbar; then
+        # If update fails, try refreshing keyring and retrying
+        refresh_keyrings
+        status "Retrying system update..."
+        sudo pacman -Su --noconfirm --noprogressbar
+    fi
 fi
 
 if [ "$aur_count" -gt 0 ]; then
