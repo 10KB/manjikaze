@@ -44,8 +44,9 @@ if ! sudo pacman -Sy --noconfirm --noprogressbar; then
     cleanup_and_return 1
 fi
 
-# Get list of repo packages to update
-repo_updates=$(pacman -Qu 2>/dev/null || echo "")
+# Get list of repo packages to update, filtering out ignored packages
+# pacman -Qu marks ignored packages with [ignored], so we filter those out
+repo_updates=$(pacman -Qu 2>/dev/null | grep -v '\[ignored\]' || echo "")
 repo_count=$(echo "$repo_updates" | grep -v "^$" | wc -l)
 
 # Get list of AUR packages to update
