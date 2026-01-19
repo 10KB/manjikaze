@@ -48,3 +48,15 @@ set_update_check_time() {
     local temp_state=$(mktemp)
     jq --arg ts "$timestamp" '.updates.last_check = $ts' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
 }
+
+get_cursor_release_track() {
+    init_state_file
+    jq -r '.settings.cursor_release_track // "stable"' "$STATE_FILE"
+}
+
+set_cursor_release_track() {
+    local track="$1"
+    init_state_file
+    local temp_state=$(mktemp)
+    jq --arg track "$track" '.settings.cursor_release_track = $track' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
+}
