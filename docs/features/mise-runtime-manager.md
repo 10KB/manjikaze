@@ -92,7 +92,3 @@ For complete documentation, visit:
 
 - [Mise Official Documentation](https://mise.jdx.dev/)
 - [GitHub Repository](https://github.com/jdx/mise)
-
----
-
-[← GUIs](gui.md) | [AWS Tools →](aws-tools.md)

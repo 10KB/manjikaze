@@ -166,7 +166,3 @@ plugins=(archlinux aws docker docker-compose git git-flow zoxide your-new-plugin
 ```
 
 Then reload your configuration with `source ~/.zshrc`.
-
----
-
-[← Terminal](terminal.md) | [GUIs →](gui.md)

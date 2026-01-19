@@ -12,7 +12,3 @@ This section documents the various features and capabilities of Manjikaze.
 - [Runtimes](mise-runtime-manager.md) - Language runtimes and package managers
 - [AWS Tools](aws-tools.md) - AWS CLI and AWS Vault configuration
 - [Cursor Installation](cursor-installation.md) - Cursor AI-editor installation
-
----
-
-[← Documentation Home](../README.md) | [Navigation and Hotkeys →](navigation.md)

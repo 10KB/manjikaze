@@ -1,0 +1,35 @@
+:root {
+  --vp-c-brand-1: #646cff;
+  --vp-c-brand-2: #747bff;
+  --vp-c-brand-3: #9499ff;
+}
+
+.dark {
+  --vp-c-brand-1: #747bff;
+  --vp-c-brand-2: #646cff;
+}
+
+/* Hero section styling */
+.VPHero .image-container {
+  position: relative;
+  z-index: 1;
+}
+
+.VPHero .image-container::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160%;
+  height: 160%;
+  z-index: -1;
+
+  /* Hexagon pattern */
+  background-image: url("data:image/svg+xml,%3Csvg width='56' height='100' viewBox='0 0 56 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 16 L28 0 L56 16 L56 50 L28 66 L0 50 M28 66 L28 100' fill='none' stroke='white' stroke-opacity='0.2' stroke-width='3'/%3E%3C/svg%3E");
+  background-size: 14px 25px;
+
+  mask-image: radial-gradient(circle, black 0%, transparent 60%);
+  -webkit-mask-image: radial-gradient(circle, black 0%, transparent 60%);
+  pointer-events: none;
+}

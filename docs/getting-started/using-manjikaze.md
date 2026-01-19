@@ -60,8 +60,4 @@ After initial setup, we recommend:
 2. Configure your operating system preferences
 3. Setting up Yubikey security features
 
-After installation read more detailed information about installed and configured features in the [Features documentation](../features/README.md). For more details about security features, see the [Security documentation](../security/README.md).
-
----
-
-[← Installation](installation.md)
+After installation read more detailed information about installed and configured features in the [Features documentation](../features/overview.md). For more details about security features, see the [Security documentation](../security/overview.md).

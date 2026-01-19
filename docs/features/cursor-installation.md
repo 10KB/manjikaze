@@ -49,7 +49,3 @@ source lib/common.sh
 source app/installations/essential/cursor.sh
 install_cursor
 ```
-
----
-
-[← AWS Tools](aws-tools.md) | [Documentation Home](../README.md)

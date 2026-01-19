@@ -83,7 +83,3 @@ To install optional applications:
 4. Follow the prompts to complete installation
 
 Most GUI applications can be found in the application menu after installation, or you can launch them from the terminal by typing their name (e.g., `dbeaver`, `flameshot`, `signal`).
-
----
-
-[← Shell Tools](shell-tools.md) | [AWS Tools →](aws-tools.md)

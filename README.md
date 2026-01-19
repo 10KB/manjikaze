@@ -32,7 +32,7 @@ curl -s https://raw.githubusercontent.com/10kb/manjikaze/main/install.sh | bash
 
 ## Documentation
 
-Our documentation is available in the [docs](docs/README.md) directory.
+📖 **[manjikaze.10kb.nl](https://manjikaze.10kb.nl)**
 
 ## License
 

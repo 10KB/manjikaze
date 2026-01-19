@@ -114,7 +114,3 @@ manjikaze
 ```
 
 Navigate to: Security → Replace Faulty Yubikey
-
----
-
-[← Yubikey Integration](yubikey.md) | [Documentation Home](../README.md)

@@ -81,7 +81,3 @@ If you want to customize your terminal experience, the relevant configuration fi
 - Alacritty: `~/.config/alacritty/alacritty.toml`
 - Zellij: `~/.config/zellij/config.kdl`
 - Zsh: `~/.zshrc`
-
----
-
-[← Tiling](tiling.md) | [Shell Tools →](shell-tools.md)

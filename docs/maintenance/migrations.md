@@ -72,7 +72,3 @@ If a migration continues to fail, you can:
 - Reach out to the community for help
 - Manually apply the changes the migration was attempting
 - Skip the problematic migration (advanced users only)
-
----
-
-[← Maintenance](README.md) | [Updates](updates.md)

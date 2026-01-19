@@ -131,7 +131,3 @@ If your system becomes unbootable after an update, you need to take additional s
    ```
 
 For more complex issues, consult the [Manjaro Wiki](https://wiki.manjaro.org) or seek help in the Manjaro community forums.
-
----
-
-[← Migrations](migrations.md) | [Documentation Home](../README.md)

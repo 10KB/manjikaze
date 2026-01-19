@@ -37,7 +37,3 @@ Before you begin installing Manjikaze, ensure you have the following:
 ## Next Step
 
 Everything set? Now continue with the [installation](installation.md)!
-
----
-
-[← Getting Started](README.md) | [Installation →](installation.md)

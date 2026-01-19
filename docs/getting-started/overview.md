@@ -13,7 +13,3 @@ This section guides you through the process of setting up Manjikaze on your work
 - **New users**: Start with the [Preparations](preparations.md) guide, then follow the links at the bottom of each page.
 - **Already have Manjaro installed?** Jump directly to [Manjikaze Installation](installation.md#manjikaze-installation).
 - **Already installed Manjikaze?** Go to [Using Manjikaze](using-manjikaze.md) for configuration options.
-
----
-
-[← Documentation Home](../README.md) | [Preparations →](preparations.md)

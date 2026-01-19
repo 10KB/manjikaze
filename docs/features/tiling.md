@@ -70,7 +70,3 @@ In addition to Tactile's positioning features, you can move windows between work
 |----------|--------|
 | `Shift + Super + Left` | Move window to the monitor on the left |
 | `Shift + Super + Right` | Move window to the monitor on the right |
-
----
-
-[← Navigation and Hotkeys](navigation.md) | [Terminal →](terminal.md)

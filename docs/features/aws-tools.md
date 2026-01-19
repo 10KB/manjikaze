@@ -88,7 +88,3 @@ This displays your profiles, the credentials they're using, and any active sessi
 ## Additional Resources
 
 For more detailed information about AWS Vault, refer to the [official GitHub repository](https://github.com/99designs/aws-vault).
-
----
-
-[← Runtimes](mise-runtime-manager.md) | [Cursor Installation →](cursor-installation.md)

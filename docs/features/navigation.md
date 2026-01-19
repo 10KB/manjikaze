@@ -94,7 +94,3 @@ To navigate quickly to your development directory:
 
 1. Press `Super + E` to open Nautilus
 2. Click on the "Webdev" bookmark in the sidebar
-
----
-
-[← Features](README.md) | [Tiling →](tiling.md)

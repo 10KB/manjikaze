@@ -85,7 +85,3 @@ manjikaze
 Navigate to: Security → Replace Faulty Yubikey
 
 Follow the prompts to configure your new Yubikey with the same security features as your previous one.
-
----
-
-[← Security Audits](audits.md) | [Disk Encryption →](disk-encryption.md)

@@ -58,7 +58,3 @@ If an audit fails, it indicates a potential security issue with your system. You
 ## Manual Audit Execution
 
 While audits run automatically at startup, you can also manually examine the audit scripts located in the `audits/` directory of your Manjikaze installation. Each audit can be run individually for debugging or verification purposes.
-
----
-
-[← Security](README.md) | [Yubikey Integration](yubikey.md)

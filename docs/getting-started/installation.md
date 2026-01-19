@@ -101,7 +101,3 @@ After installation, we recommend:
 3. Following the security configuration steps to set up Yubikey authentication
 
 See the [Using Manjikaze](using-manjikaze.md) section for details about these steps.
-
----
-
-[← Preparations](preparations.md) | [Using Manjikaze →](using-manjikaze.md)
