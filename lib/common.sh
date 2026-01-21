@@ -160,11 +160,11 @@ uninstall_package() {
     set +e
     local output
     if [[ "$type" == "aur" ]]; then
-        status "Uninstalling AUR package $package..."
-        output=$(yay -R "$package" --noconfirm --noprogressbar 2>&1)
+        status "Uninstalling AUR package $package and its unused dependencies..."
+        output=$(yay -Rs "$package" --noconfirm --noprogressbar 2>&1)
     else
-        status "Uninstalling repository package $package..."
-        output=$(sudo pacman -R "$package" --noconfirm --noprogressbar --quiet 2>&1)
+        status "Uninstalling repository package $package and its unused dependencies..."
+        output=$(sudo pacman -Rs "$package" --noconfirm --noprogressbar --quiet 2>&1)
     fi
     local exit_code=$?
 
