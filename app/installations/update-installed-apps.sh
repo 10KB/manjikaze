@@ -220,6 +220,15 @@ if [ "$cursor_update_available" = true ]; then
     status "Cursor update complete!"
 fi
 
+# Clean up orphan packages (dependencies no longer required by any installed package)
+orphans=$(pacman -Qdtq 2>/dev/null || echo "")
+if [ -n "$orphans" ]; then
+    orphan_count=$(echo "$orphans" | wc -l)
+    status "Found $orphan_count orphan package(s) to remove..."
+    echo "$orphans" | xargs sudo pacman -Rns --noconfirm --noprogressbar
+    status "Orphan packages removed."
+fi
+
 status "System update completed."
 
 if [ "$reboot_suggested" = true ]; then
