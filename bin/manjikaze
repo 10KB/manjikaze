@@ -93,7 +93,20 @@ show_header() {
 
 main() {
     if [[ "$1" == "update" ]]; then
+        clear
         show_header
+
+        status "Requesting administrator privileges for system commands..."
+        sudo -v
+        (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &)
+
+        # First update manjikaze itself
+        check_updates "$@"
+
+        # Run migrations after manjikaze update
+        run_migrations || status "Migration check/run finished with errors or cancellation."
+
+        # Then run system updates
         source "$MANJIKAZE_DIR/app/installations/update-installed-apps.sh"
         exit 0
     fi
