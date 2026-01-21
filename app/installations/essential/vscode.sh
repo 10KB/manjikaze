@@ -1,12 +1,12 @@
 install() {
-    install_package "code" repo
+    install_package "visual-studio-code-bin" aur
 
-    if [ ! -d ~/.config/Code\ -\ OSS/User ]; then
-        mkdir -p ~/.config/Code\ -\ OSS/User
-        cp "$MANJIKAZE_DIR/configs/code.json" ~/.config/Code\ -\ OSS/User/settings.json
+    if [ ! -d ~/.config/Code/User ]; then
+        mkdir -p ~/.config/Code/User
+        cp "$MANJIKAZE_DIR/configs/code.json" ~/.config/Code/User/settings.json
     fi
 }
 
 uninstall() {
-    uninstall_package "code" repo
+    uninstall_package "visual-studio-code-bin" aur
 }
