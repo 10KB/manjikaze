@@ -85,7 +85,12 @@ if [ -d ~/.local/share/cursor ]; then
     installed_version=$(get_cursor_installed_version)
 
     if [[ -n "$installed_version" ]]; then
-        latest_url=$(get_cursor_download_url)
+        # Get the release track, defaulting to "stable" for "stable+nightly"
+        cursor_release_track=$(get_cursor_release_track)
+        if [[ "$cursor_release_track" == "stable+nightly" ]]; then
+            cursor_release_track="stable"
+        fi
+        latest_url=$(get_cursor_download_url "$cursor_release_track")
         latest_version=$(echo "$latest_url" | grep -oP 'Cursor-\K[0-9]+\.[0-9]+\.[0-9]+' || echo "")
 
         if [[ -n "$latest_version" && "$installed_version" != "$latest_version" ]]; then
