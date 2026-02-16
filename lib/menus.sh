@@ -42,8 +42,11 @@ declare -A security_menu=(
     ["3:Configure Yubikey as MFA for system"]="load_module security/yubikey/yubikey-pam-authentication.sh"
     ["4:Auto lock on Yubikey removal"]="load_module security/yubikey/yubikey-suspend.sh"
     ["5:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
-    ["6:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
-    ["7:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
+    ["6:Configure YubiKey for GPG and SSH"]="load_module security/yubikey/yubikey-setup-gpg.sh"
+    ["7:YubiKey GPG health check"]="load_module security/yubikey/yubikey-gpg-health.sh"
+    ["8:Restore GPG keys to new YubiKey"]="load_module security/yubikey/yubikey-gpg-restore.sh"
+    ["9:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
+    ["10:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
 )
 
 handle_menu() {
