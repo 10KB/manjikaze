@@ -9,6 +9,7 @@ install() {
     install_package "yubikey-personalization" repo
     install_package "expect" repo
     install_package "pamtester" aur
+    install_package "yubico-authenticator-bin" aur
 
     sudo systemctl enable pcscd.service
     sudo systemctl start pcscd.service
@@ -25,4 +26,5 @@ uninstall() {
     uninstall_package "yubikey-personalization" repo
     uninstall_package "expect" repo
     uninstall_package "pamtester" aur
+    uninstall_package "yubico-authenticator-bin" aur
 }

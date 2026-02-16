@@ -16,6 +16,20 @@ The Yubikey Touch Detector is a utility that shows an on-screen notification whe
 
 The notification helps you know exactly when you need to touch your Yubikey to confirm an operation, improving the user experience when working with touch-required operations.
 
+## GPG & SSH Authentication
+
+Manjikaze can configure your YubiKey as a hardware-backed GPG and SSH key. Private keys are generated directly on the YubiKey and **cannot be extracted**. All cryptographic operations happen on the chip.
+
+Key features:
+- **SSH authentication** - Use your YubiKey for SSH login (replaces `~/.ssh/id_rsa`)
+- **Git commit signing** - Commits show as "Verified" on GitHub/GitLab
+- **Three-layer security** - Physical possession + PIN (once per day) + touch (per operation)
+- **Automated backup** - Keys and revocation certificates are backed up to Bitwarden
+- **Health check** - Diagnostic script to verify your setup
+- **Restore flow** - Restore keys to a new YubiKey if the original is lost
+
+For a full technical explanation of the architecture, security model, and scripts, see the [YubiKey GPG & SSH Setup](./yubikey-gpg-ssh.md) guide.
+
 ## Yubikey for Full Disk Encryption
 
 Using a Yubikey as a second factor for disk encryption adds a significant layer of security to your system. Manjikaze uses the [yubikey-full-disk-encryption](https://github.com/agherzan/yubikey-full-disk-encryption) package to implement this functionality.

@@ -34,6 +34,7 @@ const docsSidebar = [
             { text: 'Overview', link: '/security/overview' },
             { text: 'Security Audits', link: '/security/audits' },
             { text: 'Yubikey Integration', link: '/security/yubikey' },
+            { text: 'YubiKey GPG & SSH', link: '/security/yubikey-gpg-ssh' },
             { text: 'Disk Encryption', link: '/security/disk-encryption' },
         ],
     },

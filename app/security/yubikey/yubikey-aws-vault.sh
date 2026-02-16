@@ -37,16 +37,17 @@ if [[ $setup_yubikey_aws == "true" ]]; then
     status "YubiKey detected with OATH support."
 
     echo ""
-    echo "╔══════════════════════════════════════════════════════════════════╗"
-    echo "║  YubiKey OATH-TOTP setup for AWS Vault                         ║"
-    echo "║                                                                ║"
-    echo "║  This will configure your YubiKey to generate TOTP codes       ║"
-    echo "║  for AWS MFA, so you can use aws-vault with a touch instead    ║"
-    echo "║  of typing a 6-digit code.                                     ║"
-    echo "║                                                                ║"
-    echo "║  AWS CLI does NOT support FIDO-U2F, only TOTP.                 ║"
-    echo "║  Your YubiKey's OATH-TOTP feature bridges this gap.            ║"
-    echo "╚══════════════════════════════════════════════════════════════════╝"
+    gum style \
+        --border double --border-foreground 208 \
+        --padding "1 2" --margin "0 1" \
+        "YubiKey OATH-TOTP setup for AWS Vault" \
+        "" \
+        "This will configure your YubiKey to generate TOTP codes" \
+        "for AWS MFA, so you can use aws-vault with a touch instead" \
+        "of typing a 6-digit code." \
+        "" \
+        "AWS CLI does NOT support FIDO-U2F, only TOTP." \
+        "Your YubiKey's OATH-TOTP feature bridges this gap."
     echo ""
 
     # List existing OATH accounts on the YubiKey
@@ -256,9 +257,10 @@ if [[ $setup_yubikey_aws == "true" ]]; then
 
     # Done
     echo ""
-    echo "╔══════════════════════════════════════════════════════════════════╗"
-    echo "║  ✅ YubiKey OATH-TOTP configured for AWS Vault                 ║"
-    echo "╚══════════════════════════════════════════════════════════════════╝"
+    gum style \
+        --border double --border-foreground 76 \
+        --padding "1 2" --margin "0 1" \
+        "✅ YubiKey OATH-TOTP configured for AWS Vault"
     echo ""
     echo "Usage:"
     echo "  aws-vault exec <profile> -- <command>"
