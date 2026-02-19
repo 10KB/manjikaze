@@ -207,8 +207,23 @@ fi
 
 if [ "$aur_count" -gt 0 ]; then
     status "Updating AUR packages..."
-    # Ensure system tools like brz use system Python for building AUR packages
-    PATH=/usr/bin:$PATH yay -Sua --noconfirm --noprogressbar
+    aur_packages_to_update=$(echo "$aur_updates" | awk '{print $1}' || echo "")
+    failed_packages=()
+
+    for pkg in $aur_packages_to_update; do
+        status "Updating package $pkg..."
+        # PATH override ensures system tools like brz use system Python for building AUR packages
+        if PATH=/usr/bin:$PATH yay -S --needed --noconfirm --noprogressbar "$pkg"; then
+            status "Updating package $pkg succeeded."
+        else
+            status "Updating package $pkg failed."
+            failed_packages+=("$pkg")
+        fi
+    done
+
+    if [ ${#failed_packages[@]} -gt 0 ]; then
+        status "Failed to install the following packages. Manual intervention is required: [${failed_packages[*]}]"
+    fi
 fi
 
 # Sync mise runtimes if mise is installed
