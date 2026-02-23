@@ -24,6 +24,43 @@ source "$MANJIKAZE_DIR/lib/migrations.sh"
 source "$MANJIKAZE_DIR/lib/audits.sh"
 source "$MANJIKAZE_DIR/lib/menus.sh"
 
+verify_commit_signatures() {
+    local local_rev=$1
+    local remote_rev=$2
+
+    # Only verify if the GPG CA has been set up (via migration)
+    if [[ "$(get_security_state 'gpg_ca_trusted')" != "true" ]]; then
+        return 1
+    fi
+
+    local commits
+    commits=$(git -C "$MANJIKAZE_DIR" rev-list "$local_rev..$remote_rev")
+
+    for commit in $commits; do
+        local short_hash=$(git -C "$MANJIKAZE_DIR" rev-parse --short "$commit")
+
+        # G = good signature from a fully trusted key (signed by a CA-certified developer)
+        # U = good signature but key is not trusted (developer key not signed by CA)
+        # N = no signature, B = bad, E = error, X/Y/R = expired/revoked
+        local sig_status=$(git -C "$MANJIKAZE_DIR" log --format='%G?' -1 "$commit")
+
+        if [[ "$sig_status" != "G" ]]; then
+            local signer=$(git -C "$MANJIKAZE_DIR" log --format='%GS' -1 "$commit")
+            if [[ "$sig_status" == "U" ]]; then
+                status "Error: Commit $short_hash is signed by '$signer' but their key is not certified by the 10KB CA."
+                status "Their key needs to be signed by the CA administrator."
+            elif [[ "$sig_status" == "N" ]]; then
+                status "Error: Commit $short_hash is not signed."
+            else
+                status "Error: Commit $short_hash has an invalid signature (status: $sig_status)."
+            fi
+            return 1
+        fi
+    done
+
+    return 0
+}
+
 check_updates() {
     if [ -d "$MANJIKAZE_DIR/.git" ] && [ "$DEV_MODE" = false ]; then
         status "Checking for Manjikaze updates..."
@@ -31,6 +68,16 @@ check_updates() {
         local_rev=$(git -C "$MANJIKAZE_DIR" rev-parse HEAD)
         remote_rev=$(git -C "$MANJIKAZE_DIR" rev-parse @{u})
         if [ "$local_rev" != "$remote_rev" ]; then
+            # Verify commit signatures before offering to update
+            if ! verify_commit_signatures "$local_rev" "$remote_rev"; then
+                status "Commit signature verification failed."
+                if ! gum confirm "Do you want to skip verification and update anyway?" --default=false; then
+                    status "Update cancelled due to signature verification failure."
+                    return 1
+                fi
+                status "Warning: Proceeding without signature verification."
+            fi
+
             if gum confirm "Updates available. Would you like to update Manjikaze?"; then
                 if ! git -C "$MANJIKAZE_DIR" pull --ff-only; then
                     if git -C "$MANJIKAZE_DIR" diff --quiet HEAD; then

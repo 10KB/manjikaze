@@ -72,6 +72,18 @@ This will:
     cp "$MANJIKAZE_DIR/app/security/yubikey/gpg.conf" ~/.gnupg/gpg.conf
     chmod 600 ~/.gnupg/gpg.conf
 
+    # Re-import the Code Signing CA after keyring reset (for commit verification)
+    local ca_key="$MANJIKAZE_DIR/assets/certs/10kb-code-signing-ca.asc"
+    if [[ -f "$ca_key" ]]; then
+        gpg --import "$ca_key" 2>/dev/null || true
+        local ca_fp
+        ca_fp=$(gpg --with-colons --import-options show-only --import "$ca_key" 2>/dev/null \
+            | grep '^fpr:' | head -1 | cut -d: -f10)
+        if [[ -n "$ca_fp" ]]; then
+            echo "$ca_fp:6:" | gpg --import-ownertrust 2>/dev/null
+        fi
+    fi
+
     # scdaemon: disable-ccid prevents repeated prompts for an already-inserted key
     echo "disable-ccid" > ~/.gnupg/scdaemon.conf
     chmod 600 ~/.gnupg/scdaemon.conf

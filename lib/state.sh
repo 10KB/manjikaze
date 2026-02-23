@@ -60,3 +60,17 @@ set_cursor_release_track() {
     local temp_state=$(mktemp)
     jq --arg track "$track" '.settings.cursor_release_track = $track' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
 }
+
+get_security_state() {
+    local key="$1"
+    init_state_file
+    jq -r ".security.\"$key\" // \"\"" "$STATE_FILE"
+}
+
+set_security_state() {
+    local key="$1"
+    local value="$2"
+    init_state_file
+    local temp_state=$(mktemp)
+    jq --arg key "$key" --arg val "$value" '.security += {($key): $val}' "$STATE_FILE" > "$temp_state" && mv "$temp_state" "$STATE_FILE"
+}
