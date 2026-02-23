@@ -47,6 +47,7 @@ declare -A security_menu=(
     ["8:Restore GPG keys to new YubiKey"]="load_module security/yubikey/yubikey-gpg-restore.sh"
     ["9:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
     ["10:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
+    ["11:Create document signing certificate"]="load_module security/document-signing/setup-document-signing.sh"
 )
 
 handle_menu() {
