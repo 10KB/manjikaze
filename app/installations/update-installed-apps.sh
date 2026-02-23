@@ -83,20 +83,11 @@ cursor_version_info=""
 if [ -d ~/.local/share/cursor ]; then
     status "Checking for Cursor updates..."
     installed_version=$(get_cursor_installed_version)
+    latest_version=$(get_cursor_latest_stable_version)
 
-    if [[ -n "$installed_version" ]]; then
-        # Get the release track, defaulting to "stable" for "stable+nightly"
-        cursor_release_track=$(get_cursor_release_track)
-        if [[ "$cursor_release_track" == "stable+nightly" ]]; then
-            cursor_release_track="stable"
-        fi
-        latest_url=$(get_cursor_download_url "$cursor_release_track")
-        latest_version=$(echo "$latest_url" | grep -oP 'Cursor-\K[0-9]+\.[0-9]+\.[0-9]+' || echo "")
-
-        if [[ -n "$latest_version" && "$installed_version" != "$latest_version" ]]; then
-            cursor_update_available=true
-            cursor_version_info="$installed_version → $latest_version"
-        fi
+    if [[ -n "$installed_version" && -n "$latest_version" && "$installed_version" != "$latest_version" ]]; then
+        cursor_update_available=true
+        cursor_version_info="$installed_version → $latest_version"
     fi
 fi
 
@@ -219,9 +210,13 @@ fi
 
 # Update Cursor if available
 if [ "$cursor_update_available" = true ]; then
+    cursor_track=$(get_cursor_release_track)
     status "Updating Cursor..."
-    download_cursor_appimage "$latest_url"
-    install_cursor_from_appimage
+    install_stable_signed
+    # Nightly doesn't have a remote version API, so update alongside stable when both tracks are active
+    if [[ "$cursor_track" == "stable+nightly" ]]; then
+        install_nightly_appimage
+    fi
     status "Cursor update complete!"
 fi
 
