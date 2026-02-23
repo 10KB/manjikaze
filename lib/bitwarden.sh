@@ -74,6 +74,71 @@ unlock_bitwarden() {
     bw sync --session "$BW_SESSION" >/dev/null 2>&1 || true
 }
 
+# ── Organization helpers ───────────────────────────────────────────────
+
+get_org_id() {
+    local org_name="${1:-10KB}"
+    bw list organizations --session "$BW_SESSION" 2>/dev/null \
+        | jq -r ".[] | select(.name==\"$org_name\") | .id"
+}
+
+get_user_collection_id() {
+    local org_id="$1"
+    local user_name="$2"
+    local collection_path="Medewerkers/${user_name}"
+
+    bw list org-collections --organizationid "$org_id" --session "$BW_SESSION" 2>/dev/null \
+        | jq -r ".[] | select(.name==\"$collection_path\") | .id"
+}
+
+upsert_org_note() {
+    local org_id="$1"
+    local collection_id="$2"
+    local note_name="$3"
+    local note_content="$4"
+
+    # Search for existing item in the organization
+    local existing_item
+    existing_item=$(bw list items --organizationid "$org_id" --collectionid "$collection_id" \
+        --session "$BW_SESSION" 2>/dev/null \
+        | jq -r ".[] | select(.name==\"$note_name\") | .id")
+
+    local item_id
+
+    if [[ -n "$existing_item" ]]; then
+        bw get item "$existing_item" --session "$BW_SESSION" | \
+            jq --arg notes "$note_content" '.notes = $notes' | \
+            bw encode | \
+            bw edit item "$existing_item" --session "$BW_SESSION" > /dev/null
+        item_id="$existing_item"
+    else
+        item_id=$(bw get template item | \
+            jq --arg name "$note_name" \
+               --arg org_id "$org_id" \
+               --arg coll_id "$collection_id" \
+               --arg notes "$note_content" \
+            '.type = 2 | .secureNote.type = 0 | .name = $name | .organizationId = $org_id | .collectionIds = [$coll_id] | .notes = $notes' | \
+            bw encode | \
+            bw create item --session "$BW_SESSION" | jq -r '.id')
+    fi
+    echo "$item_id"
+}
+
+add_attachment() {
+    local item_id="$1"
+    local file_path="$2"
+
+    if [[ ! -f "$file_path" ]]; then
+        status "Error: File not found: $file_path"
+        return 1
+    fi
+
+    status "Adding attachment: $(basename "$file_path")..."
+    bw create attachment --file "$file_path" --itemid "$item_id" --session "$BW_SESSION" > /dev/null
+}
+
+# ── Legacy folder-based helpers (backward compatibility) ───────────────
+
 ensure_folder() {
     local folder_name="$1"
 
@@ -116,17 +181,4 @@ upsert_note() {
             bw create item --session "$BW_SESSION" | jq -r '.id')
     fi
     echo "$item_id"
-}
-
-add_attachment() {
-    local item_id="$1"
-    local file_path="$2"
-
-    if [[ ! -f "$file_path" ]]; then
-        status "Error: File not found: $file_path"
-        return 1
-    fi
-
-    status "Adding attachment: $(basename "$file_path")..."
-    bw create attachment --file "$file_path" --itemid "$item_id" --session "$BW_SESSION" > /dev/null
 }

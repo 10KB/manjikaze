@@ -208,6 +208,90 @@ EOF
                 --quick-add-key "$key_fp" "$key_type" "$subkey" "$expiration"
     done
 
+    # ── Sign developer key with 10KB CA ────────────────────────────────
+    # The developer's public key must be signed by the 10KB CA so that
+    # manjikaze can verify their commits. The CA admin sends the CA
+    # private key via a Bitwarden Send link (time-limited, single use).
+    # This step is done BEFORE the backup, so the backup contains the
+    # CA-signed public key.
+    echo ""
+    gum style \
+        --border rounded --border-foreground 212 \
+        --padding "1 2" --margin "0 1" \
+        "🔐 10KB CA Code Signing" \
+        "" \
+        "To verify your commits, your GPG key must be signed by the" \
+        "10KB Code Signing CA. Ask your CA administrator for a" \
+        "Bitwarden Send link containing the CA private key." \
+        "" \
+        "The administrator creates the Send with:" \
+        "  • Max access count: 1" \
+        "  • Expiration: 1 hour" \
+        "" \
+        "The CA key will be removed from this machine after signing."
+    echo ""
+
+    local ca_signed=false
+    if gum confirm "Do you have a Bitwarden Send link for the CA key?" --default=false; then
+        local send_url
+        send_url=$(gum input --header "Paste the Bitwarden Send link:" --placeholder "https://vault.bitwarden.com/...")
+
+        if [[ -n "$send_url" ]]; then
+            local send_password=""
+            if gum confirm "Does the Send link require a password?" --default=false; then
+                send_password=$(gum input --password --header "Enter the Send password:")
+            fi
+
+            local ca_private_key
+            ca_private_key=$(mktemp)
+
+            # Download the CA key via Bitwarden Send
+            status "Downloading CA key from Bitwarden Send..."
+            local receive_cmd="bw send receive \"$send_url\" --output \"$ca_private_key\""
+            if [[ -n "$send_password" ]]; then
+                receive_cmd="$receive_cmd --password \"$send_password\""
+            fi
+
+            if eval "$receive_cmd" 2>/dev/null; then
+                # Import the CA key, sign the developer key, then remove the CA key
+                local ca_key_fp
+                ca_key_fp=$(gpg --with-colons --import-options show-only --import "$ca_private_key" 2>/dev/null \
+                    | grep '^fpr:' | head -1 | cut -d: -f10)
+
+                gpg --batch --import "$ca_private_key" 2>/dev/null
+
+                # Sign the developer key with the CA key (non-interactive)
+                if gpg --batch --yes --default-key "$ca_key_fp" --sign-key "$key_fp" 2>/dev/null; then
+                    status "Your GPG key has been signed by the 10KB CA."
+                    ca_signed=true
+
+                    # Upload signed key to keyserver
+                    status "Uploading signed key to keys.openpgp.org..."
+                    gpg --keyserver hkps://keys.openpgp.org --send-keys "$key_fp" 2>/dev/null && \
+                        status "Key uploaded to keyserver." || \
+                        status "Warning: Could not upload to keyserver. You may need to do this manually."
+                else
+                    status "Warning: Failed to sign your key with the CA."
+                fi
+
+                # Remove the CA private key from the local keyring
+                gpg --batch --yes --delete-secret-keys "$ca_key_fp" 2>/dev/null || true
+            else
+                status "Warning: Could not download CA key from Bitwarden Send."
+                status "The link may have expired or already been used."
+            fi
+
+            # Securely remove the temporary file
+            shred -u "$ca_private_key" 2>/dev/null || rm -f "$ca_private_key"
+        fi
+    fi
+
+    if [[ "$ca_signed" != "true" ]]; then
+        status "Your key was NOT signed by the 10KB CA."
+        status "Your commits will not pass manjikaze's signature verification until your key is CA-signed."
+        status "Ask a CA administrator to sign your key and re-run this step."
+    fi
+
     # ── Backup keys ────────────────────────────────────────────────────
     status "Creating backups of GPG keys..."
     local secrets_dir="$MANJIKAZE_DIR/secrets"
@@ -245,38 +329,51 @@ REVEOF
         status "Warning: Could not unlock Bitwarden. Skipping key backup."
         echo "Make sure to backup your GPG keys manually from: $secrets_dir"
     else
-        local folder_id
-        folder_id=$(ensure_folder "YubiKey")
-        if [[ -n "$folder_id" ]]; then
-            local yubikey_serial
-            yubikey_serial=$(ykman info | grep "Serial number:" | awk '{print $3}')
-            local note_name="YubiKey GPG Keys - ${yubikey_serial:-Unknown}"
-            local note_content="YubiKey Serial: ${yubikey_serial:-Unknown}
+        local org_id
+        org_id=$(get_org_id "10KB")
+        if [[ -z "$org_id" ]]; then
+            status "Warning: 10KB organization not found in Bitwarden. Skipping backup."
+        else
+            # Ask for the user's name to find their personal collection (Medewerkers/Name)
+            local bw_user_name
+            bw_user_name=$(gum input --header "Your name as it appears in Bitwarden (Medewerkers/...):" --value "$name")
+            local collection_id
+            collection_id=$(get_user_collection_id "$org_id" "$bw_user_name")
+
+            if [[ -z "$collection_id" ]]; then
+                status "Warning: Collection 'Medewerkers/$bw_user_name' not found. Skipping backup."
+            else
+                local yubikey_serial
+                yubikey_serial=$(ykman info | grep "Serial number:" | awk '{print $3}')
+                local note_name="YubiKey GPG Keys - ${yubikey_serial:-Unknown}"
+                local note_content="YubiKey Serial: ${yubikey_serial:-Unknown}
 GPG Key ID: $key_id
 Fingerprint: $key_fp
 Created: $backup_date
 Certify Key Passphrase: $certify_pass"
 
-            local item_id
-            item_id=$(upsert_note "$folder_id" "$note_name" "$note_content")
-            if [[ -n "$item_id" ]]; then
-                echo "Adding attachments to Bitwarden note $item_id"
-                add_attachment "$item_id" "$secrets_dir/$key_id-Certify.key"
-                add_attachment "$item_id" "$secrets_dir/$key_id-Subkeys.key"
-                add_attachment "$item_id" "$secrets_dir/$key_id-$backup_date.asc"
-                add_attachment "$item_id" "$secrets_dir/$key_id-revoke.asc"
-                status "GPG keys and revocation certificate backed up to Bitwarden"
+                local item_id
+                item_id=$(upsert_org_note "$org_id" "$collection_id" "$note_name" "$note_content")
+                if [[ -n "$item_id" ]]; then
+                    echo "Adding attachments to Bitwarden note $item_id"
+                    add_attachment "$item_id" "$secrets_dir/$key_id-Certify.key"
+                    add_attachment "$item_id" "$secrets_dir/$key_id-Subkeys.key"
+                    add_attachment "$item_id" "$secrets_dir/$key_id-$backup_date.asc"
+                    add_attachment "$item_id" "$secrets_dir/$key_id-revoke.asc"
+                    status "GPG keys backed up to Bitwarden (Medewerkers/$bw_user_name)"
 
-                if gum confirm "Would you like to remove the local backup files now that they are stored in Bitwarden?"; then
-                    rm -f "$secrets_dir/$key_id-Certify.key" \
-                          "$secrets_dir/$key_id-Subkeys.key" \
-                          "$secrets_dir/$key_id-$backup_date.asc" \
-                          "$secrets_dir/$key_id-revoke.asc"
-                    status "Local backup files removed"
+                    if gum confirm "Would you like to remove the local backup files now that they are stored in Bitwarden?"; then
+                        rm -f "$secrets_dir/$key_id-Certify.key" \
+                              "$secrets_dir/$key_id-Subkeys.key" \
+                              "$secrets_dir/$key_id-$backup_date.asc" \
+                              "$secrets_dir/$key_id-revoke.asc"
+                        status "Local backup files removed"
+                    fi
                 fi
             fi
         fi
     fi
+
 
     # ── Transfer subkeys to YubiKey ────────────────────────────────────
     # GPG 2.x routes ALL PIN/passphrase requests through pinentry, even with
@@ -517,13 +614,16 @@ EOF
             echo ""
             gum confirm "I have saved my PINs" --affirmative "Yes, continue" --default=false || true
         else
-            local folder_id
-            folder_id=$(ensure_folder "YubiKey")
-            if [[ -n "$folder_id" ]]; then
-                local yubikey_serial
-                yubikey_serial=$(ykman info | grep "Serial number:" | awk '{print $3}')
-                local note_name="YubiKey GPG Keys - ${yubikey_serial:-Unknown}"
-                local note_content="YubiKey Serial: ${yubikey_serial:-Unknown}
+            local org_id
+            org_id=$(get_org_id "10KB")
+            if [[ -n "$org_id" && -n "${bw_user_name:-}" ]]; then
+                local collection_id
+                collection_id=$(get_user_collection_id "$org_id" "$bw_user_name")
+                if [[ -n "$collection_id" ]]; then
+                    local yubikey_serial
+                    yubikey_serial=$(ykman info | grep "Serial number:" | awk '{print $3}')
+                    local note_name="YubiKey GPG Keys - ${yubikey_serial:-Unknown}"
+                    local note_content="YubiKey Serial: ${yubikey_serial:-Unknown}
 GPG Key ID: $key_id
 Fingerprint: $key_fp
 Created: $backup_date
@@ -532,8 +632,9 @@ Certify Key Passphrase: $certify_pass
 User PIN: $new_user_pin
 Admin PIN: $new_admin_pin"
 
-                upsert_note "$folder_id" "$note_name" "$note_content"
-                status "YubiKey PINs stored in Bitwarden"
+                    upsert_org_note "$org_id" "$collection_id" "$note_name" "$note_content"
+                    status "YubiKey PINs stored in Bitwarden (Medewerkers/$bw_user_name)"
+                fi
             fi
         fi
     fi
