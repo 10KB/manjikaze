@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T13:28:00+01:00",
+    "updated": "2026-02-24T13:28:00+01:00",
+    "name": "todoist-001-allow-dns",
+    "description": "Allow Todoist to resolve DNS. The Todoist AppImage bypasses the system resolver and connects directly to public DNS servers (1.1.1.1, 8.8.8.8) to resolve domains via UDP port 53.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^/tmp/\\.mount_todois.*/todoist$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.port",
+                "data": "53",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

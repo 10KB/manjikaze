@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T13:19:00+01:00",
+    "updated": "2026-02-24T13:19:00+01:00",
+    "name": "ssh-000-allow-git-providers",
+    "description": "Allow SSH connections to approved git hosting providers only. This covers git clone/push/pull over SSH to GitHub, GitLab, and Azure DevOps. SSH to any other host will trigger an OpenSnitch popup, providing visibility into unauthorized code pushes or potential secret exfiltration. Developers needing SSH access to servers (e.g. for debugging) can approve those connections temporarily via the popup.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/bin/ssh",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(github\\.com|gitlab\\.com|ssh\\.dev\\.azure\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

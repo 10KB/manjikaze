@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:24:00+01:00",
+    "updated": "2026-02-24T11:24:00+01:00",
+    "name": "system-001-allow-networkmanager",
+    "description": "Allow NetworkManager connectivity checks and DHCP. NetworkManager pings connectivity.manjaro.org to detect captive portals and verify internet access. Also needs LAN access for DHCP lease management and gateway communication.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/bin/NetworkManager",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.ip",
+                "data": "^(10\\..*|172\\.(1[6-9]|2[0-9]|3[01])\\..*|192\\.168\\..*|255\\.255\\.255\\.255)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

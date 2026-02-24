@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:21:00+01:00",
+    "updated": "2026-02-24T09:21:00+01:00",
+    "name": "dropbox-002-allow-ip-ranges",
+    "description": "Allow Dropbox connections to Dropbox-owned IP ranges (AS19679). Dropbox uses direct IP connections for file transfer, notification channels, and P2P sync. Known ranges: 162.125.0.0/16 (primary block), 108.160.160.0/20, 45.58.64.0/20, 199.47.216.0/22. This is more restrictive than allowing all outbound traffic — only Dropbox's own infrastructure is permitted.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^(/home/[^/]+/\\.dropbox-dist/dropbox-lnx\\.x86_64-[0-9.]+/dropbox|/opt/dropbox/dropbox)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.ip",
+                "data": "^(162\\.125\\..*|108\\.160\\.(1[6-7][0-9])\\..*|45\\.58\\.(6[4-9]|7[0-9])\\..*|199\\.47\\.21[6-9]\\..*)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

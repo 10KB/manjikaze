@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T13:13:00+01:00",
+    "updated": "2026-02-24T13:13:00+01:00",
+    "name": "aws-001-allow-cli-downloads",
+    "description": "Allow curl to download AWS CLI updates from awscli.amazonaws.com. This is used by the manjikaze update script to install/update the AWS CLI v2.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/bin/curl",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "awscli.amazonaws.com",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

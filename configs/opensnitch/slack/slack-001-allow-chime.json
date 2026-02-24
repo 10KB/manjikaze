@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:56:00+01:00",
+    "updated": "2026-02-24T09:56:00+01:00",
+    "name": "slack-001-allow-chime",
+    "description": "Allow Slack Huddles and calls via Amazon Chime. Slack uses AWS Chime as its backend for audio/video calls (Huddles, Slack Calls). The *.chime.aws domain handles WebRTC signaling, TURN servers, and media relay for real-time communication.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/slack/slack",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(chime\\.aws\\.?)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:39:00+01:00",
+    "updated": "2026-02-24T09:39:00+01:00",
+    "name": "spotify-000-deny-tracking",
+    "description": "Block Spotify telemetry, crash reporting, and advertising. Sentry (o22381.ingest.sentry.io) is crash reporting/telemetry. DoubleClick (securepubads.g.doubleclick.net) is Google ad serving. Neither is required for Spotify to function.",
+    "action": "deny",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/opt/spotify/spotify",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(.*\\.sentry\\.io|.*\\.doubleclick\\.net|.*\\.googlesyndication\\.com|.*\\.googleadservices\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": true,
+    "nolog": false
+}

@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:39:00+01:00",
+    "updated": "2026-02-24T09:39:00+01:00",
+    "name": "spotify-002-allow-google-services",
+    "description": "Allow Spotify connections to Google services required for authentication and push notifications. accounts.google.com is needed for Google SSO login. mtalk.google.com is Google's push notification service (FCM/GCM) used for Spotify Connect device notifications. clients2.google.com and android.clients.google.com are used for update checks and license verification. www.google.com is used for OAuth redirects. safebrowsing.googleapis.com is used by the embedded Chromium browser for URL safety checks.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/opt/spotify/spotify",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(accounts\\.google\\.com|mtalk\\.google\\.com|clients2\\.google\\.com|android\\.clients\\.google\\.com|www\\.google\\.com|safebrowsing\\.googleapis\\.com|content-autofill\\.googleapis\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

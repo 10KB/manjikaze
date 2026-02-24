@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T13:13:00+01:00",
+    "updated": "2026-02-24T13:13:00+01:00",
+    "name": "aws-000-allow-amazonaws",
+    "description": "Allow AWS tools to connect to AWS services. aws-vault handles STS credential management and MFA. The AWS CLI v2 (installed at /usr/local/aws-cli/) manages all AWS service interactions. Both only need *.amazonaws.com. Uses version-independent path regex for the CLI.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^(/usr/bin/aws-vault|/usr/local/aws-cli/.*/aws)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(amazonaws\\.com|amazoncognito\\.com|amazonwebservices\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

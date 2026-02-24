@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T12:12:00+01:00",
+    "updated": "2026-02-24T12:12:00+01:00",
+    "name": "smartgit-001-allow-dns",
+    "description": "Allow SmartGit's bundled JRE to perform DNS resolution. Unlike most apps that use the system resolver, SmartGit's JRE queries DNS servers directly (1.1.1.1 Cloudflare, 8.8.4.4 Google) on UDP port 53.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/opt/smartgit/jre/bin/java",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.port",
+                "data": "53",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:39:00+01:00",
+    "updated": "2026-02-24T09:39:00+01:00",
+    "name": "spotify-003-allow-lan-discovery",
+    "description": "Allow Spotify Connect LAN discovery. Spotify uses SSDP (239.255.255.250) and mDNS to discover Chromecast, smart speakers, and other Spotify Connect devices on the local network. Also allows RFC1918 private ranges for direct communication with discovered devices. Unlike Dropbox LAN Sync, Spotify Connect is a core feature that users actively rely on — disabling it would break casting to speakers and TVs.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/opt/spotify/spotify",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.ip",
+                "data": "^(10\\..*|172\\.(1[6-9]|2[0-9]|3[01])\\..*|192\\.168\\..*|239\\.255\\.255\\.250|224\\.0\\.0\\.251|ff02::fb)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

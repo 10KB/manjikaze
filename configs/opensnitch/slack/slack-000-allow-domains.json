@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:56:00+01:00",
+    "updated": "2026-02-24T09:56:00+01:00",
+    "name": "slack-000-allow-domains",
+    "description": "Allow Slack core domains and integration services. slack.com covers API, WebSocket, and workspace access. slack-edge.com serves static assets and file downloads. slack-imgs.com hosts link previews. slackb.com is used for workspace metrics. atl-paas.net and atlassian.net host Jira/Confluence integration previews and app icons.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/slack/slack",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(slack\\.com|slack-edge\\.com|slack-imgs\\.com|slackb\\.com|atl-paas\\.net|atlassian\\.net)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

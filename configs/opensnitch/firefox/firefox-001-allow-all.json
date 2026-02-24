@@ -1,0 +1,18 @@
+{
+    "created": "2026-02-24T11:20:00+01:00",
+    "updated": "2026-02-24T11:20:00+01:00",
+    "name": "firefox-001-allow-all",
+    "description": "Allow all Firefox connections. Firefox is a web browser — it needs to connect to any destination. Telemetry is blocked separately via the pingsender deny rule (000).",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "process.path",
+        "data": "/usr/lib/firefox/firefox",
+        "type": "simple",
+        "list": null,
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

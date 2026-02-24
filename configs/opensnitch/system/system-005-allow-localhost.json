@@ -1,0 +1,18 @@
+{
+    "created": "2026-02-24T11:26:00+01:00",
+    "updated": "2026-02-24T11:26:00+01:00",
+    "name": "system-005-allow-localhost",
+    "description": "Allow all processes to communicate via localhost. Local inter-process communication (IPC) over loopback is essential for many applications (databases, dev servers, D-Bus over TCP, etc). Covers both IPv4 (127.0.0.0/8) and IPv6 (::1) loopback.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "dest.ip",
+        "data": "^(127\\..*|::1)$",
+        "type": "regexp",
+        "list": null,
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

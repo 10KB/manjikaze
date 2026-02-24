@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:39:00+01:00",
+    "updated": "2026-02-24T09:39:00+01:00",
+    "name": "spotify-001-allow-domains",
+    "description": "Allow Spotify core domains for music streaming, API, and content delivery. spotify.com covers the main service, API, and web player. scdn.co is Spotify's CDN for album art, playlist images, and audio streaming (i.scdn.co, mosaic.scdn.co, lineup-images.scdn.co, pl.scdn.co). spotifycdn.com is used for app updates and assets.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/opt/spotify/spotify",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(spotify\\.com|scdn\\.co|spotifycdn\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

@@ -1,0 +1,18 @@
+{
+    "created": "2026-02-24T13:35:00+01:00",
+    "updated": "2026-02-24T13:35:00+01:00",
+    "name": "chrome-000-allow-all",
+    "description": "Allow all connections from Google Chrome. As a web browser, it requires unrestricted network access. Telemetry blocking should be done via Chrome's settings and uBlock Origin, as Google mixes telemetry endpoints with essential services like Safe Browsing and Chrome Sync.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "process.path",
+        "data": "/opt/google/chrome/chrome",
+        "type": "simple",
+        "list": null,
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}
