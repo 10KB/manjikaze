@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T12:07:00+01:00",
+    "updated": "2026-02-24T12:07:00+01:00",
+    "name": "smartgit-000-allow-domains",
+    "description": "Allow SmartGit to connect to Syntevo services (license, API, updates), git providers (GitHub, GitLab), and Gravatar for commit author avatars. SmartGit uses a bundled JRE that does its own DNS resolution.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/opt/smartgit/jre/bin/java",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(syntevo\\.com|smartgit\\.dev|gravatar\\.com|github\\.com|gitlab\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}
