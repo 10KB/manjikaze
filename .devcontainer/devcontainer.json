@@ -1,0 +1,35 @@
+{
+    "name": "Manjikaze OS Config",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "timonwong.shellcheck",
+                "mads-hartmann.bash-ide-vscode",
+                "foxundermoon.shell-format",
+                "davidanson.vscode-markdownlint",
+                "ms-python.python",
+                "tamasfe.even-better-toml"
+            ],
+            "settings": {
+                "shellcheck.executablePath": "shellcheck",
+                "shellcheck.customArgs": [
+                    "-e",
+                    "SC1090",
+                    "-e",
+                    "SC1091"
+                ],
+                "editor.formatOnSave": true,
+                "[shellscript]": {
+                    "editor.defaultFormatter": "foxundermoon.shell-format"
+                }
+            }
+        }
+    },
+    "remoteUser": "root",
+    "containerEnv": {
+        "SSH_AUTH_SOCK": ""
+    }
+}
