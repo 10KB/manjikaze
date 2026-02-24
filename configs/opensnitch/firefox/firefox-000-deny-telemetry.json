@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:20:00+01:00",
+    "updated": "2026-02-24T11:20:00+01:00",
+    "name": "firefox-000-deny-telemetry",
+    "description": "Block Firefox telemetry. The pingsender binary sends usage statistics and crash reports to incoming.telemetry.mozilla.org in the background, even after Firefox is closed. This is separate from the main firefox process.",
+    "action": "deny",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/firefox/pingsender",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "incoming.telemetry.mozilla.org",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": true,
+    "nolog": false
+}
