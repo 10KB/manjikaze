@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:21:00+01:00",
+    "updated": "2026-02-24T09:21:00+01:00",
+    "name": "dropbox-001-allow-domains",
+    "description": "Allow Dropbox to connect to its own domains for core functionality: file sync (dropbox.com, client.dropbox.com, d.dropbox.com), API calls (api.dropbox.com), DNS resolution (*.dropbox-dns.com), static content and updates (*.dropboxstatic.com, dl-debug.dropbox.com). All subdomains are included via wildcard regex. Covers both the user-installed binary (~/.dropbox-dist/) and system-installed binary (/opt/dropbox/).",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^(/home/[^/]+/\\.dropbox-dist/dropbox-lnx\\.x86_64-[0-9.]+/dropbox|/opt/dropbox/dropbox)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(dropbox\\.com|dropboxstatic\\.com|dropbox-dns\\.com)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

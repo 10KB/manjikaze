@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:58:00+01:00",
+    "updated": "2026-02-24T09:58:00+01:00",
+    "name": "signal-001-allow-connectivity-check",
+    "description": "Allow Signal connectivity check to Cloudflare DNS (1.1.1.1). Signal Desktop pings 1.1.1.1 to determine if the device has internet connectivity before attempting to connect to Signal servers. Without this, Signal may incorrectly report being offline.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/signal-desktop/signal-desktop",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.ip",
+                "data": "1.1.1.1",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

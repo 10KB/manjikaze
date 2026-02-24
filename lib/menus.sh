@@ -44,6 +44,7 @@ declare -A security_menu=(
     ["5:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
     ["6:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
     ["7:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
+    ["8:Manage OpenSnitch firewall rules"]="load_module security/opensnitch/manage-rules.sh"
 )
 
 handle_menu() {

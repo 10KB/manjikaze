@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:58:00+01:00",
+    "updated": "2026-02-24T09:58:00+01:00",
+    "name": "signal-000-allow-domains",
+    "description": "Allow Signal to connect to its own infrastructure. signal.org hosts the messaging API (chat.signal.org), attachment/media CDN (cdn.signal.org, cdn2.signal.org), key distribution (keys.signal.org), storage (storage.signal.org), and updates (updates.signal.org). All subdomains are included via wildcard regex. Signal is end-to-end encrypted and only communicates with its own servers — no third-party services required.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/signal-desktop/signal-desktop",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(signal\\.org)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

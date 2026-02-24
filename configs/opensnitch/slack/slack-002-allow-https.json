@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T10:57:00+01:00",
+    "updated": "2026-02-24T10:57:00+01:00",
+    "name": "slack-002-allow-https",
+    "description": "Allow Slack to connect to any destination on port 443 (TCP and UDP). Slack uses many dynamic AWS IP addresses for Chime (Huddles/calls) media relay, WebSocket connections, and API endpoints. These connections often lack a hostname, so domain-based rules alone are insufficient. Restricting to port 443 ensures only HTTPS, QUIC, and WebRTC traffic is allowed — no arbitrary port access.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/slack/slack",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.port",
+                "data": "443",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

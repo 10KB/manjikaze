@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T09:21:00+01:00",
+    "updated": "2026-02-24T09:21:00+01:00",
+    "name": "dropbox-000-deny-lan-scanning",
+    "description": "Block Dropbox LAN Sync and network discovery. Dropbox attempts to find other Dropbox instances on the local network via broadcast/multicast on RFC1918 private ranges. This is a security risk: LAN Sync exposes file metadata and could leak data to unauthorized devices on shared networks. Disable LAN Sync in Dropbox preferences as well. Covers 10.x.x.x, 172.16-31.x.x, 192.168.x.x private ranges and broadcast address 255.255.255.255.",
+    "action": "deny",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^(/home/[^/]+/\\.dropbox-dist/dropbox-lnx\\.x86_64-[0-9.]+/dropbox|/opt/dropbox/dropbox)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.ip",
+                "data": "^(10\\..*|172\\.(1[6-9]|2[0-9]|3[01])\\..*|192\\.168\\..*|255\\.255\\.255\\.255|169\\.254\\..*)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": true,
+    "nolog": false
+}
