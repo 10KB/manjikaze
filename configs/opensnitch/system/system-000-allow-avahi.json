@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:24:00+01:00",
+    "updated": "2026-02-24T11:24:00+01:00",
+    "name": "system-000-allow-avahi",
+    "description": "Allow Avahi mDNS/DNS-SD daemon for local network service discovery (printers, file shares, Chromecast, etc). Restricted to multicast and private IP ranges only — Avahi should never communicate with the internet.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/bin/avahi-daemon",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.ip",
+                "data": "^(10\\..*|172\\.(1[6-9]|2[0-9]|3[01])\\..*|192\\.168\\..*|224\\.0\\.0\\.251|ff02::fb|fe80::.*)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

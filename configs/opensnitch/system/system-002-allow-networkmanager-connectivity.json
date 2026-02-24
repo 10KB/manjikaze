@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:24:00+01:00",
+    "updated": "2026-02-24T11:24:00+01:00",
+    "name": "system-002-allow-networkmanager-connectivity",
+    "description": "Allow NetworkManager connectivity check to manjaro.org. NetworkManager pings this host to detect captive portals and verify internet access. This is a standard feature, not telemetry.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/bin/NetworkManager",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(manjaro\\.org)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:31:00+01:00",
+    "updated": "2026-02-24T11:31:00+01:00",
+    "name": "system-007-allow-package-management",
+    "description": "Allow yay (AUR helper) and git to access Arch Linux package repositories. yay needs aur.archlinux.org to fetch PKGBUILDs, and git-remote-http clones AUR repos over HTTPS. Also covers the main Arch/Manjaro mirrors for pacman.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^(/usr/bin/yay|/usr/lib/git-core/git-remote-http|/usr/bin/pacman)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(archlinux\\.org|manjaro\\.org)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

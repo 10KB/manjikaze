@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:31:00+01:00",
+    "updated": "2026-02-24T11:31:00+01:00",
+    "name": "system-006-allow-gpg-keyservers",
+    "description": "Allow GnuPG dirmngr to fetch public keys from keyservers. Required for verifying package signatures (pacman, yay) and importing developer GPG keys. Covers Ubuntu SKS pool, Arch Linux WKD, and the major public keyservers.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/bin/dirmngr",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(keyserver\\.ubuntu\\.com|keys\\.openpgp\\.org|keyserver\\.pgp\\.com|archlinux\\.org)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T11:24:00+01:00",
+    "updated": "2026-02-24T11:24:00+01:00",
+    "name": "system-003-allow-timesyncd",
+    "description": "Allow systemd-timesyncd to synchronize the system clock via NTP. Restricted to *.ntp.org pool servers only. Accurate time is critical for TLS certificate validation, logging, and security.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "/usr/lib/systemd/systemd-timesyncd",
+                "type": "simple",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(ntp\\.org)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}
