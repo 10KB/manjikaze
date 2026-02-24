@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T12:15:00+01:00",
+    "updated": "2026-02-24T12:15:00+01:00",
+    "name": "dbeaver-000-allow-updates",
+    "description": "Allow the system JRE to connect to dbeaver.io for update checks and plugin marketplace. Note: DBeaver uses the system JRE, so this rule technically applies to any Java app. The domain restriction ensures only dbeaver.io traffic is matched. Database connections should be handled via temporary popup rules since they vary per project.",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^/usr/lib/jvm/java-[0-9]+-openjdk/bin/java$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(dbeaver\\.io)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}
