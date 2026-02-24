@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T13:28:00+01:00",
+    "updated": "2026-02-24T13:28:00+01:00",
+    "name": "todoist-002-allow-domains",
+    "description": "Allow core Todoist connectivity. Includes app.todoist.com, websockets, feature flags, Electron downloads, and necessary CDNs (b-cdn.net, ctfassets.net for Contentful images, and Cloudfront).",
+    "action": "allow",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^/tmp/\\.mount_todois.*/todoist$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(todoist\\.(com|net)|b-cdn\\.net|ctfassets\\.net|cloudfront\\.net)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": false,
+    "nolog": false
+}

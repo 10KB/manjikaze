@@ -1,0 +1,33 @@
+{
+    "created": "2026-02-24T13:28:00+01:00",
+    "updated": "2026-02-24T13:28:00+01:00",
+    "name": "todoist-000-deny-tracking",
+    "description": "Block Todoist telemetry and tracking. The Electron app connects to Datadog for APM, Sentry for crash reporting, and Google Analytics / Tag Manager for tracking. Blocking these keeps the app functional and improves privacy.",
+    "action": "deny",
+    "duration": "always",
+    "operator": {
+        "operand": "list",
+        "data": "",
+        "type": "list",
+        "list": [
+            {
+                "operand": "process.path",
+                "data": "^/tmp/\\.mount_todois.*/todoist$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            },
+            {
+                "operand": "dest.host",
+                "data": "^(|.*\\.)(browser-intake-datadoghq\\.com|googletagmanager\\.com|google-analytics\\.com|sentry\\.io)$",
+                "type": "regexp",
+                "list": null,
+                "sensitive": false
+            }
+        ],
+        "sensitive": false
+    },
+    "enabled": true,
+    "precedence": true,
+    "nolog": false
+}
