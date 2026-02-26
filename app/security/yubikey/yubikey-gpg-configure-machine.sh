@@ -163,6 +163,9 @@ EOF
     configure_git_gpg "$key_fp"
     configure_shell_env
 
+    # ── Configure Automatic PIN Entry ──────────────────────────────────
+    configure_automatic_pin_entry
+
     # ── Summary ────────────────────────────────────────────────────────
     echo ""
     gum style \

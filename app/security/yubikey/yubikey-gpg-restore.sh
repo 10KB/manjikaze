@@ -324,10 +324,11 @@ save
 EOF
 
     # ── Optional: Change PINs ──────────────────────────────────────────
+    local new_user_pin=""
     if gum confirm "Change PINs on the new YubiKey?" \
         --affirmative "Yes" --negative "No" --default=false; then
 
-        local new_user_pin new_admin_pin
+        local new_admin_pin
         new_user_pin=$(gum input --password --header "New User PIN (min 6 chars):")
         new_admin_pin=$(gum input --password --header "New Admin PIN (min 8 chars):")
 
@@ -377,6 +378,12 @@ Admin PIN: $new_admin_pin"
             gum confirm "I have saved my PINs" --affirmative "Yes" --default=false || true
         fi
     fi
+
+    local pin_to_save="123456"
+    if [[ -n "$new_user_pin" ]]; then
+        pin_to_save="$new_user_pin"
+    fi
+    configure_automatic_pin_entry "$pin_to_save"
 
     # ── Verify final state ─────────────────────────────────────────────
     status "Running final verification..."

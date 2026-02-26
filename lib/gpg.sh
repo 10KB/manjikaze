@@ -6,11 +6,75 @@ gpg_batch() {
 }
 
 get_pinentry_program() {
+    echo "$HOME/.gnupg/pinentry-proxy.py"
+}
+
+create_pinentry_proxy() {
+    local proxy_path="$HOME/.gnupg/pinentry-proxy.py"
+    local real_pinentry
     if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
-        echo "/usr/bin/pinentry-gnome3"
+        real_pinentry="/usr/bin/pinentry-gnome3"
     else
-        echo "/usr/bin/pinentry-gtk"
+        real_pinentry="/usr/bin/pinentry-gtk"
     fi
+
+    cat > "$proxy_path" << "EOF"
+#!/usr/bin/env python3
+import sys
+import subprocess
+import os
+
+REAL_PINENTRY = "REAL_PINENTRY_PLACEHOLDER"
+PIN_FILE = os.path.expanduser("~/.gnupg/.yubikey-pin")
+
+def main():
+    try:
+        p = subprocess.Popen([REAL_PINENTRY], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
+    except Exception:
+        sys.stdout.write("ERR 83886179 cannot execute real pinentry\n")
+        sys.stdout.flush()
+        return
+
+    greeting = p.stdout.readline()
+    sys.stdout.write(greeting)
+    sys.stdout.flush()
+
+    desc = ""
+    for line in sys.stdin:
+        if line.startswith("SETDESC"):
+            desc = line[8:].strip()
+
+        if line.startswith("GETPIN"):
+            desc_lower = desc.lower()
+            if "admin" not in desc_lower and "reset code" not in desc_lower and "puk" not in desc_lower:
+                if os.path.exists(PIN_FILE):
+                    try:
+                        with open(PIN_FILE, "r") as f:
+                            pin = f.read().strip()
+                        sys.stdout.write(f"D {pin}\n")
+                        sys.stdout.write("OK\n")
+                        sys.stdout.flush()
+                        continue
+                    except Exception:
+                        pass
+
+        p.stdin.write(line)
+        p.stdin.flush()
+
+        while True:
+            resp = p.stdout.readline()
+            if not resp:
+                break
+            sys.stdout.write(resp)
+            sys.stdout.flush()
+            if resp.startswith("OK") or resp.startswith("ERR"):
+                break
+
+if __name__ == "__main__":
+    main()
+EOF
+    sed -i "s|REAL_PINENTRY_PLACEHOLDER|$real_pinentry|" "$proxy_path"
+    chmod +x "$proxy_path"
 }
 
 setup_gpg_config() {
@@ -43,6 +107,9 @@ setup_gpg_config() {
     rm -rf ~/.gnupg
     mkdir -p ~/.gnupg
     chmod 700 ~/.gnupg
+
+    # Create the Python proxy script for automatic PIN entry
+    create_pinentry_proxy
 
     status "Configuring GPG for YubiKey usage..."
     cp "$MANJIKAZE_DIR/app/security/yubikey/gpg.conf" ~/.gnupg/gpg.conf
@@ -122,4 +189,36 @@ PLUGINCONF
     # Start the gpg-agent sockets — they are socket-activated
     status "Starting gpg-agent socket activation..."
     systemctl --user start gpg-agent.socket gpg-agent-ssh.socket 2>/dev/null || true
+}
+
+configure_automatic_pin_entry() {
+    local pin="${1:-}"
+
+    echo ""
+    local do_auto=$(gum confirm \
+        "Enable automatic YubiKey PIN entry?
+
+This will store your User PIN locally so you only need to touch the YubiKey
+for daily operations (Git, SSH). The PIN is stored on your disk which is LUKS
+encrypted, making it safe while the computer is turned off.
+
+(Note: You will still need the Admin PIN for some setup operations.)" \
+        --affirmative "Yes, enable" --negative "Skip" --default=true && echo "true" || echo "false")
+
+    if [[ "$do_auto" == "true" ]]; then
+        if [[ -z "$pin" ]]; then
+            pin=$(gum input --password --header "Enter your YubiKey User PIN to store:")
+        fi
+
+        if [[ -n "$pin" ]]; then
+            echo "$pin" > "$HOME/.gnupg/.yubikey-pin"
+            chmod 600 "$HOME/.gnupg/.yubikey-pin"
+            status "Automatic YubiKey PIN entry enabled."
+        else
+            status "No PIN entered, skipping automatic PIN entry."
+        fi
+    else
+        rm -f "$HOME/.gnupg/.yubikey-pin"
+        status "Skipped automatic PIN entry."
+    fi
 }

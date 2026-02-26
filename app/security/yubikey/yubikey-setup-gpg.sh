@@ -534,6 +534,12 @@ Admin PIN: $new_admin_pin"
         fi
     fi
 
+    local pin_to_save="123456"
+    if [[ "$change_pins" == "true" ]] && [[ -n "$new_user_pin" ]]; then
+        pin_to_save="$new_user_pin"
+    fi
+    configure_automatic_pin_entry "$pin_to_save"
+
     # ── Summary ────────────────────────────────────────────────────────
     echo ""
     gum style \
