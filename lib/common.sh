@@ -28,6 +28,22 @@ enable_sleep() {
     fi
 }
 
+start_sudo_keepalive() {
+    if [[ -n "${_SUDO_KEEPALIVE_PID:-}" ]] && kill -0 "$_SUDO_KEEPALIVE_PID" 2>/dev/null; then
+        return 0 # Already running
+    fi
+    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+    _SUDO_KEEPALIVE_PID=$!
+}
+
+stop_sudo_keepalive() {
+    if [[ -n "${_SUDO_KEEPALIVE_PID:-}" ]]; then
+        kill "$_SUDO_KEEPALIVE_PID" 2>/dev/null || true
+        wait "$_SUDO_KEEPALIVE_PID" 2>/dev/null || true
+        unset _SUDO_KEEPALIVE_PID
+    fi
+}
+
 activate_zsh_plugin() {
     local plugin="$1"
     local zshrc="$HOME/.zshrc"

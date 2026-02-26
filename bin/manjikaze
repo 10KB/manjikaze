@@ -92,13 +92,16 @@ show_header() {
 }
 
 main() {
+    # Ensure the sudo keep-alive is always cleaned up, even on unexpected exit.
+    trap 'stop_sudo_keepalive' EXIT
+
     if [[ "$1" == "update" ]]; then
         clear
         show_header
 
         status "Requesting administrator privileges for system commands..."
         sudo -v
-        (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &)
+        start_sudo_keepalive
 
         # First update manjikaze itself
         check_updates "$@"
@@ -116,7 +119,7 @@ main() {
 
     status "Requesting administrator privileges for system commands..."
     sudo -v
-    (while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &)
+    start_sudo_keepalive
 
     check_updates "$@"
 
@@ -126,6 +129,9 @@ main() {
 
     run_audits || status "Audit check/run finished with errors or cancellation."
 
+    # Stop the keep-alive before entering the interactive menu.
+    stop_sudo_keepalive
+
     clear
     show_header
 
@@ -133,3 +139,4 @@ main() {
 }
 
 main "$@"
+
