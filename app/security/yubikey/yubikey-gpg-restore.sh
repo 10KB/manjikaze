@@ -1,8 +1,6 @@
 source "$MANJIKAZE_DIR/lib/bitwarden.sh"
 
-gpg_batch() {
-    gpg --command-fd=0 --pinentry-mode=loopback "$@"
-}
+source "$MANJIKAZE_DIR/lib/gpg.sh"
 
 yubikey_gpg_restore() {
     local confirm=$(gum confirm \
@@ -251,7 +249,9 @@ EOF
     done
 
     # Restore original pinentry
-    sed -i "s|pinentry-program.*|pinentry-program /usr/bin/pinentry-gnome3|" "$GNUPGHOME/gpg-agent.conf"
+    local pinentry_program
+    pinentry_program=$(get_pinentry_program)
+    sed -i "s|pinentry-program.*|pinentry-program $pinentry_program|" "$GNUPGHOME/gpg-agent.conf"
     gpg-connect-agent reloadagent /bye >/dev/null 2>&1
     rm -f "$tmp_pinentry"
 

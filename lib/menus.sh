@@ -43,10 +43,11 @@ declare -A security_menu=(
     ["4:Auto lock on Yubikey removal"]="load_module security/yubikey/yubikey-suspend.sh"
     ["5:Replace faulty YubiKey"]="load_module security/yubikey/yubikey-replace.sh"
     ["6:Configure YubiKey for GPG and SSH"]="load_module security/yubikey/yubikey-setup-gpg.sh"
-    ["7:YubiKey GPG health check"]="load_module security/yubikey/yubikey-gpg-health.sh"
-    ["8:Restore GPG keys to new YubiKey"]="load_module security/yubikey/yubikey-gpg-restore.sh"
-    ["9:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
-    ["10:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
+    ["7:Configure machine for existing YubiKey"]="load_module security/yubikey/yubikey-gpg-configure-machine.sh"
+    ["8:YubiKey GPG health check"]="load_module security/yubikey/yubikey-gpg-health.sh"
+    ["9:Restore GPG keys to new YubiKey"]="load_module security/yubikey/yubikey-gpg-restore.sh"
+    ["10:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
+    ["11:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
 )
 
 handle_menu() {
@@ -55,7 +56,7 @@ handle_menu() {
     local header="${menu_name:-Main Menu}"
 
     while true; do
-        readarray -t sorted_keys < <(printf '%s\n' "${!menu_ref[@]}" | sort)
+        readarray -t sorted_keys < <(printf '%s\n' "${!menu_ref[@]}" | sort -V)
 
         local options=()
         for key in "${sorted_keys[@]}"; do
