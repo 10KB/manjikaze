@@ -1,0 +1,8 @@
+{
+  "test": {
+    "image": "ubuntu:latest",
+    "features": {
+      "host-gate": {}
+    }
+  }
+}
