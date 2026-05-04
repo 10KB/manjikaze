@@ -72,7 +72,10 @@ Once Manjaro is installed and running, you can proceed with installing the Manji
 1. **Launch Terminal**
    - Open a terminal (you can use the keyboard shortcut `Ctrl+Alt+T`)
 
-2. **Run Installation Script**
+2. **Update System Packages**
+    - You will probably have to run `sudo pacman -Syu` in order to upgrade all the system packages, lest  you get dependency errors in the next step
+
+3. **Run Installation Script**
    - Ensure you are connected to the internet.
    - Execute the following command:
 
@@ -82,7 +85,7 @@ Once Manjaro is installed and running, you can proceed with installing the Manji
 
    - This will download and run the Manjikaze installation script
 
-3. **Using Manjikaze**
+4. **Using Manjikaze**
    - After installation completes, start Manjikaze by typing the following command in the terminal:
 
    ```bash
