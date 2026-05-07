@@ -43,6 +43,20 @@ refresh_keyrings() {
     fi
 }
 
+resolve_known_repo_transitions() {
+    if pacman -Qq geocode-glib-common >/dev/null 2>&1 &&
+        pacman -Si geocode-glib 2>/dev/null | grep -Fq "geocode-glib-common<=3.26.4-5"; then
+        status "Resolving geocode-glib package transition..."
+        sudo pacman -S --needed --noconfirm --noprogressbar --quiet --ask 4 geocode-glib
+    fi
+
+    if echo "$repo_updates" | grep -q "^nodejs-lts-jod " && pacman -Qqe | grep -q "^nodejs-lts-iron$"; then
+        status "Removing obsolete nodejs-lts-iron package to resolve conflict with nodejs-lts-jod..."
+        # Cascade remove to automatically uninstall packages that strictly depend on nodejs-lts-iron
+        sudo pacman -Rcns --noconfirm nodejs-lts-iron
+    fi
+}
+
 # Source Cursor installation functions
 source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
 
@@ -172,12 +186,8 @@ if ! gum confirm "Do you want to proceed with the updates?"; then
     return 0 # Ensure script execution stops here
 fi
 
-# Handle specific known package conflicts (e.g. Node.js LTS transitions)
-if echo "$repo_updates" | grep -q "^nodejs-lts-jod " && pacman -Qqe | grep -q "^nodejs-lts-iron$"; then
-    status "Removing obsolete nodejs-lts-iron package to resolve conflict with nodejs-lts-jod..."
-    # Cascade remove to automatically uninstall packages that strictly depend on nodejs-lts-iron
-    sudo pacman -Rcns --noconfirm nodejs-lts-iron
-fi
+# Resolve specific known package transitions before the full system upgrade
+resolve_known_repo_transitions
 
 status "Updating installed packages..."
 if [ "$repo_count" -gt 0 ]; then
