@@ -57,6 +57,50 @@ resolve_known_repo_transitions() {
     fi
 }
 
+refresh_aur_updates() {
+    aur_updates=""
+    aur_count=0
+    if command -v yay >/dev/null 2>&1; then
+        aur_updates=$(yay -Qua 2>/dev/null || echo "")
+        aur_count=$(echo "$aur_updates" | grep -v "^$" | wc -l)
+    fi
+}
+
+ulauncher_webkit_transition_needed() {
+    if pacman -Qq ulauncher >/dev/null 2>&1 &&
+        pacman -Qi ulauncher 2>/dev/null | grep -Eq '(^|[[:space:]])webkit2gtk([[:space:]]|$)' &&
+        yay -Si ulauncher 2>/dev/null | grep -Eq '(^|[[:space:]])webkit2gtk-4\.1([[:space:]]|$)'; then
+        return 0
+    fi
+
+    return 1
+}
+
+filter_known_aur_transition_updates() {
+    known_aur_transition_count=0
+    known_aur_transition_descriptions=()
+
+    if ulauncher_webkit_transition_needed; then
+        known_aur_transition_count=1
+        known_aur_transition_descriptions+=("ulauncher (webkit2gtk → webkit2gtk-4.1)")
+        aur_updates=$(echo "$aur_updates" | grep -v "^webkit2gtk " || true)
+        aur_count=$(echo "$aur_updates" | grep -v "^$" | wc -l)
+    fi
+}
+
+resolve_known_aur_transitions() {
+    if ulauncher_webkit_transition_needed; then
+        status "Reinstalling ulauncher to switch from webkit2gtk to webkit2gtk-4.1..."
+        PATH=/usr/bin:$PATH yay -S --rebuild --redownload --noconfirm --noprogressbar --quiet ulauncher
+
+        if pacman -Qq webkit2gtk >/dev/null 2>&1 &&
+            pacman -Qi webkit2gtk 2>/dev/null | grep -q "^Required By     : None$"; then
+            status "Removing obsolete AUR webkit2gtk package..."
+            sudo pacman -Rns --noconfirm --noprogressbar webkit2gtk
+        fi
+    fi
+}
+
 # Source Cursor installation functions
 source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
 
@@ -84,12 +128,8 @@ repo_updates=$(pacman -Qu 2>/dev/null | grep -v '\[ignored\]' || echo "")
 repo_count=$(echo "$repo_updates" | grep -v "^$" | wc -l)
 
 # Get list of AUR packages to update
-aur_updates=""
-aur_count=0
-if command -v yay >/dev/null 2>&1; then
-    aur_updates=$(yay -Qua 2>/dev/null || echo "")
-    aur_count=$(echo "$aur_updates" | grep -v "^$" | wc -l)
-fi
+refresh_aur_updates
+filter_known_aur_transition_updates
 
 # Check for Cursor updates
 cursor_update_available=false
@@ -105,7 +145,7 @@ if [ -d ~/.local/share/cursor ]; then
     fi
 fi
 
-total_count=$((repo_count + aur_count))
+total_count=$((repo_count + aur_count + known_aur_transition_count))
 if [ "$cursor_update_available" = true ]; then
     total_count=$((total_count + 1))
 fi
@@ -166,6 +206,12 @@ if [ "$aur_count" -gt 0 ]; then
     echo ""
 fi
 
+if [ "$known_aur_transition_count" -gt 0 ]; then
+    echo "AUR package transitions ($known_aur_transition_count):"
+    printf '%s\n' "${known_aur_transition_descriptions[@]}" | sort | awk '{print "  • " $0}'
+    echo ""
+fi
+
 if [ "$cursor_update_available" = true ]; then
     echo "Application updates:"
     echo "  • Cursor ($cursor_version_info)"
@@ -205,6 +251,10 @@ if [ "$repo_count" -gt 0 ]; then
         sudo pacman -Su --noconfirm --noprogressbar
     fi
 fi
+
+resolve_known_aur_transitions
+refresh_aur_updates
+filter_known_aur_transition_updates
 
 if [ "$aur_count" -gt 0 ]; then
     status "Updating AUR packages..."
