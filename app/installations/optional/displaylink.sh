@@ -3,9 +3,15 @@ install() {
 
     local kernel_short=$(kernel_version_short)
     install_package "linux${kernel_short}-headers" repo
+
+    sudo systemctl enable displaylink.service
+    sudo systemctl start displaylink.service
 }
 
 uninstall() {
+    sudo systemctl stop displaylink.service
+    sudo systemctl disable displaylink.service
+
     uninstall_package "displaylink" aur
 
     local kernel_short=$(kernel_version_short)
