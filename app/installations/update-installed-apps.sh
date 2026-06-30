@@ -104,6 +104,17 @@ resolve_known_aur_transitions() {
 # Source Cursor installation functions
 source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
 
+# Print a beautiful header
+gum style \
+    --foreground 99 \
+    --border double \
+    --border-foreground 99 \
+    --align center \
+    --width 50 \
+    --margin "1 0" \
+    --padding "0 2" \
+    "Manjikaze Update Wizard"
+
 status "Checking for available updates..."
 disable_sleep
 
@@ -156,42 +167,7 @@ if [ "$total_count" -eq 0 ]; then
     return 0  # Ensure script execution stops here
 fi
 
-# Check for packages that require a reboot
-all_updates_list_names=""
-if [ "$repo_count" -gt 0 ]; then
-    repo_package_names=$(echo "$repo_updates" | awk '{print $1}' | tr '\n' ' ')
-    all_updates_list_names="${all_updates_list_names}${repo_package_names}"
-fi
-if [ "$aur_count" -gt 0 ]; then
-    aur_package_names=$(echo "$aur_updates" | awk '{print $1}' | tr '\n' ' ')
-    all_updates_list_names="${all_updates_list_names}${aur_package_names}"
-fi
-
-if [ -n "$all_updates_list_names" ]; then
-    for pkg_name in $all_updates_list_names; do
-        pkg_name_lower="${pkg_name,,}"
-
-        if [[ "$pkg_name_lower" == linux* ]]; then
-            reboot_suggested=true
-            reboot_trigger_message="An update to a kernel package ('$pkg_name') was found."
-            break
-        fi
-
-        for pattern in "${REBOOT_PATTERNS[@]}"; do
-            pattern_lower="${pattern,,}"
-            if [[ "$pkg_name_lower" == *"$pattern_lower"* ]]; then
-                reboot_suggested=true
-                reboot_trigger_message="An update to '$pkg_name' (matches general pattern '$pattern') was found."
-                break
-            fi
-        done
-
-        if [ "$reboot_suggested" = true ]; then
-            break
-        fi
-    done
-fi
-
+# Print current overview of updates
 status "Found $total_count package(s) that can be updated"
 
 if [ "$repo_count" -gt 0 ]; then
@@ -218,25 +194,147 @@ if [ "$cursor_update_available" = true ]; then
     echo ""
 fi
 
+# Step-by-step interactive selections
+update_repo=false
+if [ "$repo_count" -gt 0 ]; then
+    if gum confirm "Update system repository packages? ($repo_count packages available)"; then
+        update_repo=true
+    fi
+fi
+
+apply_transitions=false
+if [ "$known_aur_transition_count" -gt 0 ]; then
+    if gum confirm "Apply AUR package transitions? (${known_aur_transition_descriptions[*]})"; then
+        apply_transitions=true
+    fi
+fi
+
+selected_aur_packages=()
+if [ "$aur_count" -gt 0 ]; then
+    status "Select AUR packages to update (unselected by default):"
+    
+    aur_options=()
+    while read -r line; do
+        [ -z "$line" ] && continue
+        pkg_name=$(echo "$line" | awk '{print $1}')
+        curr_ver=$(echo "$line" | awk '{print $2}')
+        new_ver=$(echo "$line" | awk '{print $4}')
+        aur_options+=("$pkg_name ($curr_ver -> $new_ver)")
+    done <<< "$aur_updates"
+    
+    selected_options=$(printf "%s\n" "${aur_options[@]}" | gum choose --no-limit --header="Space to select, Enter to confirm")
+    
+    if [ -n "$selected_options" ]; then
+        while read -r opt; do
+            [ -z "$opt" ] && continue
+            pkg=$(echo "$opt" | awk '{print $1}')
+            selected_aur_packages+=("$pkg")
+        done <<< "$selected_options"
+    fi
+fi
+
+update_cursor=false
+if [ "$cursor_update_available" = true ]; then
+    if gum confirm "Update Cursor editor? ($cursor_version_info)"; then
+        update_cursor=true
+    fi
+fi
+
+# Check if anything was selected
+selected_count=0
+if [ "$update_repo" = true ]; then
+    selected_count=$((selected_count + repo_count))
+fi
+if [ "$apply_transitions" = true ]; then
+    selected_count=$((selected_count + known_aur_transition_count))
+fi
+selected_count=$((selected_count + ${#selected_aur_packages[@]}))
+if [ "$update_cursor" = true ]; then
+    selected_count=$((selected_count + 1))
+fi
+
+if [ "$selected_count" -eq 0 ]; then
+    status "No updates selected. Exiting."
+    cleanup_and_return 0
+    return 0
+fi
+
+# Check if selected packages require a reboot
+reboot_suggested=false
+reboot_trigger_message=""
+selected_packages_for_reboot_check=""
+
+if [ "$update_repo" = true ]; then
+    selected_packages_for_reboot_check="${selected_packages_for_reboot_check} $(echo "$repo_updates" | awk '{print $1}' | tr '\n' ' ')"
+fi
+if [ ${#selected_aur_packages[@]} -gt 0 ]; then
+    selected_packages_for_reboot_check="${selected_packages_for_reboot_check} ${selected_aur_packages[*]}"
+fi
+
+if [ -n "$selected_packages_for_reboot_check" ]; then
+    for pkg_name in $selected_packages_for_reboot_check; do
+        pkg_name_lower="${pkg_name,,}"
+
+        if [[ "$pkg_name_lower" == linux* ]]; then
+            reboot_suggested=true
+            reboot_trigger_message="An update to a kernel package ('$pkg_name') was selected."
+            break
+        fi
+
+        for pattern in "${REBOOT_PATTERNS[@]}"; do
+            pattern_lower="${pattern,,}"
+            if [[ "$pkg_name_lower" == *"$pattern_lower"* ]]; then
+                reboot_suggested=true
+                reboot_trigger_message="An update to '$pkg_name' (matches general pattern '$pattern') was selected."
+                break
+            fi
+        done
+
+        if [ "$reboot_suggested" = true ]; then
+            break
+        fi
+    done
+fi
+
+# Show summary of selected updates
+echo ""
+gum style --foreground 99 --bold "Selected Updates Summary:"
+if [ "$update_repo" = true ]; then
+    echo "  • System repository updates ($repo_count packages)"
+fi
+if [ "$apply_transitions" = true ]; then
+    echo "  • AUR transitions: ${known_aur_transition_descriptions[*]}"
+fi
+if [ ${#selected_aur_packages[@]} -gt 0 ]; then
+    echo "  • AUR packages to update (${#selected_aur_packages[@]}):"
+    for pkg in "${selected_aur_packages[@]}"; do
+        echo "    - $pkg"
+    done
+fi
+if [ "$update_cursor" = true ]; then
+    echo "  • Application: Cursor ($cursor_version_info)"
+fi
+
 if [ "$reboot_suggested" = true ]; then
     echo ""
     status "$reboot_trigger_message"
     status "IMPORTANT: This update may require a system reboot to apply fully and ensure stability."
     echo "             It's recommended to reboot after the update completes."
-    echo ""
 fi
+echo ""
 
-if ! gum confirm "Do you want to proceed with the updates?"; then
+if ! gum confirm "Proceed with the selected updates?"; then
     status "Update cancelled."
     cleanup_and_return 0
-    return 0 # Ensure script execution stops here
+    return 0
 fi
 
-# Resolve specific known package transitions before the full system upgrade
-resolve_known_repo_transitions
-
+# Execution phase
 status "Updating installed packages..."
-if [ "$repo_count" -gt 0 ]; then
+
+if [ "$update_repo" = true ]; then
+    resolve_known_repo_transitions
+    
     # Update keyrings first if there are keyring updates pending
     keyring_updates=$(echo "$repo_updates" | grep -E "keyring" || true)
     if [ -n "$keyring_updates" ]; then
@@ -252,16 +350,15 @@ if [ "$repo_count" -gt 0 ]; then
     fi
 fi
 
-resolve_known_aur_transitions
-refresh_aur_updates
-filter_known_aur_transition_updates
+if [ "$apply_transitions" = true ]; then
+    resolve_known_aur_transitions
+fi
 
-if [ "$aur_count" -gt 0 ]; then
+if [ ${#selected_aur_packages[@]} -gt 0 ]; then
     status "Updating AUR packages..."
-    aur_packages_to_update=$(echo "$aur_updates" | awk '{print $1}' || echo "")
     failed_packages=()
 
-    for pkg in $aur_packages_to_update; do
+    for pkg in "${selected_aur_packages[@]}"; do
         status "Updating package $pkg..."
         # PATH override ensures system tools like brz use system Python for building AUR packages
         if PATH=/usr/bin:$PATH yay -S --needed --noconfirm --noprogressbar "$pkg"; then
@@ -283,8 +380,8 @@ if command -v mise &>/dev/null; then
     mise install
 fi
 
-# Update Cursor if available
-if [ "$cursor_update_available" = true ]; then
+# Update Cursor if selected
+if [ "$update_cursor" = true ]; then
     cursor_track=$(get_cursor_release_track)
     status "Updating Cursor..."
     install_stable_signed
