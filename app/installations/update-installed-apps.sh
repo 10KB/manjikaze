@@ -212,7 +212,7 @@ fi
 selected_aur_packages=()
 if [ "$aur_count" -gt 0 ]; then
     status "Select AUR packages to update (unselected by default):"
-    
+
     aur_options=()
     while read -r line; do
         [ -z "$line" ] && continue
@@ -221,9 +221,10 @@ if [ "$aur_count" -gt 0 ]; then
         new_ver=$(echo "$line" | awk '{print $4}')
         aur_options+=("$pkg_name ($curr_ver -> $new_ver)")
     done <<< "$aur_updates"
-    
-    selected_options=$(printf "%s\n" "${aur_options[@]}" | gum choose --no-limit --header="Space to select, Enter to confirm")
-    
+
+    # Gum 2 no longer toggles with Space (Bubble Tea reports it as "space", not " ").
+    selected_options=$(printf "%s\n" "${aur_options[@]}" | gum choose --no-limit --show-help --header "x or Tab to select, Enter to confirm")
+
     if [ -n "$selected_options" ]; then
         while read -r opt; do
             [ -z "$opt" ] && continue
@@ -334,7 +335,7 @@ status "Updating installed packages..."
 
 if [ "$update_repo" = true ]; then
     resolve_known_repo_transitions
-    
+
     # Update keyrings first if there are keyring updates pending
     keyring_updates=$(echo "$repo_updates" | grep -E "keyring" || true)
     if [ -n "$keyring_updates" ]; then
