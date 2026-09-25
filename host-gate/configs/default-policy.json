@@ -1,0 +1,53 @@
+// Host Gate Policy Configuration
+//
+// This file controls which commands containers are allowed to execute
+// through host-gate, and the minimum security level required for each.
+//
+// defaultPolicy: "deny" or "allow"
+//   What happens when no rule matches. "deny" is recommended (safe by default).
+//
+// rules[].match: ["command", "arg1", "arg2", ...]
+//   Prefix to match against the full command. Longest match wins.
+//   Example: ["git", "push", "--force"] is more specific than ["git", "push"].
+//
+// rules[].allow: true/false
+//   Whether this command is permitted at all. false = always denied (HTTP 403).
+//
+// rules[].minApproval: "none", "popup", or "yubikey"
+//   Minimum approval mode. The most restrictive value between the container
+//   config and this setting wins. none < popup < yubikey.
+//   "none" = no approval needed, command runs immediately.
+//
+// rules[].minExecution: "local" or "proxy"
+//   Minimum execution mode. local = container runs the command after approval,
+//   proxy = host runs the command and streams output. local < proxy.
+//
+{
+  "defaultPolicy": "deny",
+  "rules": [
+    {
+      "match": ["git", "push"],
+      "allow": true,
+      "minApproval": "popup",
+      "minExecution": "proxy"
+    },
+    {
+      "match": ["git", "push", "--force"],
+      "allow": true,
+      "minApproval": "yubikey",
+      "minExecution": "proxy"
+    },
+    {
+      "match": ["npm", "publish"],
+      "allow": true,
+      "minApproval": "yubikey",
+      "minExecution": "proxy"
+    },
+    {
+      "match": ["gh"],
+      "allow": true,
+      "minApproval": "popup",
+      "minExecution": "proxy"
+    }
+  ]
+}

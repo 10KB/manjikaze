@@ -1,0 +1,35 @@
+{
+  "id": "host-gate",
+  "version": "1.0.0",
+  "name": "Host Gate",
+  "description": "Secure container-to-host command approval with popup dialogs and YubiKey support",
+  "options": {
+    "configPath": {
+      "type": "string",
+      "default": "/workspace/.devcontainer/host-gate.json",
+      "description": "Path to host-gate configuration file inside the container"
+    },
+    "hostWorkspaceFolder": {
+      "type": "string",
+      "default": "",
+      "description": "Absolute path to the workspace on the host (e.g. /home/user/projects/my-app)"
+    },
+    "containerWorkspaceFolder": {
+      "type": "string",
+      "default": "/workspace",
+      "description": "Workspace folder path inside the container"
+    }
+  },
+  "mounts": [
+    {
+      "source": "${localEnv:XDG_RUNTIME_DIR}/host-gate",
+      "target": "/var/run/host-gate",
+      "type": "bind"
+    }
+  ],
+  "containerEnv": {
+    "HOST_GATE_SOCKET": "/var/run/host-gate/gate.sock",
+    "HOST_GATE_HMAC_KEY": "/var/run/host-gate/hmac.key"
+  },
+  "postStartCommand": "host-gate-setup"
+}
