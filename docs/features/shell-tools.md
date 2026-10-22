@@ -152,6 +152,37 @@ Detailed documentation for AWS tools is available in the [AWS-specific documenta
 
 Manjikaze optionally includes the Azure CLI and Azure Kubelogin for working with Azure and AKS (Azure Kubernetes Service).
 
+## Herdr Agent Workspace
+
+The optional `herdr` app sets up [Herdr](https://herdr.dev) to run several coding agents in parallel, with the agents inside your devcontainers and access from your phone. It installs:
+
+-   **Herdr**, Bun and the devcontainer CLI through mise
+-   **[vscode-devcontainers-herdr](https://github.com/scott-the-programmer/vscode-devcontainers-herdr)** to run agents inside a devcontainer while Herdr tracks their state
+-   **[Ovis](https://github.com/devswha/ovis)**, a browser and phone client for Herdr, with telemetry disabled
+-   **Tailscale**, with Ovis served on your tailnet over HTTPS and optional Tailscale SSH
+
+Both plugins are pinned to a release in the install script. Herdr does not sandbox plugins; they run as your user.
+
+On native Docker the devcontainer relay needs the Herdr control socket on the `docker0` bridge. Every container on that bridge can then control Herdr without authentication, so the installer asks before enabling it.
+
+Daily use:
+
+```bash
+devcontainer up --workspace-folder .
+herdr          # then run `hdc` in a pane to start Claude Code in the container
+```
+
+`Super + Ctrl + Return` opens Alacritty attached to your Herdr session.
+
+| Alias | Action |
+|-------|--------|
+| `hdc` | Start Claude Code in the devcontainer, tracked by Herdr |
+| `hdx` | Start Codex in the devcontainer, tracked by Herdr |
+| `hds` | Start a shell in the devcontainer and track the Claude Code you start from it |
+| `dcsh` | Open a shell in the devcontainer of the current repository, for example to run a dev server |
+
+Detach with `ctrl+b q`; agents keep running. On your phone, install Tailscale, open the address from `tailscale serve status` and add it to your home screen.
+
 ## Customizing Your Shell
 
 You can customize your shell environment by editing the following files:
