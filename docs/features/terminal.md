@@ -1,6 +1,6 @@
 # Terminal
 
-Manjikaze uses Alacritty as the default terminal emulator with Zellij as the terminal multiplexer, providing a powerful and flexible terminal workspace experience.
+Manjikaze uses Alacritty as the default terminal emulator, with Zellij available as a terminal multiplexer, providing a powerful and flexible terminal workspace experience.
 
 ## Alacritty
 
@@ -9,9 +9,18 @@ Alacritty is a GPU-accelerated terminal emulator focused on performance and simp
 - Minimal resource usage with GPU-accelerated rendering
 - Excellent font rendering with proper emoji support
 - Configured with CaskaydiaMono Nerd Font for programming
-- Starts Zellij automatically when launched
 
-You can launch Alacritty from the application menu or with the keyboard shortcut `Ctrl+Alt+T`.
+### Launch Shortcuts
+
+Alacritty starts a plain Zsh shell. Use a separate shortcut to start it with a multiplexer:
+
+| Shortcut | Action |
+|----------|--------|
+| `Super + Return` | Alacritty |
+| `Super + Alt + Return` | Alacritty with Zellij |
+| `Super + Ctrl + Return` | Alacritty with Herdr (when the optional `herdr` app is installed) |
+
+Zellij and Herdr both claim keyboard shortcuts, so don't run Herdr inside Zellij. See [Herdr Agent Workspace](shell-tools.md#herdr-agent-workspace).
 
 ### Alacritty Shortcuts
 

@@ -38,8 +38,11 @@ install() {
         # Update favorites
         gsettings set org.gnome.shell favorite-apps "$new_favorites"
     fi
+
+    add_gnome_shortcut "alacritty" "Alacritty" "alacritty" "<Super>Return"
 }
 
 uninstall() {
+    remove_gnome_shortcut "alacritty"
     uninstall_package "alacritty" repo
 }
