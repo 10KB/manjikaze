@@ -1,0 +1,12 @@
+[Unit]
+Description=Restore monitor layouts per combination of connected screens
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=HYPRLAND_INSTANCE_SIGNATURE
+
+[Service]
+ExecStart=__MANJIKAZE_DIR__/bin/hypr/manjikaze-hypr-monitors watch
+# The next login may be at another desk; start from automatic placement until the daemon runs.
+ExecStopPost=__MANJIKAZE_DIR__/bin/hypr/manjikaze-hypr-monitors reset
+Restart=on-failure
+RestartSec=2

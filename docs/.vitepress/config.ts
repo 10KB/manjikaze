@@ -19,6 +19,7 @@ const docsSidebar = [
             { text: 'Overview', link: '/features/overview' },
             { text: 'Navigation & Hotkeys', link: '/features/navigation' },
             { text: 'Tiling', link: '/features/tiling' },
+            { text: 'Hyprland Desktop', link: '/features/hyprland' },
             { text: 'Terminal', link: '/features/terminal' },
             { text: 'Shell Tools', link: '/features/shell-tools' },
             { text: 'GUI Applications', link: '/features/gui' },

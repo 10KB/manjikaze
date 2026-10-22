@@ -1,0 +1,13 @@
+[Unit]
+Description=Walker launcher service (opens instantly on SUPER + SPACE)
+PartOf=graphical-session.target
+After=graphical-session.target manjikaze-elephant.service
+Requires=manjikaze-elephant.service
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+ExecStart=/usr/bin/walker --gapplication-service
+# The Cairo renderer avoids GTK4 GL glitches on some NVIDIA drivers.
+Environment=GSK_RENDERER=cairo
+Restart=always
+RestartSec=2

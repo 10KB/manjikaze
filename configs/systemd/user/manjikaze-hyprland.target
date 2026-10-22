@@ -1,0 +1,10 @@
+[Unit]
+Description=Manjikaze Hyprland session services
+Documentation=https://manjikaze.10kb.nl/features/hyprland
+# Started by Hyprland itself (manjikaze/autostart.lua) and deliberately not enabled for
+# graphical-session.target: GNOME reaches that target too, and a failed condition here
+# would not stop the units below from starting.
+PartOf=graphical-session.target
+After=graphical-session.target
+Wants=waybar.service swaync.service hypridle.service hyprpaper.service hyprpolkitagent.service
+Wants=manjikaze-elephant.service manjikaze-walker.service manjikaze-swayosd.service manjikaze-hypr-monitors.service

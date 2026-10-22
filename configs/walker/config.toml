@@ -1,0 +1,53 @@
+# Walker launcher (SUPER + SPACE). Type a prefix to search something else:
+#   =  calculator     /  files        .  emoji & symbols    :  clipboard history
+#   @  web search     >  run command  ;  all providers
+theme = "manjikaze"
+force_keyboard_focus = true
+close_when_open = true
+click_to_close = true
+selection_wrap = true
+hide_action_hints = false
+hide_action_hints_dmenu = true
+
+[placeholders]
+"default" = { input = "Search apps, or type = / . : @ > ;", list = "Nothing found" }
+"clipboard" = { input = "Search clipboard history", list = "Clipboard is empty" }
+"symbols" = { input = "Search emoji and symbols", list = "Nothing found" }
+"bluetooth" = { input = "Bluetooth devices", list = "No devices found" }
+"wireplumber" = { input = "Sound devices", list = "No devices found" }
+
+[providers]
+default = ["desktopapplications", "calc", "websearch"]
+empty = ["desktopapplications"]
+max_results = 50
+
+[[providers.prefixes]]
+prefix = "="
+provider = "calc"
+
+[[providers.prefixes]]
+prefix = "/"
+provider = "files"
+
+[[providers.prefixes]]
+prefix = "."
+provider = "symbols"
+
+[[providers.prefixes]]
+prefix = ":"
+provider = "clipboard"
+
+[[providers.prefixes]]
+prefix = "@"
+provider = "websearch"
+
+[[providers.prefixes]]
+prefix = ">"
+provider = "runner"
+
+[[providers.prefixes]]
+prefix = ";"
+provider = "providerlist"
+
+[columns]
+symbols = 8

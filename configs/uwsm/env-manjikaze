@@ -1,0 +1,41 @@
+# Session environment for Manjikaze's Hyprland session. uwsm sources this through
+# ~/.config/uwsm/env before Hyprland starts, so systemd services and apps see it too.
+# Hardware is detected at login, so the same file works on every machine.
+
+export PATH="$MANJIKAZE_DIR/bin/hypr:$PATH"
+
+if command -v alacritty >/dev/null 2>&1; then
+    export TERMINAL=alacritty
+fi
+
+export XCURSOR_THEME=Adwaita
+export XCURSOR_SIZE=24
+export HYPRCURSOR_SIZE=24
+
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+export GDK_BACKEND="wayland,x11,*"
+export MOZ_ENABLE_WAYLAND=1
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
+# NVIDIA: only force its VA-API/GLX libraries when it drives the display. On hybrid laptops
+# the panel hangs off the Intel/AMD GPU and forcing them breaks video in Chromium.
+manjikaze_nvidia=false
+manjikaze_igpu=false
+for manjikaze_card in /sys/class/drm/card[0-9]*; do
+    [ -e "$manjikaze_card/device/driver" ] || continue
+    case "$(basename "$(readlink -f "$manjikaze_card/device/driver")")" in
+        nvidia) manjikaze_nvidia=true ;;
+        i915 | xe | amdgpu) manjikaze_igpu=true ;;
+    esac
+done
+
+if [ "$manjikaze_nvidia" = true ]; then
+    export NVD_BACKEND=direct
+    if [ "$manjikaze_igpu" = false ]; then
+        export LIBVA_DRIVER_NAME=nvidia
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    fi
+fi
+
+unset manjikaze_nvidia manjikaze_igpu manjikaze_card

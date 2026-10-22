@@ -1,0 +1,111 @@
+/* Colors match configs/hypr/manjikaze/theme.lua. */
+
+@define-color bg #11151a;
+@define-color surface #1a2128;
+@define-color fg #e6edf3;
+@define-color muted #8b98a5;
+@define-color accent #3ddc97;
+@define-color urgent #ff6b6b;
+
+* {
+  font-family: "CaskaydiaMono Nerd Font", "Noto Sans", sans-serif;
+  font-size: 13px;
+  min-height: 0;
+  border: none;
+  border-radius: 0;
+}
+
+window#waybar {
+  background: alpha(@bg, 0.88);
+  color: @fg;
+}
+
+tooltip {
+  background: @surface;
+  border: 1px solid alpha(@accent, 0.35);
+  border-radius: 8px;
+}
+
+tooltip label {
+  color: @fg;
+}
+
+#custom-launcher {
+  color: @accent;
+  font-size: 16px;
+  padding: 0 12px 0 14px;
+}
+
+#workspaces button {
+  color: @muted;
+  padding: 0 8px;
+  margin: 4px 1px;
+  border-radius: 6px;
+  background: transparent;
+}
+
+#workspaces button.active {
+  color: @bg;
+  background: @accent;
+}
+
+#workspaces button.urgent {
+  color: @bg;
+  background: @urgent;
+}
+
+#workspaces button:hover {
+  color: @fg;
+  background: @surface;
+  box-shadow: none;
+}
+
+#clock {
+  font-weight: bold;
+}
+
+#tray,
+#language,
+#idle_inhibitor,
+#network,
+#bluetooth,
+#pulseaudio,
+#battery,
+#custom-notifications,
+#custom-power {
+  padding: 0 8px;
+  font-size: 15px;
+}
+
+#language {
+  font-size: 12px;
+  color: @muted;
+}
+
+#idle_inhibitor.activated,
+#pulseaudio.muted,
+#network.disconnected,
+#bluetooth.off {
+  color: @muted;
+}
+
+#battery.warning {
+  color: #f5c451;
+}
+
+#battery.critical:not(.charging) {
+  color: @urgent;
+}
+
+#custom-power {
+  padding-right: 14px;
+}
+
+#custom-power:hover,
+#custom-launcher:hover,
+#network:hover,
+#bluetooth:hover,
+#pulseaudio:hover,
+#custom-notifications:hover {
+  color: @accent;
+}

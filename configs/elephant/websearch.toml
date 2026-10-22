@@ -1,0 +1,16 @@
+# Prefixes end in a colon so they never capture app names typed in the launcher.
+
+[[entries]]
+default = true
+name = "Google"
+url = "https://www.google.com/search?q=%TERM%"
+
+[[entries]]
+name = "GitHub"
+prefix = "gh:"
+url = "https://github.com/search?q=%TERM%"
+
+[[entries]]
+name = "MDN"
+prefix = "mdn:"
+url = "https://developer.mozilla.org/en-US/search?q=%TERM%"

@@ -6,6 +6,7 @@ This section documents the various features and capabilities of Manjikaze.
 
 - [Navigation and Hotkeys](navigation.md) - Keyboard shortcuts and workspace navigation
 - [Tiling](tiling.md) - Window tiling and management
+- [Hyprland Desktop](hyprland.md) - Optional tiling desktop with launcher, bar and settings
 - [Terminal](terminal.md) - Terminal configuration and usage
 - [Shell Tools](shell-tools.md) - Command-line utilities and tools
 - [GUIs](gui.md) - Graphical applications and utilities

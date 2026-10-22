@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+# Opens Walker (all arguments are passed through), starting its Elephant backend first when
+# the session services aren't running yet, e.g. right after login or after a crash.
+
+if ! systemctl --user --quiet is-active manjikaze-walker.service; then
+    systemctl --user start manjikaze-walker.service || true
+fi
+
+exec walker "$@"

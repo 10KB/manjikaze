@@ -1,0 +1,143 @@
+// Waybar for Manjikaze's Hyprland session. No "output" is set, so every connected monitor
+// gets a bar without naming monitors anywhere.
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 4,
+  "reload_style_on_change": true,
+
+  "modules-left": ["custom/launcher", "hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": [
+    "tray",
+    "hyprland/language",
+    "idle_inhibitor",
+    "network",
+    "bluetooth",
+    "pulseaudio",
+    "battery",
+    "custom/notifications",
+    "custom/power"
+  ],
+
+  "custom/launcher": {
+    "format": "󰣇",
+    "tooltip-format": "Apps (Super + Space)\nRight click: settings (Super + I)",
+    "on-click": "manjikaze-hypr-launcher",
+    "on-click-right": "manjikaze-hypr-menu settings"
+  },
+
+  "hyprland/workspaces": {
+    "format": "{name}",
+    "on-scroll-up": "",
+    "on-scroll-down": "",
+    "show-special": false
+  },
+
+  "clock": {
+    "format": "{:%a %d %b  %H:%M}",
+    "tooltip-format": "<tt>{calendar}</tt>",
+    "calendar": {
+      "mode": "month",
+      "weeks-pos": "left",
+      "format": {
+        "today": "<span color='#3ddc97'><b>{}</b></span>",
+        "weeks": "<span color='#8b98a5'>W{}</span>"
+      }
+    },
+    "on-click": "swaync-client --toggle-panel --skip-wait"
+  },
+
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10
+  },
+
+  "hyprland/language": {
+    "format": "{short}",
+    "tooltip-format": "{long}\nClick or Super + Ctrl + Space to switch",
+    "on-click": "hyprctl switchxkblayout all next"
+  },
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": { "activated": "󰅶", "deactivated": "󰾪" },
+    "tooltip-format-activated": "Screen stays on",
+    "tooltip-format-deactivated": "Screen locks when idle"
+  },
+
+  "network": {
+    "format-wifi": "{icon}",
+    "format-ethernet": "󰈀",
+    "format-linked": "󰈂",
+    "format-disconnected": "󰤮",
+    "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}\nClick: Wi-Fi  ·  Right click: VPN",
+    "tooltip-format-ethernet": "{ifname} {ipaddr}\nClick: Wi-Fi  ·  Right click: VPN",
+    "tooltip-format-disconnected": "Disconnected\nClick: Wi-Fi  ·  Right click: VPN",
+    "on-click": "manjikaze-hypr-menu wifi",
+    "on-click-right": "manjikaze-hypr-menu vpn",
+    "on-click-middle": "uwsm-app -- nm-connection-editor"
+  },
+
+  "bluetooth": {
+    "format": "󰂯",
+    "format-off": "󰂲",
+    "format-disabled": "󰂲",
+    "format-connected": "󰂱",
+    "format-no-controller": "",
+    "tooltip-format": "{controller_alias}: {status}",
+    "tooltip-format-connected": "{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}",
+    "on-click": "manjikaze-hypr-launcher -m bluetooth",
+    "on-click-right": "uwsm-app -- blueman-manager"
+  },
+
+  "pulseaudio": {
+    "format": "{icon}",
+    "format-muted": "󰝟",
+    "format-icons": { "headphone": "󰋋", "headset": "󰋎", "default": ["󰕿", "󰖀", "󰕾"] },
+    "tooltip-format": "{desc}: {volume}%\nClick: devices  ·  Right click: mute  ·  Middle click: mixer",
+    "scroll-step": 5,
+    "on-click": "manjikaze-hypr-launcher -m wireplumber",
+    "on-click-right": "swayosd-client --output-volume mute-toggle",
+    "on-click-middle": "uwsm-app -- pavucontrol"
+  },
+
+  "battery": {
+    "states": { "warning": 20, "critical": 10 },
+    "format": "{icon}",
+    "format-charging": "󰂄",
+    "format-plugged": "󰚥",
+    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
+    "tooltip-format": "{capacity}% · {timeTo}"
+  },
+
+  "custom/notifications": {
+    "tooltip": false,
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "󰂚<span foreground='#3ddc97'><sup></sup></span>",
+      "none": "󰂜",
+      "dnd-notification": "󰂛<span foreground='#3ddc97'><sup></sup></span>",
+      "dnd-none": "󰂛",
+      "inhibited-notification": "󰂚<span foreground='#3ddc97'><sup></sup></span>",
+      "inhibited-none": "󰂜",
+      "dnd-inhibited-notification": "󰂛<span foreground='#3ddc97'><sup></sup></span>",
+      "dnd-inhibited-none": "󰂛"
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client --subscribe-waybar",
+    "on-click": "swaync-client --toggle-panel --skip-wait",
+    "on-click-right": "swaync-client --toggle-dnd --skip-wait",
+    "escape": true
+  },
+
+  "custom/power": {
+    "format": "󰐥",
+    "tooltip-format": "Power menu (Super + Esc)",
+    "on-click": "manjikaze-hypr-menu power"
+  }
+}

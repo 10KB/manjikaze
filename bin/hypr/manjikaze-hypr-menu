@@ -1,0 +1,180 @@
+#!/bin/bash
+set -e
+
+# Quick menus in the launcher: power, settings, wifi and vpn.
+# Usage: manjikaze-hypr-menu [settings|power|wifi|vpn]
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+# Shows one option per line and prints the index of the chosen one (empty when cancelled).
+choose() {
+    local prompt="$1"
+    shift
+    printf '%s\n' "$@" | "$SCRIPT_DIR/manjikaze-hypr-launcher" --dmenu --index -p "$prompt" \
+        --width 420 --minheight 1 --maxheight 560 2>/dev/null || true
+}
+
+notify() {
+    notify-send --app-name "Manjikaze" "$@" || true
+}
+
+launch() {
+    setsid uwsm-app -- "$@" >/dev/null 2>&1 &
+}
+
+terminal() {
+    launch "${TERMINAL:-alacritty}" --class manjikaze-floating -e "$@"
+}
+
+power_menu() {
+    local options=("  Lock" "󰤄  Suspend" "󰍃  Log out" "󰜉  Restart" "󰐥  Shut down")
+    case "$(choose "Power" "${options[@]}")" in
+        0) loginctl lock-session ;;
+        1) systemctl suspend ;;
+        2) uwsm stop ;;
+        3) systemctl reboot ;;
+        4) systemctl poweroff ;;
+    esac
+}
+
+wifi_menu() {
+    local -a ssids=() labels=()
+    local -A seen=()
+    local in_use signal security ssid icon
+
+    if [[ $(nmcli radio wifi) != "enabled" ]]; then
+        case "$(choose "Wi-Fi is off" "󰖩  Turn Wi-Fi on" "󰛳  Network settings")" in
+            0) nmcli radio wifi on && notify "Wi-Fi turned on" ;;
+            1) launch nm-connection-editor ;;
+        esac
+        return 0
+    fi
+
+    while IFS=: read -r in_use signal security ssid; do
+        [[ -z $ssid || -n ${seen[$ssid]} ]] && continue
+        seen[$ssid]=1
+        icon="󰤟"
+        ((signal >= 40)) && icon="󰤢"
+        ((signal >= 60)) && icon="󰤥"
+        ((signal >= 80)) && icon="󰤨"
+        [[ -n $security && $security != "--" ]] && icon="$icon "
+        [[ $in_use == "*" ]] && icon="$icon  ✓"
+        ssids+=("$ssid")
+        labels+=("$icon  $ssid")
+    done < <(nmcli -t -e no -f IN-USE,SIGNAL,SECURITY,SSID device wifi list --rescan auto 2>/dev/null | sort -t: -k2 -nr)
+
+    labels+=("󰖪  Turn Wi-Fi off" "󰛳  Network settings")
+    local index
+    index=$(choose "Wi-Fi" "${labels[@]}")
+    [[ -z $index ]] && return 0
+
+    if ((index == ${#ssids[@]})); then
+        nmcli radio wifi off && notify "Wi-Fi turned off"
+        return 0
+    elif ((index == ${#ssids[@]} + 1)); then
+        launch nm-connection-editor
+        return 0
+    fi
+
+    ssid="${ssids[$index]}"
+    notify "Connecting to $ssid…"
+    # Known networks connect directly; for new ones the tray applet asks for the password.
+    if nmcli device wifi connect "$ssid" >/dev/null 2>&1; then
+        notify "Connected to $ssid"
+        return 0
+    fi
+
+    local password
+    password=$("$SCRIPT_DIR/manjikaze-hypr-launcher" --dmenu --password -p "Password for $ssid" 2>/dev/null || true)
+    [[ -z $password ]] && return 0
+    if nmcli device wifi connect "$ssid" password "$password" >/dev/null 2>&1; then
+        notify "Connected to $ssid"
+    else
+        notify --urgency critical "Could not connect to $ssid"
+    fi
+}
+
+vpn_menu() {
+    local -a names=() labels=() states=()
+    local name type active
+
+    while IFS=: read -r name type active; do
+        [[ $type == "vpn" || $type == "wireguard" ]] || continue
+        names+=("$name")
+        states+=("$active")
+        if [[ $active == "yes" ]]; then
+            labels+=("󰦝  $name  ✓")
+        else
+            labels+=("󰦞  $name")
+        fi
+    done < <(nmcli -t -e no -f NAME,TYPE,ACTIVE connection show 2>/dev/null)
+
+    labels+=("󰐕  Add or edit VPN connections")
+    local index
+    index=$(choose "VPN" "${labels[@]}")
+    [[ -z $index ]] && return 0
+
+    if ((index == ${#names[@]})); then
+        launch nm-connection-editor
+        return 0
+    fi
+
+    name="${names[$index]}"
+    if [[ ${states[$index]} == "yes" ]]; then
+        nmcli connection down id "$name" >/dev/null && notify "Disconnected from $name"
+    else
+        notify "Connecting to $name…"
+        # Runs in the background so the tray applet can prompt for credentials or a token.
+        if nmcli connection up id "$name" >/dev/null 2>&1; then
+            notify "Connected to $name"
+        else
+            notify --urgency critical "Could not connect to $name"
+        fi
+    fi
+}
+
+settings_menu() {
+    local options=(
+        "󰖩  Wi-Fi"
+        "󰦝  VPN"
+        "󰂯  Bluetooth devices"
+        "󰕾  Sound devices"
+        "󰍹  Displays"
+        "󰛳  Network connections (LAN, VPN, proxy)"
+        "󰂯  Bluetooth settings"
+        "󰓃  Sound settings"
+        "󰍺  Reset display layout for these screens"
+        "󰌌  Keyboard shortcuts"
+        "󰏘  Appearance (GTK theme, icons, cursor)"
+        "󰐪  Printers"
+        "  Edit Hyprland configuration"
+        "󰣇  Manjikaze"
+    )
+    case "$(choose "Settings" "${options[@]}")" in
+        0) wifi_menu ;;
+        1) vpn_menu ;;
+        2) exec "$SCRIPT_DIR/manjikaze-hypr-launcher" -m bluetooth ;;
+        3) exec "$SCRIPT_DIR/manjikaze-hypr-launcher" -m wireplumber ;;
+        4) launch nwg-displays ;;
+        5) launch nm-connection-editor ;;
+        6) launch blueman-manager ;;
+        7) launch pavucontrol ;;
+        8) "$SCRIPT_DIR/manjikaze-hypr-monitors" forget && notify "Display layout reset to automatic" ;;
+        9) exec "$SCRIPT_DIR/manjikaze-hypr-keybindings" ;;
+        10) launch nwg-look ;;
+        11) launch system-config-printer ;;
+        12) launch xdg-open "${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.lua" ;;
+        13) terminal manjikaze ;;
+    esac
+}
+
+case "${1:-settings}" in
+    settings) settings_menu ;;
+    power) power_menu ;;
+    wifi) wifi_menu ;;
+    vpn) vpn_menu ;;
+    *)
+        echo "Usage: $(basename "$0") [settings|power|wifi|vpn]" >&2
+        exit 1
+        ;;
+esac

@@ -1,0 +1,152 @@
+/* Manjikaze theme for Walker. Colors match configs/hypr/manjikaze/theme.lua. */
+
+@define-color bg #11151a;
+@define-color surface #1a2128;
+@define-color surface-alt #232c35;
+@define-color fg #e6edf3;
+@define-color muted #8b98a5;
+@define-color accent #3ddc97;
+@define-color urgent #ff6b6b;
+
+* {
+  all: unset;
+  font-family: "Inter", "Cantarell", "Noto Sans", sans-serif, "CaskaydiaMono Nerd Font";
+  font-size: 14px;
+  color: @fg;
+}
+
+.box-wrapper {
+  background: alpha(@bg, 0.94);
+  border: 1px solid alpha(@accent, 0.35);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+}
+
+.search-container {
+  margin-bottom: 8px;
+}
+
+.input {
+  background: @surface;
+  border-radius: 10px;
+  padding: 10px 12px;
+  caret-color: @accent;
+  font-size: 16px;
+}
+
+.input placeholder {
+  color: @muted;
+}
+
+.input selection {
+  background: alpha(@accent, 0.35);
+}
+
+.list {
+  margin-top: 4px;
+}
+
+child {
+  border-radius: 10px;
+}
+
+.item-box {
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+row:selected .item-box,
+child:selected .item-box,
+child:hover .item-box {
+  background: alpha(@accent, 0.16);
+}
+
+row:selected .item-text,
+child:selected .item-text {
+  color: @accent;
+}
+
+.item-text-box {
+  margin-left: 10px;
+}
+
+.item-subtext {
+  font-size: 12px;
+  color: @muted;
+}
+
+.item-quick-activation {
+  color: @muted;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.normal-icons {
+  -gtk-icon-size: 24px;
+}
+
+.large-icons {
+  -gtk-icon-size: 48px;
+}
+
+.symbols .item-image {
+  font-size: 26px;
+}
+
+.calc .item-text {
+  font-size: 20px;
+}
+
+.preview {
+  background: @surface;
+  border-radius: 10px;
+  padding: 10px;
+  margin-left: 10px;
+}
+
+.placeholder,
+.elephant-hint {
+  color: @muted;
+  padding: 12px;
+}
+
+.error {
+  color: @urgent;
+  padding: 12px;
+}
+
+.keybinds,
+.global-keybinds,
+.item-keybinds {
+  margin-top: 8px;
+}
+
+.keybind {
+  margin-right: 10px;
+}
+
+.keybind-button,
+.keybind-bind {
+  background: @surface-alt;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.keybind-label {
+  color: @muted;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+popover {
+  background: @surface;
+  border: 1px solid alpha(@accent, 0.35);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+scrollbar {
+  opacity: 0;
+}
