@@ -58,10 +58,7 @@ if [[ $setup_gnome == "true" ]]; then
     gext install AlphabeticalAppGrid@stuarthayhurst
 
     # Configure Flameshot shortcut (Super + Print)
-    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/flameshot/']"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/flameshot/ name "Flameshot"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/flameshot/ command "flameshot gui"
-    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/flameshot/ binding "<Super>Print"
+    add_gnome_shortcut "flameshot" "Flameshot" "flameshot gui" "<Super>Print"
 
     # App doesn't do anything when started from the app grid
     sudo rm -rf /usr/share/applications/org.flameshot.Flameshot.desktop
