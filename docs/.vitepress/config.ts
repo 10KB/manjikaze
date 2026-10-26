@@ -45,6 +45,7 @@ const docsSidebar = [
             { text: 'Overview', link: '/maintenance/overview' },
             { text: 'Updates', link: '/maintenance/updates' },
             { text: 'Migrations', link: '/maintenance/migrations' },
+            { text: 'System Package Installs', link: '/maintenance/system-package' },
             { text: 'Troubleshooting', link: '/maintenance/troubleshooting' },
         ],
     },

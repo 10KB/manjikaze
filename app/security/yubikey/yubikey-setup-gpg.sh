@@ -294,10 +294,10 @@ EOF
 
     # ── Backup keys ────────────────────────────────────────────────────
     status "Creating backups of GPG keys..."
-    local secrets_dir="$MANJIKAZE_DIR/secrets"
+    local secrets_dir="$MANJIKAZE_DATA_DIR/secrets"
     local backup_date
     backup_date=$(date +%F)
-    mkdir -p "$secrets_dir"
+    install -d -m 700 "$secrets_dir"
 
     echo "$certify_pass" | \
         gpg --batch --pinentry-mode=loopback --passphrase-fd 0 \

@@ -5,7 +5,17 @@ status() {
 }
 
 get_version() {
-    git -C "$MANJIKAZE_DIR" describe --tags 2>/dev/null || echo "dev"
+    if [[ -f "$MANJIKAZE_DIR/VERSION" ]]; then
+        cat "$MANJIKAZE_DIR/VERSION"
+    else
+        git -C "$MANJIKAZE_DIR" describe --tags 2>/dev/null || echo "dev"
+    fi
+}
+
+# A system package ships a VERSION file instead of a git checkout. Its code
+# directory is read-only, so per-user data lives in MANJIKAZE_DATA_DIR.
+is_package_install() {
+    [[ -f "$MANJIKAZE_DIR/VERSION" && ! -e "$MANJIKAZE_DIR/.git" ]]
 }
 
 is_installed() {

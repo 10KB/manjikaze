@@ -102,6 +102,7 @@ setup_document_signing_cert() {
         -in "$cert_dir/signing.csr" \
         -CA "$ca_cert_file" \
         -CAkey "$ca_key_file" \
+        -CAserial "$cert_dir/ca.srl" \
         -CAcreateserial \
         -out "$cert_dir/signing-cert.pem" \
         -days 1825 \
@@ -144,7 +145,7 @@ setup_document_signing_cert() {
 
     # Remove CSR and serial file (no longer needed)
     rm -f "$cert_dir/signing.csr"
-    rm -f "$MANJIKAZE_DIR/assets/certs/.srl" 2>/dev/null
+    rm -f "$cert_dir/ca.srl"
 
     # Keep signing-key.pem and signing-cert.pem for reference
     chmod 600 "$cert_dir/signing-key.pem"

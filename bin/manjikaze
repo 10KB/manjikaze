@@ -10,16 +10,22 @@ DEFAULT_MANJIKAZE_DIR="$HOME/.manjikaze"
 
 # Check if we're running from the default installation directory
 if [[ "$SCRIPT_DIR" != "$DEFAULT_MANJIKAZE_DIR/bin" ]]; then
-    # We're in dev mode - set MANJIKAZE_DIR to the parent of the script directory
+    # A package install or a development checkout - use the parent of the script directory
     export MANJIKAZE_DIR=$(dirname "$SCRIPT_DIR")
-    export DEV_MODE=true
 else
     export MANJIKAZE_DIR="$DEFAULT_MANJIKAZE_DIR"
-    export DEV_MODE=false
 fi
 
 source "$MANJIKAZE_DIR/lib/common.sh"
+
+if [[ "$MANJIKAZE_DIR" == "$DEFAULT_MANJIKAZE_DIR" ]] || is_package_install; then
+    export DEV_MODE=false
+else
+    export DEV_MODE=true
+fi
+
 source "$MANJIKAZE_DIR/lib/state.sh"
+source "$MANJIKAZE_DIR/lib/setup.sh"
 source "$MANJIKAZE_DIR/lib/migrations.sh"
 source "$MANJIKAZE_DIR/lib/audits.sh"
 source "$MANJIKAZE_DIR/lib/menus.sh"
@@ -94,6 +100,14 @@ show_header() {
 main() {
     # Ensure the sudo keep-alive is always cleaned up, even on unexpected exit.
     trap 'stop_sudo_keepalive' EXIT
+
+    if [[ "$1" == "setup" ]]; then
+        setup_package_install
+        exit 0
+    fi
+
+    # Runs before anything reads the state file
+    setup_package_install
 
     if [[ "$1" == "update" ]]; then
         clear

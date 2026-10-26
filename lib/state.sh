@@ -1,10 +1,21 @@
 #!/bin/bash
 
+# Per-user data: the state file and secrets. Git installs keep it in the checkout.
+if [[ -z "${MANJIKAZE_DATA_DIR:-}" ]]; then
+    if is_package_install; then
+        MANJIKAZE_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/manjikaze"
+    else
+        MANJIKAZE_DATA_DIR="$MANJIKAZE_DIR"
+    fi
+fi
+export MANJIKAZE_DATA_DIR
+
 # State file to store all persistent data like migrations
-STATE_FILE="$MANJIKAZE_DIR/.manjikaze_state.json"
+STATE_FILE="$MANJIKAZE_DATA_DIR/.manjikaze_state.json"
 
 init_state_file() {
     if [[ ! -f "$STATE_FILE" ]]; then
+        mkdir -p "$MANJIKAZE_DATA_DIR"
         echo '{"migrations": {}, "audits": {}, "updates": {}}' > "$STATE_FILE"
     fi
 }

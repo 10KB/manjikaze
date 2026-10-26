@@ -35,7 +35,7 @@ Your existing ~/.gnupg configuration will be preserved." \
     status "Detected YubiKey (Serial: ${yk_serial:-unknown})"
 
     # ── Choose backup source ───────────────────────────────────────────
-    local secrets_dir="$MANJIKAZE_DIR/secrets"
+    local secrets_dir="$MANJIKAZE_DATA_DIR/secrets"
     local source
     source=$(gum choose "Bitwarden" "Local files ($secrets_dir)")
 
