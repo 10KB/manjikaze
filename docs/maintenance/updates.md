@@ -12,6 +12,8 @@ Updates available. Would you like to update Manjikaze?
 
 It's recommended to approve these updates to ensure you have the latest features and security patches.
 
+A [system package install](./system-package) skips this check: your package manager updates Manjikaze.
+
 ## Updating Installed Applications
 
 Manjikaze provides a convenient menu option to update all installed applications:
