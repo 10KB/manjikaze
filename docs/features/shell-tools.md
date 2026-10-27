@@ -109,6 +109,10 @@ fd config
 
 [Btop](https://github.com/aristocratos/btop) is an advanced system monitor that shows CPU, memory, disk, and network usage in a visually appealing interface. Launch it by typing `btop` in your terminal.
 
+### Ncdu
+
+[Ncdu](https://dev.yorhel.nl/ncdu) is an ncurses disk usage analyzer for finding what is consuming space on your filesystem. Run `ncdu` in a directory or pass a path (for example `ncdu /home`). Navigate with the arrow keys, enter a directory to scan it, and press `d` to delete a selected item (use with care).
+
 ### SSHS
 
 [SSHS](https://github.com/quantumsheep/sshs) is an SSH connection manager that helps you organize and connect to your SSH servers quickly. Run `sshs` to see a list of available connections.
