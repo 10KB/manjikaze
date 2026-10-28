@@ -113,6 +113,63 @@ deactivate_zsh_plugin() {
     return 0
 }
 
+GNOME_CUSTOM_KEYBINDINGS_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings"
+
+add_gnome_shortcut() {
+    local id=$1
+    local name=$2
+    local command=$3
+    local binding=$4
+
+    if [[ "$XDG_CURRENT_DESKTOP" != *"GNOME"* ]]; then
+        return 0
+    fi
+
+    local path="$GNOME_CUSTOM_KEYBINDINGS_PATH/$id/"
+    local schema="org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path"
+    local current
+    current=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
+
+    if [[ "$current" != *"'$path'"* ]]; then
+        if [[ "$current" == "@as []" || "$current" == "[]" ]]; then
+            current="['$path']"
+        else
+            current="${current%]}, '$path']"
+        fi
+        gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$current"
+    fi
+
+    gsettings set "$schema" name "$name"
+    gsettings set "$schema" command "$command"
+    gsettings set "$schema" binding "$binding"
+    status "Configured shortcut $binding for $name."
+}
+
+remove_gnome_shortcut() {
+    local id=$1
+
+    if [[ "$XDG_CURRENT_DESKTOP" != *"GNOME"* ]]; then
+        return 0
+    fi
+
+    local path="$GNOME_CUSTOM_KEYBINDINGS_PATH/$id/"
+    local current
+    current=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
+
+    if [[ "$current" != *"'$path'"* ]]; then
+        return 0
+    fi
+
+    current=$(echo "$current" | sed -e "s|'$path'||" -e 's/\[, /[/' -e 's/, ,/,/' -e 's/, \]/]/')
+    if [[ "$current" == "[]" ]]; then
+        current="@as []"
+    fi
+
+    gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$current"
+    gsettings reset-recursively "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$path"
+    status "Removed shortcut for $id."
+}
+
 install_package() {
     local package=$1
     local type=${2:-repo} # Default to repo
