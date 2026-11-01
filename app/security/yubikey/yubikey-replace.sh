@@ -6,9 +6,9 @@ if [[ $replace_yubikey == "true" ]]; then
     echo "Do NOT insert the new YubiKey yet."
 
     suspend_rule_present=false
-    if [ -f /etc/udev/rules.d/90-yubikey-remove.rules ]; then
+    if [ -f /etc/udev/rules.d/90-yubikey-actions.rules ]; then
         suspend_rule_present=true
-        sudo mv /etc/udev/rules.d/90-yubikey-remove.rules /etc/udev/rules.d/90-yubikey-remove.rules.bak
+        sudo mv /etc/udev/rules.d/90-yubikey-actions.rules /etc/udev/rules.d/90-yubikey-actions.rules.bak
         sudo udevadm control --reload-rules
         sudo udevadm trigger
     fi
@@ -44,7 +44,7 @@ if [[ $replace_yubikey == "true" ]]; then
     fi
 
     if [ "$suspend_rule_present" = true ]; then
-        sudo mv /etc/udev/rules.d/90-yubikey-remove.rules.bak /etc/udev/rules.d/90-yubikey-remove.rules
+        sudo mv /etc/udev/rules.d/90-yubikey-actions.rules.bak /etc/udev/rules.d/90-yubikey-actions.rules
         sudo udevadm control --reload-rules
         sudo udevadm trigger
     fi
