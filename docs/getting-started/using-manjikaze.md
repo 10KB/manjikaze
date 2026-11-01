@@ -46,7 +46,7 @@ The Security menu includes options for hardening your system:
 
 1. **Generate Yubikey secret for disk encryption** - Generates a secret key on your Yubikey that is used for disk encryption.
 2. **Configure Yubikey as MFA for disk encryption** - Sets up Yubikey as a multi-factor authentication method to unlock the encrypted disk during boot.
-3. **Configure Yubikey as MFA for system** - Enables Yubikey authentication as a second factor for system login, enhancing login security.
+3. **Configure Yubikey as MFA for system** - Lets you unlock the screen, use sudo and approve polkit prompts with your Yubikey and its PIN. Your password keeps working.
 4. **Auto lock on Yubikey removal** - Automatically locks the system when the Yubikey is removed, preventing unauthorized access.
 5. **Replace faulty Yubikey** - Provides a process for replacing a damaged or lost Yubikey.
 

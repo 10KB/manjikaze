@@ -1,6 +1,6 @@
 install() {
     install_package "yubikey-manager" repo
-    install_package "yubico-pam" repo
+    install_package "pam-u2f" repo
     install_package "yubikey-full-disk-encryption" repo
     install_package "gnupg" repo
     install_package "ccid" repo
@@ -17,7 +17,7 @@ install() {
 
 uninstall() {
     uninstall_package "yubikey-manager" repo
-    uninstall_package "yubico-pam" repo
+    uninstall_package "pam-u2f" repo
     uninstall_package "yubikey-full-disk-encryption" repo
     uninstall_package "gnupg" repo
     uninstall_package "ccid" repo
