@@ -46,6 +46,17 @@ else
 fi
 rm -f "$hyprland_template"
 
+for file in hypridle.conf hyprlock.conf hyprpaper.conf; do
+    hyprland_deploy "$MANJIKAZE_DIR/configs/hypr/$file" "$hypr_dir/$file"
+done
+
+# Same wallpaper as the GNOME setup, used by hyprpaper and the lock screen.
+mkdir -p "$HOME/.local/share/backgrounds"
+if [[ ! -f $HOME/.local/share/backgrounds/manjikaze-background.jpg ]]; then
+    cp "$MANJIKAZE_DIR/assets/background.jpg" "$HOME/.local/share/backgrounds/manjikaze-background.jpg"
+fi
+xdg-user-dirs-update >/dev/null 2>&1 || true
+
 hyprland_deploy "$MANJIKAZE_DIR/configs/walker/config.toml" "$HOME/.config/walker/config.toml"
 hyprland_deploy "$MANJIKAZE_DIR/configs/walker/themes/manjikaze/style.css" "$HOME/.config/walker/themes/manjikaze/style.css"
 for file in "$MANJIKAZE_DIR"/configs/elephant/*.toml; do

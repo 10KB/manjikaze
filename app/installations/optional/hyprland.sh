@@ -7,6 +7,8 @@ HYPRLAND_REPO_PACKAGES=(
     nwg-displays inotify-tools socat lua jq
     # Launcher providers: calculator and clipboard
     libqalculate wl-clipboard
+    # Lock screen, idle handling, wallpaper and its file dialog
+    hyprlock hypridle hyprpaper yad xdg-user-dirs
 )
 
 HYPRLAND_AUR_PACKAGES=(
@@ -31,6 +33,7 @@ HYPRLAND_AUR_PACKAGES=(
 HYPRLAND_OWN_PACKAGES=(
     hyprland uwsm xdg-desktop-portal-hyprland hyprpolkitagent
     nwg-displays
+    hyprlock hypridle hyprpaper
 )
 
 # Session GDM starts for this user (also with automatic login): hyprland-uwsm or gnome.
