@@ -14,3 +14,6 @@ require("manjikaze")
 -- hl.config({ general = { gaps_out = 4 }, decoration = { rounding = 0 } })
 -- hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("uwsm-app -- gitkraken"), { description = "GitKraken" })
 -- hl.unbind("SUPER + C")
+--
+-- Monitors don't belong here: arrange them with Displays (SUPER + P) and the layout is
+-- remembered per combination of connected screens.

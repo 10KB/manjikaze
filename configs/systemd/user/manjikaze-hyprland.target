@@ -7,3 +7,4 @@ Documentation=https://manjikaze.10kb.nl/features/hyprland
 PartOf=graphical-session.target
 After=graphical-session.target
 Wants=hyprpolkitagent.service
+Wants=manjikaze-hypr-monitors.service

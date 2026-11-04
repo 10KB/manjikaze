@@ -3,12 +3,15 @@ HYPRLAND_REPO_PACKAGES=(
     # and notify-send for the manjikaze-hypr-* scripts
     hyprland uwsm libnewt xdg-desktop-portal-hyprland xdg-desktop-portal-gtk hyprpolkitagent
     qt5-wayland qt6-wayland libnotify
+    # Displays settings and the monitor profile daemon
+    nwg-displays inotify-tools socat lua jq
 )
 
 # Removed again by uninstall. The other packages above stay installed, because other apps
 # may use them.
 HYPRLAND_OWN_PACKAGES=(
     hyprland uwsm xdg-desktop-portal-hyprland hyprpolkitagent
+    nwg-displays
 )
 
 # Session GDM starts for this user (also with automatic login): hyprland-uwsm or gnome.
