@@ -29,6 +29,8 @@ bind("SUPER + SPACE", "Search apps, files and more", script("manjikaze-hypr-laun
 bind("SUPER + V", "Clipboard history", script("manjikaze-hypr-launcher") .. " -m clipboard")
 bind("SUPER + period", "Emoji and symbols", script("manjikaze-hypr-launcher") .. " -m symbols")
 bind("SUPER + K", "Keyboard shortcuts", script("manjikaze-hypr-keybindings"))
+bind("SUPER + CTRL + W", "Wallpaper", script("manjikaze-hypr-wallpaper"))
+bind("SUPER + L", "Lock screen", "loginctl lock-session")
 
 -- Settings shortcuts
 bind("SUPER + P", "Displays", launch("nwg-displays"))

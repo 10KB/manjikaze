@@ -37,6 +37,8 @@ hl.window_rule({ name = "float-displays", match = { class = "^(nwg-displays)$" }
 hl.window_rule({ name = "float-files", match = { class = "^(org.gnome.Nautilus)$" }, float = true, center = true })
 hl.window_rule({ name = "size-files", match = { class = "^(org.gnome.Nautilus)$", modal = false }, size = { 1200, 760 } })
 
+hl.window_rule({ name = "float-wallpaper-picker", match = { title = "^(Choose wallpaper)$" }, float = true, center = true })
+
 hl.window_rule({
   name = "float-file-pickers",
   match = { title = "^(Open|Save|Select|Choose).*" },
