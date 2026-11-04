@@ -117,6 +117,20 @@ if [[ -f $ulauncher_autostart ]] && ! grep -q 'ShowIn=' "$ulauncher_autostart"; 
     echo "NotShowIn=Hyprland;" >>"$ulauncher_autostart"
 fi
 
+# The lock screen runs as you, so it can't read the root-only challenges in /var/yubico that login
+# and sudo use. It gets its own challenge in ~/.yubico instead. That file only affects the lock
+# screen, which anything running as you can unlock anyway (loginctl unlock-session).
+if grep -q pam_yubico /etc/pam.d/system-auth 2>/dev/null && ! grep -q pam_yubico /etc/pam.d/hyprlock 2>/dev/null; then
+    if gum confirm "Also unlock the lock screen with your YubiKey? You'll touch the key once now."; then
+        if compgen -G "$HOME/.yubico/challenge-*" >/dev/null || { status "Touch your YubiKey when it blinks..." && ykpamcfg -2 -v; }; then
+            sudo sed -i '1i auth sufficient pam_yubico.so mode=challenge-response' /etc/pam.d/hyprlock
+            status "On the lock screen, press Enter and touch your YubiKey when it blinks."
+        else
+            status "Could not create a YubiKey challenge; the lock screen keeps asking for your password."
+        fi
+    fi
+fi
+
 # nvidia_drm only exists while the NVIDIA driver is loaded; nouveau and Intel-only setups skip this.
 modeset_file=/sys/module/nvidia_drm/parameters/modeset
 if [[ -r $modeset_file && $(<"$modeset_file") != "Y" ]]; then

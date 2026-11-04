@@ -137,6 +137,8 @@ The screen locks after 5 minutes of inactivity and turns off 30 seconds later. F
 
 **Security → Auto lock on Yubikey removal** works in Hyprland as well.
 
+If you configured the YubiKey for the system (**Security → Configure Yubikey as MFA for system**), **Configuration → Hyprland desktop** offers to enable it for the lock screen too. Then press `Enter` on the empty password field and touch the key when it blinks. The lock screen runs as you and can't read the system's root-only YubiKey challenges, so it gets its own in `~/.yubico`. After replacing your YubiKey, run **Configuration → Hyprland desktop** again.
+
 ## Customizing
 
 Your configuration lives in `~/.config/hypr/hyprland.lua`. It loads Manjikaze's defaults first, so updating Manjikaze improves the defaults without overwriting your changes. Add your own settings below the `require("manjikaze")` line:
