@@ -39,6 +39,10 @@ function M.first_present(...)
   return nil
 end
 
+function M.shell_quote(value)
+  return "'" .. tostring(value):gsub("'", "'\\''") .. "'"
+end
+
 -- Apps run as their own systemd unit under uwsm instead of as children of Hyprland.
 function M.launch(command)
   return "uwsm-app -- " .. command

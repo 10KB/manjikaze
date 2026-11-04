@@ -13,6 +13,8 @@ HYPRLAND_REPO_PACKAGES=(
     grim slurp satty hyprpicker
     # Settings: GTK appearance, network and VPN, Bluetooth, sound
     nwg-look network-manager-applet blueman bluez-utils pavucontrol
+    # Notifications and quick settings, volume and brightness on-screen display, media keys
+    swaync swayosd playerctl brightnessctl
 )
 
 HYPRLAND_AUR_PACKAGES=(
@@ -41,7 +43,21 @@ HYPRLAND_OWN_PACKAGES=(
     hyprpicker satty
     # Without its Hyprland-only autostart entry, the Blueman applet would start in GNOME too.
     blueman
+    swaync swayosd
 )
+
+# Waybar 0.15 still sends hyprlang dispatch commands, so clicking a workspace does nothing
+# under Hyprland's Lua config. Build from git until the repositories ship 0.16.
+hyprland_waybar_package() {
+    local version
+    version=$(pacman -Si waybar 2>/dev/null | awk -F': ' '/^Version/ { print $2; exit }')
+
+    if [[ -n $version ]] && [[ $(vercmp "$version" 0.16) -ge 0 ]]; then
+        echo "waybar repo"
+    else
+        echo "waybar-git aur"
+    fi
+}
 
 # Session GDM starts for this user (also with automatic login): hyprland-uwsm or gnome.
 hyprland_set_default_session() {
@@ -90,6 +106,8 @@ hyprland_install_packages() {
 }
 
 install() {
+    local waybar_package waybar_type
+
     if ! hyprland_package_database_current; then
         status "The package database is out of date, so the Hyprland packages can't be downloaded."
         status "Update the system first (Setup > Update installed apps, or 'sudo pacman -Syu'), then run this again."
@@ -97,6 +115,14 @@ install() {
     fi
 
     hyprland_install_packages || return 0
+
+    read -r waybar_package waybar_type <<<"$(hyprland_waybar_package)"
+    if ! is_installed waybar && ! is_installed waybar-git; then
+        install_package "$waybar_package" "$waybar_type"
+    elif is_installed waybar && [[ $waybar_package == "waybar-git" ]]; then
+        status "Keeping the installed Waybar 0.15: clicking workspaces in the bar won't work until 0.16."
+        status "Replace it with 'yay -S waybar-git' to get that now."
+    fi
 
     if lspci | grep -qi 'nvidia'; then
         # Hardware video decoding in browsers on NVIDIA.
@@ -131,6 +157,8 @@ uninstall() {
     for ((index = ${#HYPRLAND_AUR_PACKAGES[@]} - 1; index >= 0; index--)); do
         uninstall_package "${HYPRLAND_AUR_PACKAGES[$index]}" aur
     done
+    uninstall_package "waybar-git" aur
+    uninstall_package "waybar" repo
 
     for package in "${HYPRLAND_OWN_PACKAGES[@]}"; do
         uninstall_package "$package" repo

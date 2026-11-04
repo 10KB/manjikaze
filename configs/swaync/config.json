@@ -1,0 +1,91 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "overlay",
+  "control-center-layer": "top",
+  "layer-shell": true,
+  "cssPriority": "user",
+  "control-center-margin-top": 8,
+  "control-center-margin-bottom": 8,
+  "control-center-margin-right": 8,
+  "notification-window-width": 420,
+  "control-center-width": 440,
+  "fit-to-screen": true,
+  "timeout": 8,
+  "timeout-low": 4,
+  "timeout-critical": 0,
+  "keyboard-shortcuts": true,
+  "notification-grouping": true,
+  "image-visibility": "when-available",
+  "transition-time": 200,
+  "hide-on-clear": false,
+  "hide-on-action": true,
+  "relative-timestamps": true,
+  "text-empty": "No notifications",
+  "widgets": ["title", "buttons-grid", "volume", "mpris", "dnd", "notifications"],
+  "widget-config": {
+    "title": {
+      "text": "Notifications",
+      "clear-all-button": true,
+      "button-text": "Clear all"
+    },
+    "dnd": {
+      "text": "Do not disturb"
+    },
+    "volume": {
+      "label": "󰕾",
+      "show-per-app": true,
+      "show-per-app-icon": true,
+      "show-per-app-label": true,
+      "empty-list-label": "No apps playing audio"
+    },
+    "mpris": {
+      "autohide": true,
+      "show-album-art": "when-available"
+    },
+    "buttons-grid": {
+      "buttons-per-row": 4,
+      "actions": [
+        {
+          "label": "󰖩  Wi-Fi",
+          "type": "toggle",
+          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && nmcli radio wifi on || nmcli radio wifi off'",
+          "update-command": "sh -c '[ \"$(nmcli radio wifi)\" = enabled ] && echo true || echo false'"
+        },
+        {
+          "label": "󰂯  Bluetooth",
+          "type": "toggle",
+          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && bluetoothctl power on || bluetoothctl power off'",
+          "update-command": "sh -c 'bluetoothctl show | grep -q \"Powered: yes\" && echo true || echo false'"
+        },
+        {
+          "label": "󰍬  Mic",
+          "type": "toggle",
+          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0 || wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1'",
+          "update-command": "sh -c 'wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED && echo false || echo true'"
+        },
+        {
+          "label": "󰒓  Settings",
+          "command": "sh -c 'swaync-client --close-panel; manjikaze-hypr-menu settings'"
+        },
+        {
+          "label": "󰦝  VPN",
+          "command": "sh -c 'swaync-client --close-panel; manjikaze-hypr-menu vpn'"
+        },
+        {
+          "label": "󰍹  Displays",
+          "command": "sh -c 'swaync-client --close-panel; uwsm-app -- nwg-displays'"
+        },
+        {
+          "label": "  Lock",
+          "command": "sh -c 'swaync-client --close-panel; loginctl lock-session'"
+        },
+        {
+          "label": "󰐥  Power",
+          "command": "sh -c 'swaync-client --close-panel; manjikaze-hypr-menu power'"
+        }
+      ]
+    }
+  }
+}
