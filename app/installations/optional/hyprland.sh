@@ -11,6 +11,8 @@ HYPRLAND_REPO_PACKAGES=(
     hyprlock hypridle hyprpaper yad xdg-user-dirs
     # Screenshots and the color picker
     grim slurp satty hyprpicker
+    # Settings: GTK appearance, network and VPN, Bluetooth, sound
+    nwg-look network-manager-applet blueman bluez-utils pavucontrol
 )
 
 HYPRLAND_AUR_PACKAGES=(
@@ -37,6 +39,8 @@ HYPRLAND_OWN_PACKAGES=(
     nwg-displays
     hyprlock hypridle hyprpaper
     hyprpicker satty
+    # Without its Hyprland-only autostart entry, the Blueman applet would start in GNOME too.
+    blueman
 )
 
 # Session GDM starts for this user (also with automatic login): hyprland-uwsm or gnome.
@@ -115,6 +119,8 @@ uninstall() {
         rm -f "$HOME/.config/systemd/user/$(basename "$unit")"
     done
     systemctl --user daemon-reload
+
+    rm -f ~/.config/autostart/nm-applet.desktop ~/.config/autostart/blueman.desktop
 
     if [[ $(hyprland_default_session) == hyprland* ]]; then
         status "Switching the default session back to GNOME..."
