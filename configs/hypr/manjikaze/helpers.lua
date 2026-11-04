@@ -44,6 +44,10 @@ function M.launch(command)
   return "uwsm-app -- " .. command
 end
 
+function M.script(name)
+  return manjikaze.bin .. "/" .. name
+end
+
 -- hl.bind with the description up front, so `hyprctl binds` shows it.
 function M.bind(keys, description, action, opts)
   opts = opts or {}

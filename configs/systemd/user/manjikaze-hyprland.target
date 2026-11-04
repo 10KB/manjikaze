@@ -8,3 +8,4 @@ PartOf=graphical-session.target
 After=graphical-session.target
 Wants=hyprpolkitagent.service
 Wants=manjikaze-hypr-monitors.service
+Wants=manjikaze-elephant.service manjikaze-walker.service

@@ -1,4 +1,4 @@
--- Every bind carries a description, which `hyprctl binds` shows.
+-- Every bind carries a description: SUPER + K lists them all (manjikaze-hypr-keybindings).
 -- Disable the defaults with manjikaze_default_bindings = false before require("manjikaze").
 
 local helpers = require("manjikaze.helpers")
@@ -6,6 +6,7 @@ local apps = require("manjikaze.apps")
 
 local bind = helpers.bind
 local launch = helpers.launch
+local script = helpers.script
 
 -- Applications
 bind("SUPER + RETURN", "Terminal", launch(apps.terminal))
@@ -22,6 +23,12 @@ bind("SUPER + C", "Code editor", launch(apps.editor))
 bind("SUPER + SHIFT + S", "Slack", helpers.launch_or_focus("^slack$", "slack"))
 bind("SUPER + SHIFT + D", "DBeaver", helpers.launch_or_focus("dbeaver", "dbeaver"))
 bind("CTRL + SHIFT + ESCAPE", "System monitor", launch(apps.terminal .. " --class manjikaze-floating -e btop"))
+
+-- Launcher and menus
+bind("SUPER + SPACE", "Search apps, files and more", script("manjikaze-hypr-launcher"))
+bind("SUPER + V", "Clipboard history", script("manjikaze-hypr-launcher") .. " -m clipboard")
+bind("SUPER + period", "Emoji and symbols", script("manjikaze-hypr-launcher") .. " -m symbols")
+bind("SUPER + K", "Keyboard shortcuts", script("manjikaze-hypr-keybindings"))
 
 -- Settings shortcuts
 bind("SUPER + P", "Displays", launch("nwg-displays"))
