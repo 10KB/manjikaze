@@ -30,6 +30,9 @@ bind("SUPER + V", "Clipboard history", script("manjikaze-hypr-launcher") .. " -m
 bind("SUPER + period", "Emoji and symbols", script("manjikaze-hypr-launcher") .. " -m symbols")
 bind("SUPER + K", "Keyboard shortcuts", script("manjikaze-hypr-keybindings"))
 bind("SUPER + CTRL + W", "Wallpaper", script("manjikaze-hypr-wallpaper"))
+if helpers.cmd_present("42kb-ui") then
+  bind("SUPER + SHIFT + K", "42kb menu", "42kb-ui")
+end
 bind("SUPER + I", "Settings", script("manjikaze-hypr-menu") .. " settings")
 bind("SUPER + ESCAPE", "Power menu", script("manjikaze-hypr-menu") .. " power")
 bind("CTRL + ALT + DELETE", "Power menu", script("manjikaze-hypr-menu") .. " power")

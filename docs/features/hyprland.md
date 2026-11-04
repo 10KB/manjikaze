@@ -87,6 +87,7 @@ Each monitor starts with its own workspace. Three-finger swipes on a touchpad sw
 | `Super + L` | Lock screen |
 | `Super + P` | Displays |
 | `Super + Ctrl + W` | Wallpaper |
+| `Super + Shift + K` | 42kb menu (when 42kb-ui is installed) |
 | `Super + Ctrl + Space` | Next keyboard layout |
 
 Screenshots are saved to `~/Pictures/Screenshots` and copied to the clipboard.
@@ -119,6 +120,8 @@ There is no single settings app like GNOME's. `Super + I` collects them in one m
 - **Appearance**: GTK theme, icons and cursor (`nwg-look`).
 
 The network and Bluetooth tray icons in the bar work like in GNOME, including password and pairing prompts.
+
+The 10KB tools have their Hyprland counterparts of the GNOME extensions: **42kb-ui** puts the 10KB icon in the tray of the bar (or `Super + Shift + K`), and **host-gate** shows approval cards for requests from devcontainer agents. Both start with the Hyprland session when they are installed.
 
 ## Monitors
 
