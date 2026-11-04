@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+
+# Screenshots like GNOME: saved to ~/Pictures/Screenshots and copied to the clipboard.
+# Usage: manjikaze-hypr-screenshot [region|screen|window]
+#   region  select an area, annotate it in Satty, Enter copies and saves
+#   screen  the focused monitor
+#   window  the active window
+
+dir="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Screenshots"
+mkdir -p "$dir"
+file="$dir/Screenshot from $(date +'%Y-%m-%d %H-%M-%S').png"
+
+finish() {
+    wl-copy --type image/png <"$file"
+    notify-send --app-name "Screenshot" --icon "$file" "Screenshot saved" "Copied to the clipboard and saved to $dir" || true
+}
+
+case "${1:-region}" in
+    region)
+        pkill slurp && exit 0
+        geometry=$(slurp -d -b '#11151a88' -c '#3ddc97ff' -w 2) || exit 0
+        grim -g "$geometry" - | satty --filename - \
+            --output-filename "$dir/Screenshot from %Y-%m-%d %H-%M-%S.png" \
+            --copy-command wl-copy \
+            --actions-on-enter save-to-clipboard \
+            --save-after-copy \
+            --actions-on-escape exit \
+            --early-exit copy \
+            --initial-tool arrow \
+            --disable-notifications
+        ;;
+    screen)
+        output=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+        grim -o "$output" "$file"
+        finish
+        ;;
+    window)
+        geometry=$(hyprctl activewindow -j | jq -r 'select(.at) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+        [[ -n $geometry ]] || exit 0
+        grim -g "$geometry" "$file"
+        finish
+        ;;
+    *)
+        echo "Usage: $(basename "$0") [region|screen|window]" >&2
+        exit 1
+        ;;
+esac

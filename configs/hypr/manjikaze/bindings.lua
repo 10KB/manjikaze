@@ -108,3 +108,10 @@ bind("SUPER + mouse_down", "Next workspace", hl.dsp.focus({ workspace = "e+1" })
 bind("SUPER + mouse_up", "Previous workspace", hl.dsp.focus({ workspace = "e-1" }))
 bind("SUPER + S", "Scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
 bind("SUPER + ALT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
+
+-- Screenshots
+bind("Print", "Screenshot of a region (annotate)", script("manjikaze-hypr-screenshot") .. " region")
+bind("SUPER + Print", "Screenshot of a region (annotate)", script("manjikaze-hypr-screenshot") .. " region")
+bind("SHIFT + Print", "Screenshot of the screen", script("manjikaze-hypr-screenshot") .. " screen")
+bind("ALT + Print", "Screenshot of the active window", script("manjikaze-hypr-screenshot") .. " window")
+bind("SUPER + SHIFT + C", "Pick a color", "pkill hyprpicker || hyprpicker --autocopy")
