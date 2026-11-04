@@ -136,6 +136,7 @@ install_package() {
 
     if [[ $exit_code -ne 0 ]]; then
         status "Failed to install $package"
+        printf '%s\n' "$output" | tail -n 5
 
         if ! gum confirm "Continue with installation of other packages?"; then
             return 2 # Special code to indicate user-requested abort

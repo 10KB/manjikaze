@@ -1,0 +1,61 @@
+#!/bin/bash
+set -e
+
+# Sets the wallpaper on every monitor, the lock screen and GNOME, and remembers it.
+# Usage: manjikaze-hypr-wallpaper [image]   (without an image, a file dialog opens)
+
+config_home="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+current_wallpaper() {
+    local path
+    path=$(sed -n 's/^[[:space:]]*path[[:space:]]*=[[:space:]]*//p' "$config_home/hypr/hyprpaper.conf" 2>/dev/null | head -n 1)
+    path="${path//##/#}"
+    path="${path/#\~/$HOME}"
+    [[ -f $path ]] && echo "$path"
+}
+
+# Opens at the current wallpaper, or in Pictures while the Manjikaze default is still set.
+choose_image() {
+    local start
+    start=$(current_wallpaper) || true
+    if [[ -z $start || $start == "$HOME/.local/share/backgrounds/"* ]]; then
+        start="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/"
+    fi
+
+    yad --file --title="Choose wallpaper" --width=1100 --height=720 \
+        --add-preview --large-preview --filename="$start" \
+        --file-filter="Images | *.jpg *.JPG *.jpeg *.JPEG *.png *.PNG *.webp *.WEBP *.jxl *.JXL"
+}
+
+image="$1"
+if [[ -z $image ]]; then
+    if ! command -v yad >/dev/null 2>&1; then
+        notify-send --app-name "Wallpaper" "yad is not installed" "Run Manjikaze → Configuration → Hyprland desktop." || true
+        exit 1
+    fi
+    image=$(choose_image) || exit 0
+fi
+
+image=$(readlink -f "$image" 2>/dev/null || true)
+if [[ ! -f $image ]]; then
+    echo "Usage: $(basename "$0") [image]" >&2
+    exit 1
+fi
+
+hyprctl hyprpaper wallpaper ",$image,cover" >/dev/null 2>&1 || true
+
+# hyprlang treats # as a comment, ## is a literal one; sed needs & | \ escaped.
+hyprlang_path=$(printf '%s' "${image//#/##}" | sed 's/[&|\\]/\\&/g')
+if [[ -f $config_home/hypr/hyprpaper.conf ]]; then
+    sed -i "s|^\([[:space:]]*path[[:space:]]*=[[:space:]]*\).*|\1$hyprlang_path|" "$config_home/hypr/hyprpaper.conf"
+fi
+if [[ -f $config_home/hypr/hyprlock.conf ]]; then
+    sed -i "/^[[:space:]]*background[[:space:]]*{/,/^[[:space:]]*}/ s|^\([[:space:]]*path[[:space:]]*=[[:space:]]*\).*|\1$hyprlang_path|" "$config_home/hypr/hyprlock.conf"
+fi
+
+if command -v gsettings >/dev/null 2>&1; then
+    gsettings set org.gnome.desktop.background picture-uri "file://$image" 2>/dev/null || true
+    gsettings set org.gnome.desktop.background picture-uri-dark "file://$image" 2>/dev/null || true
+fi
+
+notify-send --app-name "Wallpaper" --icon "$image" "Wallpaper changed" "$(basename "$image")" || true

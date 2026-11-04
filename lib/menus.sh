@@ -34,6 +34,7 @@ declare -A configuration_menu=(
     ["5:Network printer discovery"]="load_module configuration/configure-printing.sh"
     ["6:Logitech C920 microphone"]="load_module configuration/configure-webcam-mic.sh"
     ["7:Cursor release channel"]="load_module configuration/configure-cursor.sh"
+    ["8:Hyprland desktop"]="load_module configuration/configure-hyprland.sh"
 )
 
 declare -A security_menu=(

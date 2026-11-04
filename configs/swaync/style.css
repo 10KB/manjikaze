@@ -1,0 +1,77 @@
+/* Colors match configs/hypr/manjikaze/theme.lua. */
+
+@define-color bg #11151a;
+@define-color surface #1a2128;
+@define-color surface-alt #232c35;
+@define-color fg #e6edf3;
+@define-color muted #8b98a5;
+@define-color accent #3ddc97;
+@define-color urgent #ff6b6b;
+
+* {
+  font-family: "Inter", "Cantarell", "Noto Sans", sans-serif, "CaskaydiaMono Nerd Font";
+  color: @fg;
+}
+
+.control-center {
+  background: alpha(@bg, 0.95);
+  border: 1px solid alpha(@accent, 0.3);
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.notification-row .notification-background .notification,
+.floating-notifications .notification {
+  background: @surface;
+  border: 1px solid alpha(@accent, 0.2);
+  border-radius: 12px;
+}
+
+.notification.critical {
+  border-color: @urgent;
+}
+
+.notification-content .summary {
+  font-weight: bold;
+}
+
+.notification-content .body,
+.notification-content .time {
+  color: @muted;
+}
+
+.widget-title > label {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.widget-title > button,
+.widget-buttons-grid > flowbox > flowboxchild > button {
+  background: @surface;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 6px;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button:hover {
+  background: @surface-alt;
+}
+
+.widget-buttons-grid > flowbox > flowboxchild > button.toggle:checked {
+  background: alpha(@accent, 0.25);
+  color: @accent;
+}
+
+.widget-volume,
+.widget-mpris .widget-mpris-player,
+.widget-dnd {
+  background: @surface;
+  border-radius: 10px;
+  padding: 8px;
+  margin: 6px 0;
+}
+
+.widget-dnd > switch:checked,
+scale highlight {
+  background: @accent;
+}
