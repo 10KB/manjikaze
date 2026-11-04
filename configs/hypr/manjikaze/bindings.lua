@@ -24,6 +24,7 @@ bind("SUPER + SHIFT + D", "DBeaver", helpers.launch_or_focus("dbeaver", "dbeaver
 bind("CTRL + SHIFT + ESCAPE", "System monitor", launch(apps.terminal .. " --class manjikaze-floating -e btop"))
 
 -- Settings shortcuts
+bind("SUPER + P", "Displays", launch("nwg-displays"))
 bind("SUPER + CTRL + SPACE", "Next keyboard layout", "hyprctl switchxkblayout all next")
 
 -- Windows
