@@ -34,6 +34,7 @@ bind("SUPER + I", "Settings", script("manjikaze-hypr-menu") .. " settings")
 bind("SUPER + ESCAPE", "Power menu", script("manjikaze-hypr-menu") .. " power")
 bind("CTRL + ALT + DELETE", "Power menu", script("manjikaze-hypr-menu") .. " power")
 bind("SUPER + L", "Lock screen", "loginctl lock-session")
+bind("SUPER + N", "Notification center", "swaync-client --toggle-panel --skip-wait")
 
 -- Settings shortcuts
 bind("SUPER + P", "Displays", launch("nwg-displays"))
@@ -121,3 +122,24 @@ bind("SUPER + Print", "Screenshot of a region (annotate)", script("manjikaze-hyp
 bind("SHIFT + Print", "Screenshot of the screen", script("manjikaze-hypr-screenshot") .. " screen")
 bind("ALT + Print", "Screenshot of the active window", script("manjikaze-hypr-screenshot") .. " window")
 bind("SUPER + SHIFT + C", "Pick a color", "pkill hyprpicker || hyprpicker --autocopy")
+
+-- Volume, brightness and media keys show an on-screen display on the focused monitor.
+local function osd(args)
+  return function()
+    local monitor = hl.get_active_monitor()
+    local target = monitor and (" --monitor " .. helpers.shell_quote(monitor.name)) or ""
+    hl.exec_cmd("swayosd-client" .. target .. " " .. args)
+  end
+end
+
+local media = { locked = true, repeating = true }
+bind("XF86AudioRaiseVolume", "Volume up", osd("--output-volume raise"), media)
+bind("XF86AudioLowerVolume", "Volume down", osd("--output-volume lower"), media)
+bind("XF86AudioMute", "Mute", osd("--output-volume mute-toggle"), { locked = true })
+bind("XF86AudioMicMute", "Mute microphone", osd("--input-volume mute-toggle"), { locked = true })
+bind("XF86MonBrightnessUp", "Brightness up", osd("--brightness raise"), media)
+bind("XF86MonBrightnessDown", "Brightness down", osd("--brightness lower"), media)
+bind("XF86AudioPlay", "Play/pause", osd("--playerctl play-pause"), { locked = true })
+bind("XF86AudioPause", "Play/pause", osd("--playerctl play-pause"), { locked = true })
+bind("XF86AudioNext", "Next track", osd("--playerctl next"), { locked = true })
+bind("XF86AudioPrev", "Previous track", osd("--playerctl prev"), { locked = true })

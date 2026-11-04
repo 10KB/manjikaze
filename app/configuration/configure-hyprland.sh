@@ -63,6 +63,11 @@ for file in "$MANJIKAZE_DIR"/configs/elephant/*.toml; do
     hyprland_deploy "$file" "$HOME/.config/elephant/$(basename "$file")"
 done
 
+hyprland_deploy "$MANJIKAZE_DIR/configs/waybar/config.jsonc" "$HOME/.config/waybar/config.jsonc"
+hyprland_deploy "$MANJIKAZE_DIR/configs/waybar/style.css" "$HOME/.config/waybar/style.css"
+hyprland_deploy "$MANJIKAZE_DIR/configs/swaync/config.json" "$HOME/.config/swaync/config.json"
+hyprland_deploy "$MANJIKAZE_DIR/configs/swaync/style.css" "$HOME/.config/swaync/style.css"
+
 # Session services. These units belong to Manjikaze, so they are always refreshed.
 mkdir -p "$HOME/.config/systemd/user"
 for unit in "$MANJIKAZE_DIR"/configs/systemd/user/*; do
