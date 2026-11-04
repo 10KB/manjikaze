@@ -9,6 +9,8 @@ HYPRLAND_REPO_PACKAGES=(
     libqalculate wl-clipboard
     # Lock screen, idle handling, wallpaper and its file dialog
     hyprlock hypridle hyprpaper yad xdg-user-dirs
+    # Screenshots and the color picker
+    grim slurp satty hyprpicker
 )
 
 HYPRLAND_AUR_PACKAGES=(
@@ -34,6 +36,7 @@ HYPRLAND_OWN_PACKAGES=(
     hyprland uwsm xdg-desktop-portal-hyprland hyprpolkitagent
     nwg-displays
     hyprlock hypridle hyprpaper
+    hyprpicker satty
 )
 
 # Session GDM starts for this user (also with automatic login): hyprland-uwsm or gnome.
