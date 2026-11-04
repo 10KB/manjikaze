@@ -6,6 +6,7 @@ require("manjikaze.input")
 require("manjikaze.looknfeel")
 require("manjikaze.windows")
 require("manjikaze.monitors")
+require("manjikaze.layouts")
 require("manjikaze.autostart")
 
 if manjikaze_default_bindings ~= false then
