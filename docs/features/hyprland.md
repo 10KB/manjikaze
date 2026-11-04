@@ -59,6 +59,7 @@ The most used shortcuts are below; `Super + K` always shows the complete, curren
 | `Super + O` | Pop out: float the window and keep it on top (video calls) |
 | `Super + G` | Group windows as tabs, `Super + Alt + ←/→` switches tabs |
 | `Super + J` | Toggle split direction |
+| `Super + Alt + L` | Switch this workspace between tiling and scrolling (windows as side-by-side columns, nice on wide screens) |
 | `Super + drag` | Move window with the mouse, right button resizes |
 | `Alt + Tab` | Next window |
 

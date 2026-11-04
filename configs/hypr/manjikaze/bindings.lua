@@ -50,6 +50,7 @@ bind("SUPER + F", "Fullscreen", hl.dsp.window.fullscreen({ mode = "fullscreen" }
 bind("SUPER + M", "Maximize", hl.dsp.window.fullscreen({ mode = "maximized" }))
 bind("SUPER + T", "Toggle floating", hl.dsp.window.float({ action = "toggle" }))
 bind("SUPER + J", "Toggle split direction", hl.dsp.layout("togglesplit"))
+bind("SUPER + ALT + L", "Toggle scrolling layout on this workspace", require("manjikaze.layouts").toggle)
 bind("SUPER + O", "Pop out window (float on top)", function()
   local window = hl.get_active_window()
   if not window then
