@@ -11,3 +11,5 @@ Wants=manjikaze-hypr-monitors.service
 Wants=manjikaze-elephant.service manjikaze-walker.service
 Wants=hypridle.service hyprpaper.service
 Wants=waybar.service swaync.service manjikaze-swayosd.service
+# 10KB tools with a Hyprland front end (tray icon, approval cards); skipped when not installed.
+Wants=42kb-ui.service host-gate-overlay.service
