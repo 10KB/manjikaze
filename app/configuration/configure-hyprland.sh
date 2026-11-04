@@ -88,6 +88,23 @@ export MANJIKAZE_DIR="$MANJIKAZE_DIR"
 # <<< manjikaze <<<
 EOF
 
+# Tray applets for network/VPN and bluetooth, only in Hyprland (GNOME has its own).
+mkdir -p "$HOME/.config/autostart"
+cat >"$HOME/.config/autostart/nm-applet.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=NetworkManager Applet
+Exec=nm-applet --indicator
+OnlyShowIn=Hyprland;
+EOF
+cat >"$HOME/.config/autostart/blueman.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Blueman Applet
+Exec=blueman-applet
+OnlyShowIn=Hyprland;
+EOF
+
 # Ulauncher is the GNOME launcher; Walker replaces it in Hyprland.
 ulauncher_autostart="$HOME/.config/autostart/ulauncher.desktop"
 if [[ -f $ulauncher_autostart ]] && ! grep -q 'ShowIn=' "$ulauncher_autostart"; then
@@ -120,3 +137,5 @@ fi
 status "Hyprland is configured. Log out (or reboot) to start it. To pick a desktop on the login screen,"
 status "click your name and use the gear icon next to 'Sign In'. With a YubiKey inserted the password step"
 status "is skipped and so is the gear: remove the key first."
+status "First steps: SUPER + SPACE opens apps, SUPER + K lists all shortcuts, SUPER + I opens settings,"
+status "SUPER + P arranges displays (remembered per set of screens)."

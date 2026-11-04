@@ -30,10 +30,16 @@ bind("SUPER + V", "Clipboard history", script("manjikaze-hypr-launcher") .. " -m
 bind("SUPER + period", "Emoji and symbols", script("manjikaze-hypr-launcher") .. " -m symbols")
 bind("SUPER + K", "Keyboard shortcuts", script("manjikaze-hypr-keybindings"))
 bind("SUPER + CTRL + W", "Wallpaper", script("manjikaze-hypr-wallpaper"))
+bind("SUPER + I", "Settings", script("manjikaze-hypr-menu") .. " settings")
+bind("SUPER + ESCAPE", "Power menu", script("manjikaze-hypr-menu") .. " power")
+bind("CTRL + ALT + DELETE", "Power menu", script("manjikaze-hypr-menu") .. " power")
 bind("SUPER + L", "Lock screen", "loginctl lock-session")
 
 -- Settings shortcuts
 bind("SUPER + P", "Displays", launch("nwg-displays"))
+bind("SUPER + CTRL + A", "Sound settings", launch("pavucontrol"))
+bind("SUPER + CTRL + B", "Bluetooth settings", launch("blueman-manager"))
+bind("SUPER + CTRL + N", "Network settings", launch("nm-connection-editor"))
 bind("SUPER + CTRL + SPACE", "Next keyboard layout", "hyprctl switchxkblayout all next")
 
 -- Windows
