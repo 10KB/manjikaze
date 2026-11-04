@@ -46,6 +46,12 @@ else
 fi
 rm -f "$hyprland_template"
 
+hyprland_deploy "$MANJIKAZE_DIR/configs/walker/config.toml" "$HOME/.config/walker/config.toml"
+hyprland_deploy "$MANJIKAZE_DIR/configs/walker/themes/manjikaze/style.css" "$HOME/.config/walker/themes/manjikaze/style.css"
+for file in "$MANJIKAZE_DIR"/configs/elephant/*.toml; do
+    hyprland_deploy "$file" "$HOME/.config/elephant/$(basename "$file")"
+done
+
 # Session services. These units belong to Manjikaze, so they are always refreshed.
 mkdir -p "$HOME/.config/systemd/user"
 for unit in "$MANJIKAZE_DIR"/configs/systemd/user/*; do
@@ -53,6 +59,8 @@ for unit in "$MANJIKAZE_DIR"/configs/systemd/user/*; do
 done
 systemctl --user daemon-reload
 if [[ $XDG_CURRENT_DESKTOP == *Hyprland* ]]; then
+    # Elephant and Walker read their configuration only at start.
+    systemctl --user try-restart manjikaze-elephant.service manjikaze-walker.service || true
     # Starts the services added since login.
     systemctl --user start manjikaze-hyprland.target || true
 fi
@@ -68,6 +76,13 @@ export MANJIKAZE_DIR="$MANJIKAZE_DIR"
 . "\$MANJIKAZE_DIR/configs/uwsm/env-manjikaze"
 # <<< manjikaze <<<
 EOF
+
+# Ulauncher is the GNOME launcher; Walker replaces it in Hyprland.
+ulauncher_autostart="$HOME/.config/autostart/ulauncher.desktop"
+if [[ -f $ulauncher_autostart ]] && ! grep -q 'ShowIn=' "$ulauncher_autostart"; then
+    [[ -n $(tail -c1 "$ulauncher_autostart") ]] && echo >>"$ulauncher_autostart"
+    echo "NotShowIn=Hyprland;" >>"$ulauncher_autostart"
+fi
 
 # nvidia_drm only exists while the NVIDIA driver is loaded; nouveau and Intel-only setups skip this.
 modeset_file=/sys/module/nvidia_drm/parameters/modeset

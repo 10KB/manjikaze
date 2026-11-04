@@ -1,5 +1,5 @@
 -- Hyprland configuration. Manjikaze's defaults load first; everything after them is yours.
--- Documentation: https://manjikaze.10kb.nl/features/hyprland
+-- Shortcuts: SUPER + K. Documentation: https://manjikaze.10kb.nl/features/hyprland
 -- Hyprland reloads automatically when you save this file.
 
 dofile("__MANJIKAZE_DIR__/configs/hypr/bootstrap.lua")

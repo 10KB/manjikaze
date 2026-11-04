@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+# Searchable list of every Hyprland keybinding that has a description (hl.bind ... description).
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+hyprctl binds -j | jq -r '
+    def mods:
+        [ (if (.modmask / 64 | floor) % 2 == 1 then "SUPER" else empty end),
+          (if (.modmask / 4 | floor) % 2 == 1 then "CTRL" else empty end),
+          (if (.modmask / 8 | floor) % 2 == 1 then "ALT" else empty end),
+          (if .modmask % 2 == 1 then "SHIFT" else empty end) ];
+    def key_name:
+        {
+            "return": "Enter", "space": "Space", "escape": "Esc", "tab": "Tab", "delete": "Del",
+            "period": ".", "print": "PrtSc", "page_up": "PgUp", "page_down": "PgDn",
+            "left": "←", "right": "→", "up": "↑", "down": "↓",
+            "mouse:272": "Left click", "mouse:273": "Right click",
+            "mouse_down": "Scroll down", "mouse_up": "Scroll up"
+        }[ascii_downcase] // (if length == 1 then ascii_upcase else . end);
+    map(select(.has_description and .description != "" and (.key | startswith("switch:") | not)))
+    | unique_by([.modmask, .key])
+    | sort_by(.description)
+    | .[]
+    | ((mods + [.key | key_name]) | join(" + ")) as $combo
+    | "\($combo | . + (" " * ([28 - length, 1] | max)))\(.description)"
+' | "$SCRIPT_DIR/manjikaze-hypr-launcher" --dmenu -p "Keyboard shortcuts" --width 720 --minheight 1 --maxheight 640 >/dev/null 2>&1 || true

@@ -5,6 +5,25 @@ HYPRLAND_REPO_PACKAGES=(
     qt5-wayland qt6-wayland libnotify
     # Displays settings and the monitor profile daemon
     nwg-displays inotify-tools socat lua jq
+    # Launcher providers: calculator and clipboard
+    libqalculate wl-clipboard
+)
+
+HYPRLAND_AUR_PACKAGES=(
+    # Elephant first: walker-bin depends on "elephant", and with elephant-bin missing yay
+    # builds the source package instead, which conflicts with the -bin providers.
+    elephant-bin
+    elephant-providerlist-bin
+    elephant-desktopapplications-bin
+    elephant-calc-bin
+    elephant-clipboard-bin
+    elephant-files-bin
+    elephant-symbols-bin
+    elephant-websearch-bin
+    elephant-runner-bin
+    elephant-bluetooth-bin
+    elephant-wireplumber-bin
+    walker-bin
 )
 
 # Removed again by uninstall. The other packages above stay installed, because other apps
@@ -55,6 +74,9 @@ hyprland_install_packages() {
     for package in "${HYPRLAND_REPO_PACKAGES[@]}"; do
         is_installed "$package" || install_package "$package" repo || [[ $? -ne 2 ]] || return 1
     done
+    for package in "${HYPRLAND_AUR_PACKAGES[@]}"; do
+        is_installed "$package" || install_package "$package" aur || [[ $? -ne 2 ]] || return 1
+    done
 }
 
 install() {
@@ -80,7 +102,7 @@ install() {
 }
 
 uninstall() {
-    local unit package
+    local unit package index
 
     # Only the units configure-hyprland.sh deployed; other manjikaze-* units aren't Hyprland's.
     for unit in "$MANJIKAZE_DIR"/configs/systemd/user/*; do
@@ -92,6 +114,11 @@ uninstall() {
         status "Switching the default session back to GNOME..."
         hyprland_set_default_session gnome
     fi
+
+    # Reverse order: walker-bin and the providers depend on elephant-bin.
+    for ((index = ${#HYPRLAND_AUR_PACKAGES[@]} - 1; index >= 0; index--)); do
+        uninstall_package "${HYPRLAND_AUR_PACKAGES[$index]}" aur
+    done
 
     for package in "${HYPRLAND_OWN_PACKAGES[@]}"; do
         uninstall_package "$package" repo
