@@ -9,6 +9,7 @@ const docsSidebar = [
             { text: 'Overview', link: '/getting-started/overview' },
             { text: 'Preparations', link: '/getting-started/preparations' },
             { text: 'Installation', link: '/getting-started/installation' },
+            { text: 'Dual Boot', link: '/getting-started/dual-boot' },
             { text: 'Using Manjikaze', link: '/getting-started/using-manjikaze' },
         ],
     },

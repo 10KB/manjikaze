@@ -26,7 +26,7 @@ Before proceeding, ensure you have completed all the [preparations](preparations
 
 5. **Disk Partitioning**
    - Select your SSD
-   - Choose "Erase disk" option
+   - Choose "Erase disk" option. To keep an existing operating system, follow [Dual Boot](dual-boot.md) instead
    - Select ext4 file system
    - **Important**: Check the "Encrypt system" checkbox
    - Enter your secure password (the one you prepared that meets our security requirements)

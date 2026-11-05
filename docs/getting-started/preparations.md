@@ -32,7 +32,7 @@ Before you begin installing Manjikaze, ensure you have the following:
 - After setup, you will need both your secure password AND Yubikey to unlock your computer
 - There is no alternative method to access data on your computer without these
 - While there is a procedure to generate a new Yubikey (requiring Bitwarden access), losing your password will make your data permanently unavailable
-- This workstation is designed for a single user - if you share your computer with others, you must set up dual boot to allow others to use a separate OS
+- This workstation is designed for a single user - if you share your computer with others, you must set up [dual boot](dual-boot.md) to allow others to use a separate OS
 
 ## Next Step
 
