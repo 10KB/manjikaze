@@ -1,0 +1,4 @@
+Ondersteun alleen installatie van Manjikaze naast een bestaand OS, niet anderzom
+Accepteer dat het boot-keuzemenu achter Manjikaze-encryption zit als dat het makkelijkst is
+Is het leesbaarder als Windows wordt gesplitst van de Linux documentatie?
+Adviseer om niet twee Manjaro's/Manjikaze naast elkaar te installeren

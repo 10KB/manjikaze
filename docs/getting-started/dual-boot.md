@@ -302,19 +302,11 @@ Don't start Windows through GRUB on a BitLocker-encrypted system. GRUB changes t
 
 ### Clock Differences
 
-Windows keeps the hardware clock in local time and Linux keeps it in UTC, so the clock is off by your time zone offset after switching. Either let Manjikaze use local time:
+Windows keeps the hardware clock in local time and Linux keeps it in UTC, so the clock is off by your time zone offset after switching. Let Manjikaze use local time:
 
 ```bash
 sudo timedatectl set-local-rtc 1 --adjust-system-clock
 ```
-
-Or let Windows use UTC, in an administrator terminal:
-
-```powershell
-reg add "HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /t REG_DWORD /d 1 /f
-```
-
-Apply only one of the two. The Windows setting is undocumented by Microsoft, and some Windows applications assume local time.
 
 ## Further Reading
 
