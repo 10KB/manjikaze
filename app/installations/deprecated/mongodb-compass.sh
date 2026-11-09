@@ -1,5 +1,5 @@
-install() {
-    install_package "mongodb-compass-isolated-bin" aur
+installed() {
+    is_installed "mongodb-compass-isolated-bin"
 }
 
 uninstall() {

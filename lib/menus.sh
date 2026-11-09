@@ -24,6 +24,7 @@ setup_menu=(
     ["5:Uninstall apps"]="load_module installations/uninstall-apps.sh"
     ["6:Rebuild installed apps"]="load_module installations/rebuild-installed-apps.sh"
     ["7:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
+    ["8:Remove deprecated apps"]="load_module installations/remove-deprecated-apps.sh"
 )
 
 declare -A configuration_menu=(
