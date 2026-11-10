@@ -1,9 +1,6 @@
 [env]
 TERM = "xterm-256color"
 
-[terminal.shell]
-program = "zellij"
-
 [keyboard]
 bindings = [
 { key = "F11", action = "ToggleFullscreen" }
@@ -13,5 +10,3 @@ bindings = [
 normal = { family = "CaskaydiaMono Nerd Font", style = "Regular" }
 bold = { family = "CaskaydiaMono Nerd Font", style = "Bold" }
 italic = { family = "CaskaydiaMono Nerd Font", style = "Italic" }
-
-[terminal]
