@@ -1,4 +1,4 @@
-# Manjikaze
+# Manjikaze - Test
 
 A standardized, secure development environment for Manjaro Linux that can be set up with a single command. Manjikaze automates the installation and configuration of development tools, security measures, and system preferences to create a consistent and efficient workspace for developers.
 
