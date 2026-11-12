@@ -1,4 +1,5 @@
 source "$MANJIKAZE_DIR/lib/bitwarden.sh"
+source "$MANJIKAZE_DIR/app/security/yubikey/yubikey-desktop-ssh-agent.sh"
 
 # ── Helper: run gpg in non-interactive batch mode ──────────────────────
 # Reduces repetition of --command-fd=0 --pinentry-mode=loopback (J)
@@ -516,9 +517,8 @@ SSHCONF
     fi
 
     # ── Shell environment (SSH_AUTH_SOCK, GPG_TTY) ─────────────────────
-    # Install as an oh-my-zsh custom plugin so it's loaded automatically.
-    # This ensures SSH_AUTH_SOCK is set consistently for both terminal and
-    # GUI-launched applications (via systemd import-environment).
+    # Install as an oh-my-zsh custom plugin so it's loaded automatically in
+    # terminals. Desktop apps get SSH_AUTH_SOCK through environment.d below.
     status "Configuring shell environment for GPG/SSH..."
     local plugin_dir="$HOME/.oh-my-zsh/custom/plugins/yubikey-gpg"
     mkdir -p "$plugin_dir"
@@ -540,8 +540,7 @@ PLUGINCONF
     # Activate the plugin via oh-my-zsh
     activate_zsh_plugin "yubikey-gpg"
 
-    # Also export to systemd user environment so GUI apps pick it up
-    systemctl --user import-environment SSH_AUTH_SOCK GPG_TTY 2>/dev/null || true
+    yubikey_configure_desktop_ssh_agent
 
     # ── Systemd gpg-agent socket activation ────────────────────────────
     # Start the gpg-agent sockets — they are socket-activated (auto-started on
