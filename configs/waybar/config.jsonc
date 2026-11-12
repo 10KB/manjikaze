@@ -27,16 +27,8 @@
 
   "clock": {
     "format": "{:%a %d %b  %H:%M}",
-    "tooltip-format": "<tt>{calendar}</tt>",
-    "calendar": {
-      "mode": "month",
-      "weeks-pos": "left",
-      "format": {
-        "today": "<span color='#3ddc97'><b>{}</b></span>",
-        "weeks": "<span color='#8b98a5'>W{}</span>"
-      }
-    },
-    "on-click": "swaync-client --toggle-panel --skip-wait"
+    "tooltip-format": "{:%A %d %B %Y  ·  week %V}\nClick: calendar",
+    "on-click": "manjikaze-hypr-calendar"
   },
 
   // The network and Bluetooth applets only run for their password and pairing prompts; the
