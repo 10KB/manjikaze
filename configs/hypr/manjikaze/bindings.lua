@@ -119,6 +119,7 @@ bind("SUPER + Page_Up", "Previous workspace", hl.dsp.focus({ workspace = "m-1" }
 bind("SUPER + mouse_down", "Next workspace", hl.dsp.focus({ workspace = "e+1" }))
 bind("SUPER + mouse_up", "Previous workspace", hl.dsp.focus({ workspace = "e-1" }))
 bind("SUPER + S", "Scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
+bind("SUPER + grave", "Notes drawer", hl.dsp.workspace.toggle_special("notes"))
 bind("SUPER + ALT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
 
 -- Screenshots

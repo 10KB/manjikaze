@@ -1,5 +1,7 @@
 -- See https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 
+local helpers = require("manjikaze.helpers")
+
 -- Tiling decides the size; ignore apps asking to be maximized.
 hl.window_rule({ name = "suppress-maximize", match = { class = ".*" }, suppress_event = "maximize" })
 
@@ -38,6 +40,20 @@ hl.window_rule({ name = "float-files", match = { class = "^(org.gnome.Nautilus)$
 hl.window_rule({ name = "size-files", match = { class = "^(org.gnome.Nautilus)$", modal = false }, size = { 1200, 760 } })
 
 hl.window_rule({ name = "float-wallpaper-picker", match = { title = "^(Choose wallpaper)$" }, float = true, center = true })
+
+-- Notes drawer (SUPER + `): Text Editor drops down from the bar on the focused screen and
+-- hides again with the same shortcut. The editor keeps unsaved notes between sessions itself.
+hl.workspace_rule({ workspace = "special:notes", on_created_empty = helpers.launch("gnome-text-editor") })
+hl.window_rule({
+  name = "notes-drawer",
+  match = { class = "^(org.gnome.TextEditor)$" },
+  workspace = "special:notes",
+  float = true,
+  size = { "monitor_w*0.7", "monitor_h*0.5" },
+  move = { "monitor_w*0.15", "38" },
+  -- Opening a file from elsewhere adds a tab and shows the drawer.
+  focus_on_activate = true,
+})
 
 hl.window_rule({
   name = "float-file-pickers",
