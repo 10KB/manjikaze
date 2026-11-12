@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Wallpaper
+Comment=Choose the wallpaper for every monitor and the lock screen
+Keywords=background;achtergrond;desktop;lock screen;
+Icon=preferences-desktop-wallpaper
+Exec=__MANJIKAZE_DIR__/bin/hypr/manjikaze-hypr-wallpaper
+Terminal=false
+Categories=Settings;DesktopSettings;
+OnlyShowIn=Hyprland;

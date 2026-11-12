@@ -116,7 +116,7 @@ There is no single settings app like GNOME's. `Super + I` collects them in one m
 - **Network connections**: wired, VPN and proxy settings (`nm-connection-editor`).
 - **Bluetooth and sound settings**: Blueman and PulseAudio Volume Control.
 - **Displays**: arrange monitors, see below.
-- **Wallpaper** (`Super + Ctrl + W`): browse to any image on your computer, with a preview of the selected file. The Manjaro and GNOME wallpapers are in `/usr/share/backgrounds`. The choice is used on every monitor, on the lock screen and in GNOME.
+- **Wallpaper** (`Super + Ctrl + W`, or search "wallpaper" in the launcher): browse to any image on your computer, with a preview of the selected file. The Manjaro and GNOME wallpapers are in `/usr/share/backgrounds`. The choice is used on every monitor, on the lock screen and in GNOME.
 - **Appearance**: GTK theme, icons and cursor (`nwg-look`).
 
 The network and Bluetooth tray icons in the bar work like in GNOME, including password and pairing prompts.
