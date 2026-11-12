@@ -14,8 +14,9 @@ if helpers.cmd_present("zellij") then
   bind("SUPER + ALT + RETURN", "Terminal with Zellij", launch(apps.terminal .. " -e zellij"))
 end
 if helpers.cmd_present("herdr") or helpers.file_exists(manjikaze.home .. "/.local/share/mise/installs/herdr") then
-  -- Interactive zsh, so the herdr server inherits mise and the .zshrc settings.
-  bind("SUPER + CTRL + RETURN", "Herdr", launch(apps.terminal .. " -e zsh -ic herdr"))
+  -- Interactive zsh, so the herdr server inherits mise and the .zshrc settings. The class lets
+  -- window rules tell it apart from other terminals.
+  bind("SUPER + CTRL + RETURN", "Herdr", launch(apps.terminal .. " --class herdr -e zsh -ic herdr"))
 end
 bind("SUPER + E", "Files", launch(apps.files))
 bind("SUPER + W", "Browser", launch(apps.browser))

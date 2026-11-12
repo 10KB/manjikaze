@@ -72,7 +72,9 @@ The most used shortcuts are below; `Super + K` always shows the complete, curren
 | `Super + Tab` / `Super + Page Down` | Next workspace on this monitor |
 | `Super + S` | Show/hide the scratchpad, `Super + Alt + S` moves a window there |
 
-Each monitor starts with its own workspace. Three-finger swipes on a touchpad switch workspaces.
+With one monitor, workspaces come and go as you use them. With several monitors they follow the screens from left to right: with three screens, workspaces 1, 2 and 3 are on the left, middle and right screen, 4, 5 and 6 are the second workspace of each, and so on. Those stay in the bar even when empty. To keep three per screen instead of two, set `manjikaze_workspaces_per_monitor = 3` before `require("manjikaze")` in your configuration. Higher numbers open on the screen you're working on.
+
+Three-finger swipes on a touchpad switch workspaces.
 
 ### Screenshots and System
 
@@ -156,6 +158,17 @@ hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd("uwsm-app -- gitkraken"), { descrip
 -- Remove a default shortcut
 hl.unbind("SUPER + C")
 ```
+
+To open an app on a fixed screen, send it to that screen's workspace. These rules also work with a single screen, where each workspace is just a separate desktop:
+
+```lua
+-- Slack and SmartGit on the left screen, the browser on the right one
+hl.window_rule({ name = "slack", match = { class = "^(Slack)$" }, workspace = "1", scrolling_width = 0.4 })
+hl.window_rule({ name = "smartgit", match = { class = "^(SmartGit)$" }, workspace = "1", scrolling_width = 0.8 })
+hl.window_rule({ name = "browser", match = { class = "^(firefox)$" }, workspace = "3" })
+```
+
+`scrolling_width` is the share of the screen a window takes on a workspace with the scrolling layout (`Super + Alt + L`): here SmartGit and Slack are side-by-side columns you scroll between. `hyprctl clients` shows the class of every open window. Herdr (`Super + Ctrl + Enter`) opens with the class `herdr`.
 
 To change the default apps, set them before `require("manjikaze")`:
 

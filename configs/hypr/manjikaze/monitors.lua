@@ -6,6 +6,9 @@
 --      exact combination of screens and restored whenever the same screens are connected
 --      (manjikaze-hypr-monitors keeps these profiles in ~/.local/state/manjikaze/hypr).
 --   3. With the laptop lid closed and an external screen connected, the internal panel is off.
+--
+-- With more than one screen, workspaces follow the screens from left to right; see
+-- assign_workspaces below.
 
 local helpers = require("manjikaze.helpers")
 
@@ -24,18 +27,22 @@ end
 
 local profile = load_profile()
 
-local function in_profile(monitor)
+local function profile_rule(monitor)
   for _, rule in ipairs(profile.rules) do
     local output = rule.output or ""
     if output == monitor.name then
-      return true
+      return rule
     end
     local description = output:match("^desc:(.*)$")
     if description and (monitor.description or ""):sub(1, #description) == description then
-      return true
+      return rule
     end
   end
-  return false
+  return nil
+end
+
+local function in_profile(monitor)
+  return profile_rule(monitor) ~= nil
 end
 
 local function best_mode(monitor)
@@ -129,6 +136,103 @@ if has_external and lid_closed() then
   end
 end
 
+-- Screens that show workspaces, from left to right. Positions come from the saved layout
+-- when there is one, because right after login Hyprland hasn't placed the screens yet.
+local function screens_left_to_right()
+  local monitors = hl.get_monitors()
+  local descriptions = {}
+  local external = false
+  for _, monitor in ipairs(monitors) do
+    local description = monitor.description or ""
+    descriptions[description] = (descriptions[description] or 0) + 1
+    if not is_internal(monitor.name) then
+      external = true
+    end
+  end
+  local panel_off = external and lid_closed()
+
+  local screens = {}
+  for _, monitor in ipairs(monitors) do
+    local rule = profile_rule(monitor) or {}
+    local hidden = rule.disabled == true
+      or (rule.mirror ~= nil and rule.mirror ~= "")
+      or monitor.is_mirror
+      or (panel_off and is_internal(monitor.name))
+    if not hidden then
+      local x, y = tostring(rule.position or ""):match("^(-?%d+)x(-?%d+)$")
+      local description = monitor.description or ""
+      table.insert(screens, {
+        name = monitor.name,
+        output = (description ~= "" and descriptions[description] == 1) and ("desc:" .. description) or monitor.name,
+        x = tonumber(x) or monitor.x or 0,
+        y = tonumber(y) or monitor.y or 0,
+        order = monitor.id or 0,
+      })
+    end
+  end
+
+  table.sort(screens, function(a, b)
+    if a.x ~= b.x then
+      return a.x < b.x
+    end
+    if a.y ~= b.y then
+      return a.y < b.y
+    end
+    return a.order < b.order
+  end)
+  return screens
+end
+
+-- Workspaces are numbered across the screens: with three screens 1, 2 and 3 are on the left,
+-- middle and right one, then 4, 5 and 6, and so on. Each screen keeps
+-- manjikaze_workspaces_per_monitor of them (default 2) in the bar, even when empty. Higher
+-- numbers open on the focused screen. A single screen keeps Hyprland's dynamic workspaces.
+local show_timer
+local function assign_workspaces()
+  local screens = screens_left_to_right()
+  if #screens < 2 then
+    return
+  end
+
+  local showing = {}
+  for _, monitor in ipairs(hl.get_monitors()) do
+    showing[monitor.name] = monitor.active_workspace and monitor.active_workspace.id
+  end
+  local focused = hl.get_active_monitor()
+  focused = focused and focused.name
+
+  local per_screen = math.max(1, math.floor(tonumber(manjikaze_workspaces_per_monitor) or 2))
+  for index, screen in ipairs(screens) do
+    for round = 0, per_screen - 1 do
+      local number = index + round * #screens
+      -- SUPER + 1 … 0 reach ten workspaces.
+      if number > 10 then
+        break
+      end
+      hl.workspace_rule({ workspace = tostring(number), monitor = screen.output, persistent = true, default = round == 0 })
+    end
+  end
+
+  -- A screen whose workspace just moved elsewhere shows its own first workspace instead of a
+  -- random empty one. Focus goes back to the screen that had it.
+  show_timer = hl.timer(function()
+    local changed = false
+    for index, screen in ipairs(screens) do
+      local workspace = showing[screen.name] and hl.get_workspace(showing[screen.name])
+      if workspace and workspace.monitor and workspace.monitor.name ~= screen.name then
+        hl.dispatch(hl.dsp.focus({ workspace = index }))
+        changed = true
+      end
+    end
+    local monitor = changed and focused and hl.get_monitor(focused)
+    if monitor and monitor.active_workspace then
+      hl.dispatch(hl.dsp.focus({ workspace = monitor.active_workspace.id }))
+    end
+  end, { timeout = 100, type = "oneshot" })
+end
+
+assign_workspaces()
+
 local reload_timer
 local function reload_soon()
   if reload_timer then
@@ -140,11 +244,23 @@ local function reload_soon()
   end, { timeout = 400, type = "oneshot" })
 end
 
+-- After login the config is loaded before any screen exists, and screens arrive one at a
+-- time, so the workspaces are assigned once they are all there. Unplugging a screen changes
+-- the monitor profile, and manjikaze-hypr-monitors reloads the config for that.
+local assign_timer
+local function assign_workspaces_soon()
+  if assign_timer then
+    assign_timer:set_enabled(false)
+  end
+  assign_timer = hl.timer(assign_workspaces, { timeout = 500, type = "oneshot" })
+end
+
 hl.on("monitor.added", function(monitor)
   if lid_closed() then
     reload_soon()
   else
     apply_automatic(monitor)
+    assign_workspaces_soon()
   end
 end)
 
