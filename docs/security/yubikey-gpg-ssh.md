@@ -78,7 +78,7 @@ GPG-agent replaces the default SSH agent:
 - gpg-agent delegates to scdaemon, which communicates with the YubiKey
 - The private key never leaves the YubiKey. All cryptographic operations happen on the chip
 
-This is configured via an oh-my-zsh plugin (`yubikey-gpg`) that sets `SSH_AUTH_SOCK` and `GPG_TTY` correctly.
+In terminals this is configured via an oh-my-zsh plugin (`yubikey-gpg`) that sets `SSH_AUTH_SOCK` and `GPG_TTY` correctly. Desktop apps such as SmartGit and VS Code don't read your shell configuration, so `~/.config/environment.d/50-yubikey-gpg-ssh.conf` sets `SSH_AUTH_SOCK` for the whole desktop session at login, in GNOME and Hyprland alike. After it changes, restart open apps or log out and in.
 
 See: [drduh/YubiKey-Guide — SSH](https://github.com/drduh/YubiKey-Guide#ssh)
 
@@ -163,7 +163,7 @@ Checks all aspects of the YubiKey/GPG/SSH configuration:
 - **OpenPGP Card** - Keys present, KDF status, PIN retries
 - **Key expiry** - Warnings for keys expiring within 90 days
 - **Trust & Policies** - Ultimate trust, touch policies per slot
-- **SSH** - Correct `SSH_AUTH_SOCK`, key file present, agent active
+- **SSH** - Correct `SSH_AUTH_SOCK` in the terminal and for desktop apps, key file present, agent active
 - **Git** - Signing key configured, commit/tag signing enabled
 - **Services** - gpg-agent sockets, zsh plugin installed
 

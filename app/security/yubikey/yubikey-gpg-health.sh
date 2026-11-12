@@ -134,6 +134,12 @@ yubikey_gpg_health() {
     if [[ "$SSH_AUTH_SOCK" == "$expected_sock" ]]; then check_pass "SSH_AUTH_SOCK → gpg-agent"
     else check_fail "SSH_AUTH_SOCK: ${SSH_AUTH_SOCK:-unset} (expected: $expected_sock)"; ((issues++)); fi
 
+    local desktop_sock
+    desktop_sock=$(systemctl --user show-environment 2>/dev/null | sed -n 's/^SSH_AUTH_SOCK=//p')
+    if [[ "$desktop_sock" == "$expected_sock" ]] && grep -qs "^SSH_AUTH_SOCK=$expected_sock$" "$HOME/.config/environment.d/50-yubikey-gpg-ssh.conf"; then
+        check_pass "Desktop apps: SSH_AUTH_SOCK → gpg-agent"
+    else check_fail "Desktop apps: SSH_AUTH_SOCK ${desktop_sock:-unset} (expected: $expected_sock in ~/.config/environment.d)"; ((issues++)); fi
+
     [[ -f ~/.ssh/id_rsa_yubikey.pub ]] && check_pass "Key file: ~/.ssh/id_rsa_yubikey.pub" || { check_fail "Key file missing"; ((issues++)); }
 
     local ssh_keys
