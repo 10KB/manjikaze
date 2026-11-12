@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+# Waybar module: the active keyboard layout, shown only when more than one is configured.
+
+print_layout() {
+    hyprctl devices -j | jq -c '
+        ((.keyboards | map(select(.main)) | first) // (.keyboards | first) // {}) as $keyboard
+        | (($keyboard.layout // "") | split(",")) as $layouts
+        | if ($layouts | length) > 1 then
+            {
+                text: $layouts[$keyboard.active_layout_index // 0],
+                tooltip: "\($keyboard.active_keymap)\nClick or Super + Ctrl + Space to switch"
+            }
+          else {text: ""} end'
+}
+
+print_layout
+socat -U - "UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r event; do
+    case "$event" in
+        activelayout\>\>* | configreloaded\>\>*) print_layout ;;
+    esac
+done

@@ -40,6 +40,10 @@
   color: @muted;
 }
 
+.widget-title {
+  margin-top: 10px;
+}
+
 .widget-title > label {
   font-size: 15px;
   font-weight: bold;

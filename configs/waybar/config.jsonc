@@ -9,17 +9,7 @@
 
   "modules-left": ["custom/launcher", "hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": [
-    "tray",
-    "hyprland/language",
-    "idle_inhibitor",
-    "network",
-    "bluetooth",
-    "pulseaudio",
-    "battery",
-    "custom/notifications",
-    "custom/power"
-  ],
+  "modules-right": ["tray", "group/system"],
 
   "custom/launcher": {
     "format": "󰣇",
@@ -49,22 +39,44 @@
     "on-click": "swaync-client --toggle-panel --skip-wait"
   },
 
+  // The network and Bluetooth applets only run for their password and pairing prompts; the
+  // system menu next to the tray shows their status.
   "tray": {
     "icon-size": 16,
-    "spacing": 10
+    "spacing": 10,
+    "ignore-list": ["nm-applet", "blueman"]
   },
 
-  "hyprland/language": {
-    "format": "{short}",
-    "tooltip-format": "{long}\nClick or Super + Ctrl + Space to switch",
+  // Status icons in one button, like GNOME's system menu. A click opens quick settings and
+  // notifications (swaync); right click goes straight to the matching list. Icons that have
+  // nothing to report (one keyboard layout, Bluetooth without a device, no notifications)
+  // stay hidden.
+  "group/system": {
+    "orientation": "inherit",
+    "modules": [
+      "custom/keyboard",
+      "custom/stay-awake",
+      "network",
+      "bluetooth",
+      "pulseaudio",
+      "battery",
+      "custom/notifications"
+    ]
+  },
+
+  "custom/keyboard": {
+    "exec": "manjikaze-hypr-keyboard-layout",
+    "return-type": "json",
     "on-click": "hyprctl switchxkblayout all next"
   },
 
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": { "activated": "󰅶", "deactivated": "󰾪" },
-    "tooltip-format-activated": "Screen stays on",
-    "tooltip-format-deactivated": "Screen locks when idle"
+  "custom/stay-awake": {
+    "exec": "manjikaze-hypr-stay-awake waybar",
+    "return-type": "json",
+    "interval": 60,
+    "signal": 9,
+    "on-click": "swaync-client --toggle-panel --skip-wait",
+    "on-click-right": "manjikaze-hypr-stay-awake off"
   },
 
   "network": {
@@ -73,36 +85,34 @@
     "format-linked": "󰈂",
     "format-disconnected": "󰤮",
     "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
-    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}\nClick: Wi-Fi  ·  Right click: VPN",
-    "tooltip-format-ethernet": "{ifname} {ipaddr}\nClick: Wi-Fi  ·  Right click: VPN",
-    "tooltip-format-disconnected": "Disconnected\nClick: Wi-Fi  ·  Right click: VPN",
-    "on-click": "manjikaze-hypr-menu wifi",
-    "on-click-right": "manjikaze-hypr-menu vpn",
-    "on-click-middle": "uwsm-app -- nm-connection-editor"
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}\nRight click: Wi-Fi networks",
+    "tooltip-format-ethernet": "{ifname} {ipaddr}\nRight click: Wi-Fi networks",
+    "tooltip-format-disconnected": "Disconnected\nRight click: Wi-Fi networks",
+    "on-click": "swaync-client --toggle-panel --skip-wait",
+    "on-click-right": "manjikaze-hypr-menu wifi"
   },
 
   "bluetooth": {
-    "format": "󰂯",
-    "format-off": "󰂲",
-    "format-disabled": "󰂲",
+    "format": "",
+    "format-off": "",
+    "format-disabled": "",
     "format-connected": "󰂱",
     "format-no-controller": "",
-    "tooltip-format": "{controller_alias}: {status}",
-    "tooltip-format-connected": "{device_enumerate}",
+    "tooltip-format-connected": "{device_enumerate}\nRight click: Bluetooth devices",
     "tooltip-format-enumerate-connected": "{device_alias}",
-    "on-click": "manjikaze-hypr-launcher -m bluetooth",
-    "on-click-right": "uwsm-app -- blueman-manager"
+    "on-click": "swaync-client --toggle-panel --skip-wait",
+    "on-click-right": "manjikaze-hypr-launcher -m bluetooth"
   },
 
   "pulseaudio": {
     "format": "{icon}",
     "format-muted": "󰝟",
     "format-icons": { "headphone": "󰋋", "headset": "󰋎", "default": ["󰕿", "󰖀", "󰕾"] },
-    "tooltip-format": "{desc}: {volume}%\nClick: devices  ·  Right click: mute  ·  Middle click: mixer",
+    "tooltip-format": "{desc}: {volume}%\nScroll: volume  ·  Right click: sound devices  ·  Middle click: mute",
     "scroll-step": 5,
-    "on-click": "manjikaze-hypr-launcher -m wireplumber",
-    "on-click-right": "swayosd-client --output-volume mute-toggle",
-    "on-click-middle": "uwsm-app -- pavucontrol"
+    "on-click": "swaync-client --toggle-panel --skip-wait",
+    "on-click-right": "manjikaze-hypr-launcher -m wireplumber",
+    "on-click-middle": "swayosd-client --output-volume mute-toggle"
   },
 
   "battery": {
@@ -111,7 +121,8 @@
     "format-charging": "󰂄",
     "format-plugged": "󰚥",
     "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"],
-    "tooltip-format": "{capacity}% · {timeTo}"
+    "tooltip-format": "{capacity}% · {timeTo}",
+    "on-click": "swaync-client --toggle-panel --skip-wait"
   },
 
   "custom/notifications": {
@@ -119,11 +130,11 @@
     "format": "{icon}",
     "format-icons": {
       "notification": "󰂚<span foreground='#3ddc97'><sup></sup></span>",
-      "none": "󰂜",
+      "none": "",
       "dnd-notification": "󰂛<span foreground='#3ddc97'><sup></sup></span>",
       "dnd-none": "󰂛",
       "inhibited-notification": "󰂚<span foreground='#3ddc97'><sup></sup></span>",
-      "inhibited-none": "󰂜",
+      "inhibited-none": "",
       "dnd-inhibited-notification": "󰂛<span foreground='#3ddc97'><sup></sup></span>",
       "dnd-inhibited-none": "󰂛"
     },
@@ -133,11 +144,5 @@
     "on-click": "swaync-client --toggle-panel --skip-wait",
     "on-click-right": "swaync-client --toggle-dnd --skip-wait",
     "escape": true
-  },
-
-  "custom/power": {
-    "format": "󰐥",
-    "tooltip-format": "Power menu (Super + Esc)",
-    "on-click": "manjikaze-hypr-menu power"
   }
 }
