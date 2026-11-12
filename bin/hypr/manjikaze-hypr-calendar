@@ -1,0 +1,43 @@
+#!/bin/bash
+set -e
+
+# A month calendar with week numbers below the clock. Clicking the clock toggles it; a click
+# anywhere else (bindings.lua) or Escape closes it.
+# Usage: manjikaze-hypr-calendar [toggle|close]
+
+PATTERN='^yad --calendar --title=Calendar'
+CLOSED_AT="${XDG_RUNTIME_DIR:-/tmp}/manjikaze-calendar-closed"
+
+running() {
+    pgrep -u "$UID" -f "$PATTERN" >/dev/null
+}
+
+close_calendar() {
+    if running; then
+        pkill -u "$UID" -f "$PATTERN" || true
+        date +%s%3N >"$CLOSED_AT"
+    fi
+}
+
+case "${1:-toggle}" in
+    toggle)
+        if running; then
+            close_calendar
+            exit 0
+        fi
+        # The click on the clock that just closed it through bindings.lua shouldn't reopen it.
+        closed_at=$(cat "$CLOSED_AT" 2>/dev/null || echo 0)
+        if (($(date +%s%3N) - closed_at < 500)); then
+            exit 0
+        fi
+        yad --calendar --title=Calendar --show-weeks --no-buttons --undecorated --skip-taskbar \
+            --fixed --borders=12 >/dev/null || true
+        ;;
+    close)
+        close_calendar
+        ;;
+    *)
+        echo "Usage: $(basename "$0") [toggle|close]" >&2
+        exit 1
+        ;;
+esac

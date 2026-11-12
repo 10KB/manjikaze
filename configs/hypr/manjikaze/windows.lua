@@ -41,6 +41,14 @@ hl.window_rule({ name = "size-files", match = { class = "^(org.gnome.Nautilus)$"
 
 hl.window_rule({ name = "float-wallpaper-picker", match = { title = "^(Choose wallpaper)$" }, float = true, center = true })
 
+-- Month calendar (click the clock), centered below the bar like a menu.
+hl.window_rule({
+  name = "calendar-popup",
+  match = { class = "^(yad)$", title = "^(Calendar)$" },
+  float = true,
+  move = { "monitor_w*0.5-window_w*0.5", "38" },
+})
+
 -- Notes drawer (SUPER + `): Text Editor drops down from the bar on the focused screen and
 -- hides again with the same shortcut. The editor keeps unsaved notes between sessions itself.
 hl.workspace_rule({ workspace = "special:notes", on_created_empty = helpers.launch("gnome-text-editor") })
