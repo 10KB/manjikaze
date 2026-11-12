@@ -73,7 +73,7 @@ The most used shortcuts are below; `Super + K` always shows the complete, curren
 | `Super + S` | Show/hide the scratchpad, `Super + Alt + S` moves a window there |
 | `` Super + ` `` | Show/hide the notes drawer |
 
-The notes drawer is Text Editor dropping down from the bar on the screen you're working on, with a tab per note. The first time you open it, Text Editor starts. Notes you don't save as a file are kept by Text Editor and come back after a restart. Every Text Editor window lives in the drawer, so a text file opened from Files shows up there as a new tab.
+The notes drawer is Text Editor dropping down from the bar on the screen you're working on, with a tab per note. A click outside it hides it again. The first time you open it, Text Editor starts. Notes you don't save as a file are kept by Text Editor and come back after a restart. Every Text Editor window lives in the drawer, so a text file opened from Files shows up there as a new tab.
 
 With one monitor, workspaces come and go as you use them. With several monitors they follow the screens from left to right: with three screens, workspaces 1, 2 and 3 are on the left, middle and right screen, 4, 5 and 6 are the second workspace of each, and so on. Those stay in the bar even when empty. To keep three per screen instead of two, set `manjikaze_workspaces_per_monitor = 3` before `require("manjikaze")` in your configuration. Higher numbers open on the screen you're working on.
 
