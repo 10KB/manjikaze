@@ -120,6 +120,32 @@ bind("SUPER + mouse_down", "Next workspace", hl.dsp.focus({ workspace = "e+1" })
 bind("SUPER + mouse_up", "Previous workspace", hl.dsp.focus({ workspace = "e-1" }))
 bind("SUPER + S", "Scratchpad", hl.dsp.workspace.toggle_special("scratchpad"))
 bind("SUPER + grave", "Notes drawer", hl.dsp.workspace.toggle_special("notes"))
+
+-- A click anywhere outside the notes drawer hides it. The margin keeps clicks on the resize
+-- border inside. No description, so it stays out of the shortcut list.
+local function hide_notes_on_click_outside()
+  local cursor = hl.get_cursor_pos()
+  if not cursor then
+    return
+  end
+  local margin = 16
+  for _, monitor in ipairs(hl.get_monitors()) do
+    local special = monitor.active_special_workspace
+    if special and special.name == "special:notes" then
+      local inside = false
+      for _, window in ipairs(special:get_windows() or {}) do
+        if cursor.x >= window.at.x - margin and cursor.x <= window.at.x + window.size.x + margin
+          and cursor.y >= window.at.y - margin and cursor.y <= window.at.y + window.size.y + margin then
+          inside = true
+        end
+      end
+      if not inside then
+        monitor:set_special_workspace("")
+      end
+    end
+  end
+end
+hl.bind("mouse:272", hide_notes_on_click_outside, { non_consuming = true })
 bind("SUPER + ALT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
 
 -- Screenshots
