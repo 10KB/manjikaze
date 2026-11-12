@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e
+
+# Keeps the screen on: no lock and no blanking while it is active. It holds a systemd idle
+# inhibitor, which hypridle honours. Toggled from quick settings; the bar shows an icon while on.
+# Usage: manjikaze-hypr-stay-awake [toggle|on|off|status|waybar]
+
+UNIT=manjikaze-stay-awake
+WAYBAR_SIGNAL=9
+
+active() {
+    systemctl --user --quiet is-active "$UNIT"
+}
+
+refresh_bar() {
+    pkill -RTMIN+$WAYBAR_SIGNAL -x waybar || true
+}
+
+turn_on() {
+    if ! active; then
+        systemd-run --user --quiet --collect --unit="$UNIT" --description="Keep the screen on" \
+            systemd-inhibit --what=idle --who=Manjikaze --why="Stay awake is on" sleep infinity
+    fi
+    refresh_bar
+}
+
+turn_off() {
+    systemctl --user stop "$UNIT" 2>/dev/null || true
+    refresh_bar
+}
+
+case "${1:-toggle}" in
+    toggle)
+        if active; then turn_off; else turn_on; fi
+        ;;
+    on)
+        turn_on
+        ;;
+    off)
+        turn_off
+        ;;
+    status)
+        if active; then echo true; else echo false; fi
+        ;;
+    waybar)
+        if active; then
+            echo '{"text": "󰅶", "tooltip": "Screen stays on\nClick: quick settings", "class": "active"}'
+        else
+            echo '{"text": ""}'
+        fi
+        ;;
+    *)
+        echo "Usage: $(basename "$0") [toggle|on|off|status|waybar]" >&2
+        exit 1
+        ;;
+esac

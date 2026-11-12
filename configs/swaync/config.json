@@ -23,7 +23,7 @@
   "hide-on-action": true,
   "relative-timestamps": true,
   "text-empty": "No notifications",
-  "widgets": ["title", "buttons-grid", "volume", "mpris", "dnd", "notifications"],
+  "widgets": ["buttons-grid", "volume", "mpris", "title", "dnd", "notifications"],
   "widget-config": {
     "title": {
       "text": "Notifications",
@@ -66,16 +66,18 @@
           "update-command": "sh -c 'wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED && echo false || echo true'"
         },
         {
-          "label": "󰒓  Settings",
-          "command": "sh -c 'swaync-client --close-panel; manjikaze-hypr-menu settings'"
+          "label": "󰅶  Stay awake",
+          "type": "toggle",
+          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && manjikaze-hypr-stay-awake on || manjikaze-hypr-stay-awake off'",
+          "update-command": "manjikaze-hypr-stay-awake status"
         },
         {
           "label": "󰦝  VPN",
           "command": "sh -c 'swaync-client --close-panel; manjikaze-hypr-menu vpn'"
         },
         {
-          "label": "󰍹  Displays",
-          "command": "sh -c 'swaync-client --close-panel; uwsm-app -- nwg-displays'"
+          "label": "󰒓  Settings",
+          "command": "sh -c 'swaync-client --close-panel; manjikaze-hypr-menu settings'"
         },
         {
           "label": "  Lock",

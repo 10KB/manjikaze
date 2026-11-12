@@ -64,28 +64,44 @@ tooltip label {
   font-weight: bold;
 }
 
-#tray,
-#language,
-#idle_inhibitor,
+#tray {
+  padding: 0 8px;
+}
+
+/* The system menu: status icons in one rounded button, like GNOME. */
+#system {
+  background: @surface;
+  border-radius: 15px;
+  margin: 3px 8px 3px 4px;
+  padding: 0 6px;
+}
+
+#system:hover {
+  background: alpha(@accent, 0.18);
+}
+
+#custom-keyboard,
+#custom-stay-awake,
 #network,
 #bluetooth,
 #pulseaudio,
 #battery,
-#custom-notifications,
-#custom-power {
-  padding: 0 8px;
+#custom-notifications {
+  padding: 0 6px;
   font-size: 15px;
 }
 
-#language {
+#custom-keyboard {
   font-size: 12px;
-  color: @muted;
+  font-weight: bold;
 }
 
-#idle_inhibitor.activated,
+#custom-stay-awake {
+  color: #f5c451;
+}
+
 #pulseaudio.muted,
-#network.disconnected,
-#bluetooth.off {
+#network.disconnected {
   color: @muted;
 }
 
@@ -97,15 +113,6 @@ tooltip label {
   color: @urgent;
 }
 
-#custom-power {
-  padding-right: 14px;
-}
-
-#custom-power:hover,
-#custom-launcher:hover,
-#network:hover,
-#bluetooth:hover,
-#pulseaudio:hover,
-#custom-notifications:hover {
+#custom-launcher:hover {
   color: @accent;
 }

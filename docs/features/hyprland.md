@@ -24,7 +24,7 @@ Run **Configuration → Hyprland desktop** again at any time to update the confi
 | `Super + Esc` | Power menu: lock, suspend, log out, restart, shut down |
 | `Super + N` | Notifications and quick settings |
 
-The bar at the top works with the mouse too: click the network, Bluetooth or volume icon for quick menus, right-click for more.
+The bar at the top works with the mouse too. The status icons on the right sit together in one button, like GNOME's system menu: click it for quick settings (Wi-Fi, Bluetooth, microphone, Stay awake, VPN, lock, power, volume) and notifications. Right-click the network, Bluetooth or volume icon to go straight to Wi-Fi networks, Bluetooth devices or sound devices, and scroll on the volume icon to change the volume. Icons with nothing to report stay hidden: the keyboard layout appears with more than one layout, Bluetooth while a device is connected, the bell when there are notifications or Do not disturb is on.
 
 ## Keyboard Shortcuts
 
@@ -124,7 +124,7 @@ There is no single settings app like GNOME's. `Super + I` collects them in one m
 - **Wallpaper** (`Super + Ctrl + W`, or search "wallpaper" in the launcher): browse to any image on your computer, with a preview of the selected file. The Manjaro and GNOME wallpapers are in `/usr/share/backgrounds`. The choice is used on every monitor, on the lock screen and in GNOME.
 - **Appearance**: GTK theme, icons and cursor (`nwg-look`).
 
-The network and Bluetooth tray icons in the bar work like in GNOME, including password and pairing prompts.
+Password prompts for Wi-Fi and VPN and Bluetooth pairing requests work like in GNOME. Their applets run in the background without their own tray icon.
 
 The 10KB tools have their Hyprland counterparts of the GNOME extensions: **42kb-ui** puts the 10KB icon in the tray of the bar (or `Super + Shift + K`), and **host-gate** shows approval cards for requests from devcontainer agents. Both start with the Hyprland session when they are installed.
 
@@ -141,7 +141,7 @@ Screens are recognized by make, model and serial number. Two identical screens w
 
 ## Lock Screen and Idle
 
-The screen locks after 5 minutes of inactivity and turns off 30 seconds later. Fullscreen video and video calls keep it on, and the coffee cup icon in the bar keeps it on manually. The computer never suspends by itself.
+The screen locks after 5 minutes of inactivity and turns off 30 seconds later. Fullscreen video and video calls keep it on, and **Stay awake** in quick settings keeps it on manually; the bar shows a coffee cup while it is on. The computer never suspends by itself.
 
 **Security → Auto lock on Yubikey removal** works in Hyprland as well.
 
