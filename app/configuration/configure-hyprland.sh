@@ -74,6 +74,13 @@ for unit in "$MANJIKAZE_DIR"/configs/systemd/user/*; do
     sed "s|__MANJIKAZE_DIR__|$MANJIKAZE_DIR|g" "$unit" >"$HOME/.config/systemd/user/$(basename "$unit")"
 done
 systemctl --user daemon-reload
+
+# Launcher entries for Manjikaze's own tools, so Walker finds them.
+mkdir -p "$HOME/.local/share/applications"
+for entry in "$MANJIKAZE_DIR"/configs/applications/*.desktop; do
+    sed "s|__MANJIKAZE_DIR__|$MANJIKAZE_DIR|g" "$entry" >"$HOME/.local/share/applications/$(basename "$entry")"
+done
+
 if [[ $XDG_CURRENT_DESKTOP == *Hyprland* ]]; then
     # Elephant and Walker read their configuration only at start.
     systemctl --user try-restart manjikaze-elephant.service manjikaze-walker.service || true
