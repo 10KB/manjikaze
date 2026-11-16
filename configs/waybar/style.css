@@ -68,6 +68,15 @@ tooltip label {
   padding: 0 8px;
 }
 
+#custom-recording.recording {
+  color: @bg;
+  background: @urgent;
+  border-radius: 15px;
+  margin: 3px 4px;
+  padding: 0 10px;
+  font-weight: bold;
+}
+
 /* The system menu: status icons in one rounded button, like GNOME. */
 #system {
   background: @surface;

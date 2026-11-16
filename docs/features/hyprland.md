@@ -79,11 +79,12 @@ With one monitor, workspaces come and go as you use them. With several monitors 
 
 Three-finger swipes on a touchpad switch workspaces.
 
-### Screenshots and System
+### Screenshots, Recordings and System
 
 | Shortcut | Action |
 |----------|--------|
-| `Print` / `Super + Print` | Screenshot of a region, annotate, `Enter` copies and saves |
+| `Print` | Screenshot or screen recording; during a recording it stops |
+| `Super + Print` | Screenshot of a region, annotate, `Enter` copies and saves |
 | `Shift + Print` | Screenshot of the current monitor |
 | `Alt + Print` | Screenshot of the active window |
 | `Super + Shift + C` | Color picker |
@@ -95,7 +96,11 @@ Three-finger swipes on a touchpad switch workspaces.
 | `Super + Shift + K` | 42kb menu (when 42kb-ui is installed) |
 | `Super + Ctrl + Space` | Next keyboard layout |
 
-Screenshots are saved to `~/Pictures/Screenshots` and copied to the clipboard.
+`Print` opens a menu, like GNOME's screenshot tool: a screenshot of a region or of the screen, or a recording of either, with or without audio. To select a region, drag an area or click a window or screen.
+
+A region screenshot opens in [Satty](https://github.com/gabm/Satty) to add arrows, text or highlights; `Enter` copies and saves it, `Escape` discards it. Other screenshots are saved straight away; click their notification to annotate them. Screenshots are saved to `~/Pictures/Screenshots` and copied to the clipboard.
+
+While recording, a red timer shows in the bar. Click it or press `Print` to stop. Recordings are saved as MP4 to `~/Videos/Screencasts`; click the notification to play one. Recording with audio takes the system sound and the microphone together. [GPU Screen Recorder](https://git.dec05eba.com/gpu-screen-recorder/about/) encodes the video on the graphics card, so recording barely loads the processor.
 
 ## Launcher
 

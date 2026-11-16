@@ -155,8 +155,8 @@ end
 hl.bind("mouse:272", close_popups_on_click_outside, { non_consuming = true })
 bind("SUPER + ALT + S", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
 
--- Screenshots
-bind("Print", "Screenshot of a region (annotate)", script("manjikaze-hypr-screenshot") .. " region")
+-- Screenshots and recordings. Print stops a running recording.
+bind("Print", "Screenshot or recording", script("manjikaze-hypr-menu") .. " capture")
 bind("SUPER + Print", "Screenshot of a region (annotate)", script("manjikaze-hypr-screenshot") .. " region")
 bind("SHIFT + Print", "Screenshot of the screen", script("manjikaze-hypr-screenshot") .. " screen")
 bind("ALT + Print", "Screenshot of the active window", script("manjikaze-hypr-screenshot") .. " window")
