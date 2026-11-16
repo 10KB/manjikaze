@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Quick menus in the launcher: power, settings, wifi and vpn.
-# Usage: manjikaze-hypr-menu [settings|power|wifi|vpn]
+# Quick menus in the launcher: power, settings, wifi, vpn and capture (screenshots and recordings).
+# Usage: manjikaze-hypr-menu [settings|power|wifi|vpn|capture]
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
@@ -172,13 +172,44 @@ settings_menu() {
     esac
 }
 
+capture_menu() {
+    local record="$SCRIPT_DIR/manjikaze-hypr-screenrecord"
+    if "$record" status; then
+        "$record" stop
+        return 0
+    fi
+
+    local options=(
+        "󰹑  Screenshot of a region or window"
+        "󰍹  Screenshot of the screen"
+        "󰻃  Record a region or window"
+        "󰻃  Record the screen"
+        "󰻃  Record a region or window, with audio"
+        "󰻃  Record the screen, with audio"
+    )
+    local index
+    index=$(choose "Screenshot or recording" "${options[@]}")
+    [[ -z $index ]] && return 0
+    # Let the menu fade out before the screen is captured.
+    sleep 0.3
+    case "$index" in
+        0) "$SCRIPT_DIR/manjikaze-hypr-screenshot" region ;;
+        1) "$SCRIPT_DIR/manjikaze-hypr-screenshot" screen ;;
+        2) "$record" region ;;
+        3) "$record" screen ;;
+        4) "$record" region --audio ;;
+        5) "$record" screen --audio ;;
+    esac
+}
+
 case "${1:-settings}" in
     settings) settings_menu ;;
     power) power_menu ;;
     wifi) wifi_menu ;;
     vpn) vpn_menu ;;
+    capture) capture_menu ;;
     *)
-        echo "Usage: $(basename "$0") [settings|power|wifi|vpn]" >&2
+        echo "Usage: $(basename "$0") [settings|power|wifi|vpn|capture]" >&2
         exit 1
         ;;
 esac

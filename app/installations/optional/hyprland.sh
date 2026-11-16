@@ -9,8 +9,8 @@ HYPRLAND_REPO_PACKAGES=(
     libqalculate wl-clipboard
     # Lock screen, idle handling, wallpaper and its file dialog
     hyprlock hypridle hyprpaper yad xdg-user-dirs
-    # Screenshots and the color picker
-    grim slurp satty hyprpicker
+    # Screenshots, screen recordings (and their preview image) and the color picker
+    grim slurp satty gpu-screen-recorder ffmpeg hyprpicker
     # Settings: GTK appearance, network and VPN, Bluetooth, sound
     nwg-look network-manager-applet blueman bluez-utils pavucontrol
     # Notifications and quick settings, volume and brightness on-screen display, media keys
@@ -40,7 +40,7 @@ HYPRLAND_OWN_PACKAGES=(
     hyprland uwsm xdg-desktop-portal-hyprland hyprpolkitagent
     nwg-displays
     hyprlock hypridle hyprpaper
-    hyprpicker satty
+    hyprpicker satty gpu-screen-recorder
     # Without its Hyprland-only autostart entry, the Blueman applet would start in GNOME too.
     blueman
     swaync swayosd

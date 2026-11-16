@@ -1,0 +1,157 @@
+#!/bin/bash
+set -e
+
+# Screen recordings like GNOME's screencasts, saved to ~/Videos/Screencasts. gpu-screen-recorder
+# encodes on the GPU, so recording barely loads the CPU. The bar shows a timer while it runs.
+# Usage: manjikaze-hypr-screenrecord [region|screen] [--audio]
+#   region   drag an area, or click a window or screen
+#   screen   the focused monitor
+#   --audio  also record system sound and the microphone
+#        manjikaze-hypr-screenrecord stop|toggle|status|waybar
+
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+state_dir="${XDG_RUNTIME_DIR:-/tmp}/manjikaze-screenrecord"
+state="$state_dir/recording"
+log="$state_dir/recorder.log"
+
+notify() {
+    notify-send --app-name "Screen recording" "$@" || true
+}
+
+# The state file holds the recorder's pid, its start time and the video file, one per line.
+recording() {
+    local pid
+    [[ -f $state ]] && pid=$(head -n 1 "$state") && kill -0 "$pid" 2>/dev/null
+}
+
+start() {
+    local target="$1" audio="$2" dir file geometry name width height pid
+    local -a capture audio_args=() size_args=()
+
+    if ! command -v gpu-screen-recorder >/dev/null; then
+        notify --urgency critical "Screen recording isn't installed" \
+            "Install gpu-screen-recorder, or run Installations > Hyprland in Manjikaze again."
+        exit 1
+    fi
+    recording && exit 0
+
+    case $target in
+        region)
+            pkill slurp && exit 0
+            geometry=$("$SCRIPT_DIR/manjikaze-hypr-screenshot" rectangles |
+                slurp -d -b '#11151a88' -c '#ff6b6bff' -w 2 -f '%wx%h+%x+%y') || exit 0
+            [[ $geometry =~ ^([0-9]+)x([0-9]+) ]] || exit 0
+            width=${BASH_REMATCH[1]} height=${BASH_REMATCH[2]}
+            ((width >= 16 && height >= 16)) || exit 0
+            capture=(-w region -region "$geometry")
+            ;;
+        screen)
+            read -r name width height < <(hyprctl monitors -j | jq -r '.[] | select(.focused) | "\(.name) \(.width) \(.height)"')
+            capture=(-w "$name")
+            ;;
+        *)
+            echo "Usage: $(basename "$0") [region|screen] [--audio]" >&2
+            exit 1
+            ;;
+    esac
+
+    # One mixed track: players only play one audio track at a time. AAC plays everywhere.
+    [[ $audio == "--audio" ]] && audio_args=(-a "default_output|default_input" -ac aac)
+
+    dir="$(xdg-user-dir VIDEOS 2>/dev/null || echo "$HOME/Videos")/Screencasts"
+    mkdir -p "$dir" "$state_dir"
+    file="$dir/Screencast from $(date +'%Y-%m-%d %H-%M-%S').mp4"
+
+    # H.264 encoders stop at 4096 pixels wide, so larger captures are scaled down to 4K. -s also
+    # scales smaller captures up, so it is only passed when needed.
+    ((width > 3840 || height > 2160)) && size_args=(-s 3840x2160)
+
+    gpu-screen-recorder "${capture[@]}" "${size_args[@]}" -f 30 -k auto -fallback-cpu-encoding yes \
+        "${audio_args[@]}" -o "$file" >"$log" 2>&1 &
+    pid=$!
+    disown
+
+    # The file appears once the encoder runs; a recorder that exits before that failed to start.
+    for _ in {1..50}; do
+        [[ -f $file ]] && break
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    if ! kill -0 "$pid" 2>/dev/null; then
+        rm -f "$file"
+        notify --urgency critical "Screen recording failed to start" "$(tail -n 3 "$log")"
+        exit 1
+    fi
+
+    printf '%s\n%s\n%s\n' "$pid" "$(date +%s)" "$file" >"$state"
+}
+
+stop() {
+    local pid file thumbnail
+    recording || { rm -f "$state"; return 0; }
+    pid=$(sed -n 1p "$state")
+    file=$(sed -n 3p "$state")
+
+    # SIGINT makes the recorder finish the file; give it a few seconds before forcing it.
+    kill -INT "$pid" 2>/dev/null || true
+    for _ in {1..50}; do
+        kill -0 "$pid" 2>/dev/null || break
+        sleep 0.1
+    done
+    rm -f "$state"
+    if kill -0 "$pid" 2>/dev/null; then
+        kill -KILL "$pid" 2>/dev/null || true
+        notify --urgency critical "Screen recording stopped forcefully" "The video may be damaged: $file"
+        return 0
+    fi
+
+    thumbnail="$state_dir/thumbnail.png"
+    rm -f "$thumbnail"
+    ffmpeg -loglevel quiet -y -i "$file" -frames:v 1 -vf 'scale=480:-2' "$thumbnail" 2>/dev/null || true
+    [[ -f $thumbnail ]] || thumbnail="video-x-generic"
+
+    (
+        case "$(notify --icon "$thumbnail" --action default=Play --action folder="Show in Files" \
+            "Screen recording saved" "Saved to $(dirname "${file/#$HOME/\~}"). Click to play.")" in
+            default) xdg-open "$file" ;;
+            folder)
+                gdbus call --session --dest org.freedesktop.FileManager1 \
+                    --object-path /org/freedesktop/FileManager1 \
+                    --method org.freedesktop.FileManager1.ShowItems "['file://$file']" "" ||
+                    xdg-open "$(dirname "$file")"
+                ;;
+        esac
+    ) >/dev/null 2>&1 &
+    disown
+}
+
+# Waybar module: hidden when idle, a red timer while recording.
+waybar_status() {
+    local start now elapsed
+    mkdir -p "$state_dir"
+    while true; do
+        if recording; then
+            start=$(sed -n 2p "$state")
+            printf -v now '%(%s)T' -1
+            elapsed=$((now - start))
+            printf '{"text": "󰻃  %d:%02d", "tooltip": "Recording the screen\\nClick or Print: stop", "class": "recording"}\n' \
+                $((elapsed / 60)) $((elapsed % 60))
+            sleep 1
+        else
+            echo '{"text": ""}'
+            inotifywait -qq -t 60 -e create -e delete -e moved_to "$state_dir" 2>/dev/null || true
+        fi
+    done
+}
+
+case "${1:-region}" in
+    region | screen) start "${1:-region}" "$2" ;;
+    stop) stop ;;
+    toggle) if recording; then stop; else start region "$2"; fi ;;
+    status) recording ;;
+    waybar) waybar_status ;;
+    *)
+        echo "Usage: $(basename "$0") [region|screen] [--audio] | stop | toggle | status | waybar" >&2
+        exit 1
+        ;;
+esac

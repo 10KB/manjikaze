@@ -9,7 +9,7 @@
 
   "modules-left": ["custom/launcher", "hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["tray", "group/system"],
+  "modules-right": ["custom/recording", "tray", "group/system"],
 
   "custom/launcher": {
     "format": "󰣇",
@@ -29,6 +29,13 @@
     "format": "{:%a %d %b  %H:%M}",
     "tooltip-format": "{:%A %d %B %Y  ·  week %V}\nClick: calendar",
     "on-click": "manjikaze-hypr-calendar"
+  },
+
+  // Only visible while recording the screen (Print).
+  "custom/recording": {
+    "exec": "manjikaze-hypr-screenrecord waybar",
+    "return-type": "json",
+    "on-click": "manjikaze-hypr-screenrecord stop"
   },
 
   // The network and Bluetooth applets only run for their password and pairing prompts; the
