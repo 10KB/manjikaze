@@ -50,25 +50,25 @@
         {
           "label": "󰖩  Wi-Fi",
           "type": "toggle",
-          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && nmcli radio wifi on || nmcli radio wifi off'",
+          "command": "[ $SWAYNC_TOGGLE_STATE = true ] && nmcli radio wifi on || nmcli radio wifi off",
           "update-command": "nmcli radio wifi | grep -qx enabled && echo true || echo false"
         },
         {
           "label": "󰂯  Bluetooth",
           "type": "toggle",
-          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && bluetoothctl power on || bluetoothctl power off'",
+          "command": "[ $SWAYNC_TOGGLE_STATE = true ] && bluetoothctl power on || bluetoothctl power off",
           "update-command": "bluetoothctl show | grep -q 'Powered: yes' && echo true || echo false"
         },
         {
           "label": "󰍬  Mic",
           "type": "toggle",
-          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0 || wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1'",
+          "command": "[ $SWAYNC_TOGGLE_STATE = true ] && wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0 || wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1",
           "update-command": "sh -c 'wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | grep -q MUTED && echo false || echo true'"
         },
         {
           "label": "󰅶  Stay awake",
           "type": "toggle",
-          "command": "sh -c '[ \"$SWAYNC_TOGGLE_STATE\" = true ] && manjikaze-hypr-stay-awake on || manjikaze-hypr-stay-awake off'",
+          "command": "[ $SWAYNC_TOGGLE_STATE = true ] && manjikaze-hypr-stay-awake on || manjikaze-hypr-stay-awake off",
           "update-command": "manjikaze-hypr-stay-awake status"
         },
         {
