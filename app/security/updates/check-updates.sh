@@ -20,10 +20,15 @@ source "$MANJIKAZE_DIR/lib/common.sh"
 source "$MANJIKAZE_DIR/lib/state.sh"
 
 check_for_updates() {
-    sudo pacman -Sy --quiet --noconfirm --noprogressbar >/dev/null 2>&1
+    local repo_updates aur_updates=0
 
-    local repo_updates=$(pacman -Qu | wc -l)
-    local aur_updates=0
+    # This runs without a terminal, so sudo can't ask for a password. checkupdates syncs a copy of
+    # the package databases as the user, which also avoids a sync without an upgrade.
+    if command -v checkupdates >/dev/null 2>&1; then
+        repo_updates=$(checkupdates 2>/dev/null | wc -l)
+    else
+        repo_updates=$(pacman -Qu 2>/dev/null | wc -l)
+    fi
 
     if command -v yay >/dev/null 2>&1; then
         aur_updates=$(yay -Qua | wc -l)
@@ -34,23 +39,34 @@ check_for_updates() {
     echo "$total_updates"
 }
 
+# The update asks questions, and this service has no terminal of its own.
+open_update_terminal() {
+    if command -v alacritty >/dev/null 2>&1; then
+        alacritty -e manjikaze update
+    elif command -v kgx >/dev/null 2>&1; then
+        kgx -- manjikaze update
+    elif command -v gnome-terminal >/dev/null 2>&1; then
+        gnome-terminal -- manjikaze update
+    else
+        status "No terminal found to run 'manjikaze update' in."
+    fi
+}
+
 send_notification() {
-    local total_updates="$1"
+    local total_updates="$1" action
 
     if [ "$total_updates" -gt 0 ]; then
-        local notify_cmd="notify-send"
-        local action_str=""
-
-        notify-send \
+        # Waits until the notification is closed and prints the name of the clicked action, if any.
+        action=$(notify-send \
             --app-name="Manjikaze" \
             --icon=system-software-update \
             --urgency=normal \
+            --action="update=Update Now" \
             "System Updates Available" \
-            "$total_updates update(s) are available for your system.\nClick to update now." \
-            -A "update:Update Now"
+            "$total_updates update(s) are available for your system.") || return 0
 
-        if [ $? -eq 0 ]; then
-            manjikaze update
+        if [[ $action == update ]]; then
+            open_update_terminal
         fi
     fi
 }
