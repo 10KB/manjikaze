@@ -12,6 +12,9 @@ if ! gum confirm "Would you like to enable weekly system update checks?"; then
     return 0
 fi
 
+# checkupdates looks for updates without sudo, which the check can't use without a terminal.
+install_package "pacman-contrib" repo
+
 status "Ensuring systemd user directory exists..."
 mkdir -p "$HOME/.config/systemd/user"
 
