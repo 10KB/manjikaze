@@ -3,12 +3,12 @@ setup_font=$(gum confirm "Do you want to install Cascadia Mono fonts?" --affirma
 if [[ $setup_font == "true" ]]; then
     status "Installing Cascadia Mono fonts..."
 
-    local FONT_DIR="$HOME/.local/share/fonts"
-    local FONT_NAME="CascadiaMono"
-    local FONT_ZIP="${FONT_NAME}.zip"
-    local FONT_FOLDER="${FONT_NAME}Font"
-    local ORIGINAL_DIR=$(pwd)
-    local TMP_DIR=$(mktemp -d)
+    FONT_DIR="$HOME/.local/share/fonts"
+    FONT_NAME="CascadiaMono"
+    FONT_ZIP="${FONT_NAME}.zip"
+    FONT_FOLDER="${FONT_NAME}Font"
+    ORIGINAL_DIR=$(pwd)
+    TMP_DIR=$(mktemp -d)
 
     cleanup() {
         cd "$ORIGINAL_DIR" || true
