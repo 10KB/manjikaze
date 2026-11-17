@@ -12,6 +12,11 @@ Manjikaze provisions a Manjaro Linux development environment. The instructions b
 - Pass `-s` to `curl` commands for silent output.
 - Use the existing `status` function for progress messages when it is available; keep logging consistent with the surrounding scripts.
 
+## Checks
+
+- Run `checks/run.sh` before you commit; it needs `shellcheck`, `luac` and `python3`. CI runs the same checks on every pull request, and builds the documentation.
+- Run a single check with `checks/run.sh <check>`, for example `checks/run.sh shellcheck`.
+
 ## Documentation
 
 - Documentation lives in `docs/` and uses VitePress. Use the existing scripts in `docs/package.json` when working on the documentation site.
