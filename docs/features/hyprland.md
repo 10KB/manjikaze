@@ -10,7 +10,7 @@ GNOME stays installed. You choose the desktop on the login screen and can switch
 2. Pick which desktop starts when you log in.
 3. Log out or reboot. With automatic login (the default with disk encryption) the chosen desktop starts right away.
 
-To pick a desktop on the login screen, click your name: the gear icon next to **Sign In** offers **Hyprland (uwsm-managed)** and **GNOME**. With a YubiKey inserted, the login screen signs you in without asking for a password and you never see the gear, so remove the key first. The desktop you pick there becomes the default for automatic login.
+To pick a desktop on the login screen, click your name: the gear icon next to **Sign In** offers **Hyprland (uwsm-managed)** and **GNOME**. The desktop you pick there becomes the default for automatic login.
 
 Run **Configuration → Hyprland desktop** again at any time to update the configuration files or to change the default desktop. Files you changed yourself are only replaced after you confirm, and a backup is kept.
 
@@ -150,7 +150,7 @@ The screen locks after 5 minutes of inactivity and turns off 30 seconds later. F
 
 **Security → Auto lock on Yubikey removal** works in Hyprland as well.
 
-If you configured the YubiKey for the system (**Security → Configure Yubikey as MFA for system**), **Configuration → Hyprland desktop** offers to enable it for the lock screen too. Then press `Enter` on the empty password field and touch the key when it blinks. The lock screen runs as you and can't read the system's root-only YubiKey challenges, so it gets its own in `~/.yubico`. After replacing your YubiKey, run **Configuration → Hyprland desktop** again.
+If you set up the YubiKey for the system (**Security → Configure Yubikey as MFA for system**), the lock screen accepts it as well: type the YubiKey's PIN and touch the key when it blinks. Without the key inserted, type your password. The input field shows which one it asks for: `Please enter the PIN:` or `Password:`. A password typed at the PIN prompt counts as a wrong PIN and costs one of the YubiKey's PIN attempts. After a wrong PIN, the field asks for your password.
 
 ## Customizing
 

@@ -7,8 +7,8 @@ Manjikaze integrates Yubikey hardware tokens to enhance system security. Yubikey
 Manjikaze supports the following Yubikey security features:
 
 1. **Full Disk Encryption Authentication** - Use your Yubikey as a second factor when unlocking your encrypted disk during boot
-2. **System Authentication** - Configure your Yubikey for system login, sudo access, and other PAM authentication
-3. **Auto-Lock on Removal** - Automatically lock, suspend, or log out when your Yubikey is removed
+2. **System Authentication** - Unlock the screen, use sudo and approve polkit prompts with your Yubikey and its PIN
+3. **Auto-Lock on Removal** - Automatically lock your session when your Yubikey is removed
 
 ## Yubikey Touch Detector
 
@@ -50,14 +50,13 @@ For more details about the disk encryption implementation, see the [Disk Encrypt
 
 ## Yubikey for System Authentication
 
-Manjikaze allows you to use your Yubikey for system-wide authentication, including:
+Manjikaze lets you use your Yubikey instead of your password for:
 
-- Login authentication
-- Sudo command authentication
-- Polkit authentication (GUI password prompts)
-- GNOME Keyring unlocking
+- Unlocking the screen (GNOME and hyprlock) and logging in on a console
+- Sudo commands
+- Polkit prompts (GUI password prompts)
 
-To set up Yubikey for system authentication:
+To set it up:
 
 ```bash
 manjikaze
@@ -65,14 +64,32 @@ manjikaze
 
 Navigate to: Security → Configure Yubikey as MFA for System
 
-This configuration uses the PAM (Pluggable Authentication Modules) system to enable Yubikey challenge-response authentication. Once configured, you can authenticate by either:
+The Yubikey alone is not enough. You type the Yubikey's FIDO2 PIN and then touch the key. If your Yubikey has no FIDO2 PIN yet, Manjikaze asks you to choose one.
 
-1. Inserting your Yubikey and touching it when prompted, without typing your password
-2. Using your password alone as a fallback when your Yubikey is not available
+Manjikaze uses [pam-u2f](https://developers.yubico.com/pam-u2f/) for this, with one line at the top of `/etc/pam.d/system-auth`. Sudo, polkit, GDM, login and hyprlock all include that file. Registrations live in `/etc/u2f_mappings`, which only root can change. Before changing PAM, Manjikaze backs up `/etc/pam.d` to `/etc/pam.d.backup-<time>`.
+
+- **Use your password instead**: remove the Yubikey. Without a key, you get the password prompt right away. With the Yubikey inserted, the first prompt asks for its PIN: typing your password there counts as a wrong PIN.
+- **Wrong PINs**: after 3 wrong PINs in a row, remove and reinsert the Yubikey. After 8 wrong PINs without a correct one in between, the FIDO2 PIN is blocked. Unblocking it means resetting the FIDO2 application, which also deletes the passkeys stored on that Yubikey.
+- **Spare Yubikey**: run the menu item again with the spare inserted, and register it as an extra key.
+- **Disk encryption**: is not affected. It keeps using the challenge-response secret in slot 2.
+- **GNOME keyring**: logging in with the Yubikey does not unlock it, because you don't type your password. It asks for your password when an app needs it.
+
+Earlier versions unlocked with a touch of the Yubikey alone. A migration removes that setup and offers to set up the PIN. If you skip it, you unlock with your password until you run the menu item.
+
+### Test before you close your terminal
+
+A mistake in PAM can lock you out of sudo, polkit and the lock screen at the same time. After setting it up:
+
+1. Keep a root shell open in a separate terminal (`sudo -i`).
+2. In a new terminal, run `sudo -k; sudo true`, then `pkexec true`.
+3. Only then lock the screen and unlock it, in GNOME and in hyprlock if you use it.
+4. Remove the Yubikey and check that your password still works.
+
+If something fails, restore the backup of `/etc/pam.d` from the root shell.
 
 ## Auto-Lock on Yubikey Removal
 
-Manjikaze can be configured to automatically secure your system when your Yubikey is removed. This provides additional security by ensuring that your workstation is locked if you walk away with your Yubikey.
+Manjikaze can lock your session when your Yubikey is removed. This ensures that your workstation is locked if you walk away with your Yubikey.
 
 To set up auto-lock on Yubikey removal:
 
@@ -82,11 +99,7 @@ manjikaze
 
 Navigate to: Security → Auto Lock on Yubikey Removal
 
-You can choose from three actions when your Yubikey is removed:
-
-1. **Lock** - Lock the screen, requiring authentication to unlock
-2. **Suspend** - Lock the screen and put the system into sleep mode
-3. **Logout** - End your current session completely
+Inserting the Yubikey again does not unlock your session, because that would skip the PIN. You unlock with the Yubikey and its PIN, or with your password.
 
 ## Replacing a Faulty Yubikey
 
@@ -98,4 +111,4 @@ manjikaze
 
 Navigate to: Security → Replace Faulty Yubikey
 
-Follow the prompts to configure your new Yubikey with the same security features as your previous one.
+Follow the prompts to configure your new Yubikey with the same security features as your previous one. If you unlock with your Yubikey, Manjikaze then registers the new key for unlocking, sudo and polkit, and keys registered before stop working there.

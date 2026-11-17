@@ -6,9 +6,9 @@ if [[ $replace_yubikey == "true" ]]; then
     echo "Do NOT insert the new YubiKey yet."
 
     suspend_rule_present=false
-    if [ -f /etc/udev/rules.d/90-yubikey-remove.rules ]; then
+    if [ -f /etc/udev/rules.d/90-yubikey-actions.rules ]; then
         suspend_rule_present=true
-        sudo mv /etc/udev/rules.d/90-yubikey-remove.rules /etc/udev/rules.d/90-yubikey-remove.rules.bak
+        sudo mv /etc/udev/rules.d/90-yubikey-actions.rules /etc/udev/rules.d/90-yubikey-actions.rules.bak
         sudo udevadm control --reload-rules
         sudo udevadm trigger
     fi
@@ -44,7 +44,7 @@ if [[ $replace_yubikey == "true" ]]; then
     fi
 
     if [ "$suspend_rule_present" = true ]; then
-        sudo mv /etc/udev/rules.d/90-yubikey-remove.rules.bak /etc/udev/rules.d/90-yubikey-remove.rules
+        sudo mv /etc/udev/rules.d/90-yubikey-actions.rules.bak /etc/udev/rules.d/90-yubikey-actions.rules
         sudo udevadm control --reload-rules
         sudo udevadm trigger
     fi
@@ -52,5 +52,11 @@ if [[ $replace_yubikey == "true" ]]; then
     echo "New YubiKey configured successfully."
     echo "Your new YubiKey is now set up and should work like the original one."
     echo "Please test it by rebooting your system and using the new YubiKey to unlock the disk."
-    echo "Re-run the PAM setup script to enable the new YubiKey for PAM authentication."
+
+    if grep -qs "pam_u2f.so" /etc/pam.d/system-auth; then
+        source "$MANJIKAZE_DIR/lib/yubikey-pam.sh"
+        if gum confirm "Register the new YubiKey for unlock, sudo and polkit? Keys registered before stop working there."; then
+            yubikey_pam_configure replace || status "Run Security → Configure Yubikey as MFA for system to try again."
+        fi
+    fi
 fi
