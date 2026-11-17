@@ -44,7 +44,7 @@ if [[ $setup_yubikey_pam == "true" ]]; then
         sudo sed -i '/^auth/a\auth       optional     pam_gnome_keyring.so' /etc/pam.d/login
     fi
 
-    local prompt_line="auth optional pam_echo.so Please touch your yubikey."
+    prompt_line="auth optional pam_echo.so Please touch your yubikey."
 
     if ! sudo grep -q "$prompt_line" "/etc/pam.d/sudo"; then
         status "Adding prompt to /etc/pam.d/sudo..."
