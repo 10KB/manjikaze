@@ -8,8 +8,8 @@ YUBIKEY_PAM_AUTHFILE="/etc/u2f_mappings"
 # A fixed relying party ID keeps registrations valid when the hostname changes.
 YUBIKEY_PAM_ORIGIN="pam://manjikaze"
 YUBIKEY_PAM_LINE="auth sufficient pam_u2f.so authfile=$YUBIKEY_PAM_AUTHFILE origin=$YUBIKEY_PAM_ORIGIN cue pinverification=1 userverification=0"
-# Where the earlier touch-only setup (pam_yubico) added itself.
-YUBIKEY_PAM_LEGACY_FILES=(/etc/pam.d/sudo /etc/pam.d/system-auth /etc/pam.d/login /etc/pam.d/polkit-1 /etc/pam.d/gnome-keyring)
+# Where the earlier touch-only setup (pam_yubico) added itself, including the Hyprland lock screen.
+YUBIKEY_PAM_LEGACY_FILES=(/etc/pam.d/sudo /etc/pam.d/system-auth /etc/pam.d/login /etc/pam.d/polkit-1 /etc/pam.d/gnome-keyring /etc/pam.d/hyprlock)
 YUBIKEY_INSERT_ACTION="/usr/local/bin/yubikey-insert-action.sh"
 YUBIKEY_ACTION_RULES="/etc/udev/rules.d/90-yubikey-actions.rules"
 
