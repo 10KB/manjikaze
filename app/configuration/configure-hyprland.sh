@@ -82,8 +82,9 @@ for entry in "$MANJIKAZE_DIR"/configs/applications/*.desktop; do
 done
 
 if [[ $XDG_CURRENT_DESKTOP == *Hyprland* ]]; then
-    # Elephant and Walker read their configuration only at start.
-    systemctl --user try-restart manjikaze-elephant.service manjikaze-walker.service || true
+    # These read their configuration only at start, so the files deployed above take effect now.
+    systemctl --user try-restart manjikaze-elephant.service manjikaze-walker.service \
+        waybar.service swaync.service hypridle.service hyprpaper.service || true
     # Starts the services added since login.
     systemctl --user start manjikaze-hyprland.target || true
 fi
