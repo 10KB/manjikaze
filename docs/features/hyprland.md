@@ -150,7 +150,7 @@ The screen locks after 5 minutes of inactivity and turns off 30 seconds later. F
 
 **Security → Auto lock on Yubikey removal** works in Hyprland as well.
 
-If you set up the YubiKey for the system (**Security → Configure Yubikey as MFA for system**), the lock screen accepts it as well: type the YubiKey's PIN and touch the key when it blinks. Without the key inserted, type your password.
+If you set up the YubiKey for the system (**Security → Configure Yubikey as MFA for system**), the lock screen accepts it as well: type the YubiKey's PIN and touch the key when it blinks. Without the key inserted, type your password. The input field shows which one it asks for: `Please enter the PIN:` or `Password:`. A password typed at the PIN prompt counts as a wrong PIN and costs one of the YubiKey's PIN attempts. After a wrong PIN, the field asks for your password.
 
 ## Customizing
 
