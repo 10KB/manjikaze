@@ -32,13 +32,13 @@ Slack is our chat communication platform for team and client collaboration.
 
 [Xournal++](https://xournalpp.github.io/) is for PDF annotation, form filling, and adding signatures to documents.
 
-### Cursor
-
-Cursor is an AI-enhanced code editor based on VSCode.
-
 ## Optional Applications
 
 These applications are not installed by default but can be added through the Manjikaze menu:
+
+### Cursor
+
+Cursor is an AI-enhanced code editor based on VSCode.
 
 ### Signal
 

@@ -39,5 +39,5 @@ features:
 
   - icon: 🛠️
     title: Developer Tools
-    details: Docker, Cursor, Terraform, kubectl, AWS CLI, Bruno, DBeaver, and more pre-installed.
+    details: Docker, VS Code, Terraform, kubectl, AWS CLI, Bruno, DBeaver, and more pre-installed.
 ---

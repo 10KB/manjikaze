@@ -102,7 +102,7 @@ resolve_known_aur_transitions() {
 }
 
 # Source Cursor installation functions
-source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
+source "$MANJIKAZE_DIR/app/installations/optional/cursor.sh"
 
 # Print a beautiful header
 gum style \

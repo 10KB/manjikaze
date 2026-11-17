@@ -2,7 +2,7 @@
 
 ## Overview
 
-Manjikaze installs [Cursor](https://cursor.sh/) (an AI-powered code editor) using an extracted AppImage approach rather than the traditional AUR package installation. This document explains the rationale behind this decision and the benefits it provides.
+Cursor is an optional app: install it through **Setup > Choose optional apps**. Manjikaze installs [Cursor](https://cursor.sh/) (an AI-powered code editor) using an extracted AppImage approach rather than the traditional AUR package installation. This document explains the rationale behind this decision and the benefits it provides.
 
 ## Installation Method
 
@@ -46,6 +46,6 @@ The best approach to update Cursor is to use the `manjikaze update` command. Thi
 ```bash
 cd ~/.manjikaze
 source lib/common.sh
-source app/installations/essential/cursor.sh
-install_cursor
+source app/installations/optional/cursor.sh
+install
 ```

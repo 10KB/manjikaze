@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "$MANJIKAZE_DIR/app/installations/essential/cursor.sh"
+source "$MANJIKAZE_DIR/app/installations/optional/cursor.sh"
 
 current_track=$(get_cursor_release_track)
 
