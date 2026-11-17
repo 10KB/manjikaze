@@ -1,0 +1,75 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scripts:
+    name: Scripts and configuration
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck and Lua
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends shellcheck lua5.4
+          shellcheck --version | grep '^version'
+
+      # Every check runs, also after an earlier one failed, so one run shows all problems.
+      - name: Shell syntax
+        run: checks/run.sh syntax
+
+      - name: ShellCheck
+        if: ${{ !cancelled() }}
+        run: checks/run.sh shellcheck
+
+      - name: Sourced files and menu modules exist
+        if: ${{ !cancelled() }}
+        run: checks/run.sh references
+
+      - name: JSON, TOML and Lua configuration
+        if: ${{ !cancelled() }}
+        run: checks/run.sh configs
+
+      - name: swaync commands
+        if: ${{ !cancelled() }}
+        run: checks/run.sh swaync
+
+      - name: Migrations
+        if: ${{ !cancelled() }}
+        run: checks/run.sh migrations
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: docs
+        run: npm ci
+
+      # VitePress fails on dead links, so this also checks the links between pages.
+      - name: Build with VitePress
+        working-directory: docs
+        run: npm run build
