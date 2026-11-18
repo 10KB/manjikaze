@@ -4,6 +4,16 @@
 
 UPDATE_MIN_FREE_GIB=5
 
+# manjikaze update -y sets UPDATE_UNATTENDED: it asks nothing and updates everything it finds.
+update_unattended() {
+    [[ ${UPDATE_UNATTENDED:-false} == true ]]
+}
+
+# Asks a question about what to update, which an unattended update answers with yes.
+update_confirm() {
+    update_unattended || gum confirm "$@"
+}
+
 # Prints the free bytes on /, or nothing when df can't tell.
 free_space_bytes() {
     df --output=avail --block-size=1 / 2>/dev/null | tail -n 1 | tr -d ' '

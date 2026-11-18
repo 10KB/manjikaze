@@ -37,8 +37,14 @@ check_updates() {
         local_rev=$(git -C "$MANJIKAZE_DIR" rev-parse HEAD)
         remote_rev=$(git -C "$MANJIKAZE_DIR" rev-parse @{u})
         if [ "$local_rev" != "$remote_rev" ]; then
-            if gum confirm "Updates available. Would you like to update Manjikaze?"; then
+            if [[ ${UPDATE_UNATTENDED:-false} == true ]] || gum confirm "Updates available. Would you like to update Manjikaze?"; then
                 if ! git -C "$MANJIKAZE_DIR" pull --ff-only; then
+                    # An unattended update never discards local changes.
+                    if [[ ${UPDATE_UNATTENDED:-false} == true ]]; then
+                        status "Could not update Manjikaze in $MANJIKAZE_DIR, so the update goes on with the version that is there."
+                        return 0
+                    fi
+
                     if git -C "$MANJIKAZE_DIR" diff --quiet HEAD; then
                         status "Update failed. Please resolve conflicts in $MANJIKAZE_DIR and try again."
                         exit 1
@@ -146,6 +152,17 @@ main() {
     fi
 
     if [[ "$1" == "update" ]]; then
+        # -y updates everything without asking, for a timer or a remote request. sudo still asks
+        # for a password once when it needs one.
+        case "${2:-}" in
+            -y | --yes) UPDATE_UNATTENDED=true ;;
+            "") ;;
+            *)
+                echo "Usage: manjikaze update [-y]" >&2
+                exit 2
+                ;;
+        esac
+
         clear
         show_header
 
