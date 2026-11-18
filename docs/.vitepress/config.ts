@@ -37,6 +37,7 @@ const docsSidebar = [
             { text: 'Yubikey Integration', link: '/security/yubikey' },
             { text: 'YubiKey GPG & SSH', link: '/security/yubikey-gpg-ssh' },
             { text: 'Disk Encryption', link: '/security/disk-encryption' },
+            { text: 'Browser Policies', link: '/security/browser-policies' },
         ],
     },
     {
