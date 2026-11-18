@@ -68,6 +68,7 @@ tooltip label {
   padding: 0 8px;
 }
 
+#privacy,
 #custom-recording.recording {
   color: @bg;
   background: @urgent;
