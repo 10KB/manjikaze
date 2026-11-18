@@ -37,7 +37,7 @@ An unattended update says why a reboot is needed, and doesn't reboot.
 
 ## Firmware Updates
 
-Firmware for the BIOS, SSDs, docks and other devices comes from the [LVFS](https://fwupd.org) through fwupd. The update refreshes the list of firmware updates and shows which devices have one, but it installs no firmware: some firmware updates finish during a reboot into the firmware updater, so they need you there.
+Firmware for the BIOS, SSDs, docks and other devices comes from the [LVFS](https://fwupd.org) through fwupd. At the end, the update refreshes the list of firmware updates and shows the Host Security ID and which devices have an update, or that the firmware is up to date. It installs no firmware: some firmware updates finish during a reboot into the firmware updater, so they need you there.
 
 To install them, run `manjikaze firmware` or choose **Setup → Update firmware**. It shows the updates, asks, and then runs `fwupdmgr update`, which asks again before a device that needs a reboot. Keep a laptop on AC power.
 

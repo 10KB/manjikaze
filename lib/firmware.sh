@@ -49,16 +49,28 @@ record_host_security() {
 # What the update shows about firmware. It installs nothing.
 report_firmware() {
     if ! command -v fwupdmgr > /dev/null; then
+        status "fwupd isn't installed, so the firmware wasn't checked. 'manjikaze firmware' installs it."
         return 0
     fi
 
+    status "Checking for firmware updates..."
     refresh_firmware_list || status "Could not refresh the list of firmware updates."
-    record_host_security || status "Could not record the host security report."
 
-    local updates
+    local hsi updates
+    if record_host_security; then
+        hsi=$(jq -r '.HostSecurityId // empty' "$HOST_SECURITY_FILE")
+        if [[ -n $hsi ]]; then
+            status "Host Security ID: $hsi."
+        fi
+    else
+        status "Could not record the host security report."
+    fi
+
     updates=$(list_firmware_updates)
     if [[ -n $updates ]]; then
         status "Firmware updates are available. Run 'manjikaze firmware' to install them:"
         sed 's/^/  /' <<< "$updates"
+    else
+        status "Firmware is up to date."
     fi
 }
