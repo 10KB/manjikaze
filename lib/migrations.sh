@@ -2,58 +2,64 @@
 
 MIGRATIONS_DIR="$MANJIKAZE_DIR/migrations"
 
-run_migrations() {
-    if [[ ! -d "$MIGRATIONS_DIR" ]]; then
-        status "Migrations directory not found. Skipping migrations."
-        return 0
-    fi
-
-    # Find migration scripts, sort by name (timestamp)
-    readarray -t migration_files < <(find "$MIGRATIONS_DIR" -maxdepth 1 -name '*.sh' -print0 | xargs -0 -n1 basename | sort)
-
-    if [[ ${#migration_files[@]} -eq 0 ]]; then
-        return 0 # No migrations to run
-    fi
-
-    local pending_migrations=()
-    for migration_file in "${migration_files[@]}"; do
-        local migration_id="${migration_file%.sh}"
-        # Check if migration has been run using the new state management
-        if [[ "$(get_migration_state "$migration_id")" == "" ]]; then
-            pending_migrations+=("$migration_file")
+# Migration ids in the order they run: file names without .sh, which start with a timestamp.
+list_migrations() {
+    local file
+    for file in "$MIGRATIONS_DIR"/*.sh; do
+        if [[ -f "$file" ]]; then
+            basename "$file" .sh
         fi
     done
+}
+
+pending_migrations() {
+    local migration_id
+    while read -r migration_id; do
+        if [[ -z "$(get_migration_state "$migration_id")" ]]; then
+            echo "$migration_id"
+        fi
+    done < <(list_migrations)
+}
+
+# Each migration runs in a process of its own, so an exit in it can't stop Manjikaze.
+# The migration is sourced there, which lets it end early with return.
+run_migration() {
+    bash -c '
+        set -e
+        source "$MANJIKAZE_DIR/lib/common.sh"
+        source "$MANJIKAZE_DIR/lib/state.sh"
+        migration_path=$1
+        shift
+        source "$migration_path"
+    ' manjikaze-migration "$1"
+}
+
+# Asks before running the pending migrations, unless called with --yes.
+run_migrations() {
+    local pending_migrations
+    readarray -t pending_migrations < <(pending_migrations)
 
     if [[ ${#pending_migrations[@]} -eq 0 ]]; then
-        return 0 # All migrations are up to date
+        return 0
     fi
 
     status "Found ${#pending_migrations[@]} pending migration(s):"
     printf "  - %s\n" "${pending_migrations[@]}"
 
-    if ! gum confirm "Do you want to run pending migrations?"; then
-        return 1 # User cancelled
+    if [[ "${1:-}" != "--yes" ]] && ! gum confirm "Do you want to run pending migrations?"; then
+        return 1
     fi
 
-    for migration_file in "${pending_migrations[@]}"; do
-        local migration_id="${migration_file%.sh}"
-        local migration_path="$MIGRATIONS_DIR/$migration_file"
-
-        status "Running migration: $migration_file ..."
-        # Source the migration script. It should exit on error due to set -e.
-        if source "$migration_path"; then
-            # Record successful migration with timestamp
-            local run_timestamp=$(date --iso-8601=seconds)
-            set_migration_state "$migration_id" "$run_timestamp"
-            if [[ $? -ne 0 ]]; then
-                 status "Error: Failed to update migration log for $migration_id. Manual check required."
-                 # Even though logging failed, the migration ran. Avoid retrying automatically.
-            fi
-             status "Migration $migration_file completed successfully."
+    local migration_id exit_code
+    for migration_id in "${pending_migrations[@]}"; do
+        status "Running migration: $migration_id ..."
+        if run_migration "$MIGRATIONS_DIR/$migration_id.sh"; then
+            set_migration_state "$migration_id" "$(date --iso-8601=seconds)"
+            status "Migration $migration_id completed successfully."
         else
-            local exit_code=$?
-            status "Error: Migration $migration_file failed with exit code $exit_code. Halting migration process."
-            return $exit_code # Stop processing further migrations on failure
+            exit_code=$?
+            status "Error: Migration $migration_id failed with exit code $exit_code. Halting migration process."
+            return "$exit_code"
         fi
     done
 
