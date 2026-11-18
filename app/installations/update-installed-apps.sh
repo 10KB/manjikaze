@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source "$MANJIKAZE_DIR/lib/update.sh"
+source "$MANJIKAZE_DIR/app/installations/optional/cursor.sh"
+
 REBOOT_PATTERNS=(
     "firmware"    # For packages like linux-firmware, or other firmware blobs
     "ucode"       # For microcode updates (amd-ucode, intel-ucode)
@@ -20,13 +23,6 @@ REBOOT_PATTERNS=(
     "libvirt"
     "kernel"      # Catch any explicit 'kernel' named packages if not 'linux*'
 )
-
-# Function to clean up and return
-cleanup_and_return() {
-    local return_code=$1
-    enable_sleep
-    return $return_code
-}
 
 # Function to refresh package signing keys
 # This fixes "signature is unknown trust" errors that occur when keyring
@@ -91,7 +87,7 @@ filter_known_aur_transition_updates() {
 resolve_known_aur_transitions() {
     if ulauncher_webkit_transition_needed; then
         status "Reinstalling ulauncher to switch from webkit2gtk to webkit2gtk-4.1..."
-        PATH=/usr/bin:$PATH yay -S --rebuild --redownload --noconfirm --noprogressbar --quiet ulauncher
+        yay_system -S --rebuild --redownload --noconfirm --noprogressbar --quiet ulauncher
 
         if pacman -Qq webkit2gtk >/dev/null 2>&1 &&
             pacman -Qi webkit2gtk 2>/dev/null | grep -q "^Required By     : None$"; then
@@ -101,197 +97,167 @@ resolve_known_aur_transitions() {
     fi
 }
 
-# Source Cursor installation functions
-source "$MANJIKAZE_DIR/app/installations/optional/cursor.sh"
-
-# Print a beautiful header
-gum style \
-    --foreground 99 \
-    --border double \
-    --border-foreground 99 \
-    --align center \
-    --width 50 \
-    --margin "1 0" \
-    --padding "0 2" \
-    "Manjikaze Update Wizard"
-
-status "Checking for available updates..."
-disable_sleep
-
-reboot_suggested=false
-reboot_trigger_message=""
-
-# Update package databases
-status "Updating package databases..."
-if ! sudo pacman -Sy --noconfirm --noprogressbar; then
-    # Database sync failed, might be a keyring issue - try refreshing keyrings first
-    refresh_keyrings
-    status "Retrying database sync..."
-    if ! sudo pacman -Sy --noconfirm --noprogressbar; then
-        status "Error updating package databases. Please check your internet connection or run 'sudo pacman -Sy' manually to see detailed errors."
-        cleanup_and_return 1
+# Sets repo_updates, the AUR updates and transitions, the Cursor update, the missing mise tools
+# and total_count.
+find_updates() {
+    status "Checking for available updates..."
+    if ! repo_updates=$(list_repo_updates); then
+        status "Could not check for updates. Check your internet connection, or run 'checkupdates' to see the error."
+        return 1
     fi
-fi
+    repo_count=$(echo "$repo_updates" | grep -v "^$" | wc -l)
 
-# Get list of repo packages to update, filtering out ignored packages
-# pacman -Qu marks ignored packages with [ignored], so we filter those out
-repo_updates=$(pacman -Qu 2>/dev/null | grep -v '\[ignored\]' || echo "")
-repo_count=$(echo "$repo_updates" | grep -v "^$" | wc -l)
+    refresh_aur_updates
+    filter_known_aur_transition_updates
 
-# Get list of AUR packages to update
-refresh_aur_updates
-filter_known_aur_transition_updates
+    cursor_update_available=false
+    cursor_version_info=""
+    if [ -d ~/.local/share/cursor ]; then
+        status "Checking for Cursor updates..."
+        installed_version=$(get_cursor_installed_version)
+        latest_version=$(get_cursor_latest_stable_version)
 
-# Check for Cursor updates
-cursor_update_available=false
-cursor_version_info=""
-if [ -d ~/.local/share/cursor ]; then
-    status "Checking for Cursor updates..."
-    installed_version=$(get_cursor_installed_version)
-    latest_version=$(get_cursor_latest_stable_version)
-
-    if [[ -n "$installed_version" && -n "$latest_version" && "$installed_version" != "$latest_version" ]]; then
-        cursor_update_available=true
-        cursor_version_info="$installed_version → $latest_version"
+        if [[ -n "$installed_version" && -n "$latest_version" && "$installed_version" != "$latest_version" ]]; then
+            cursor_update_available=true
+            cursor_version_info="$installed_version → $latest_version"
+        fi
     fi
-fi
 
-# Tool versions the global mise configuration asks for but that aren't installed, such as a
-# version that a Manjikaze update pinned.
-mise_missing=""
-mise_count=0
-if command -v mise &>/dev/null; then
-    refresh_mise_tools
-    mise_missing=$(cd "$HOME" && mise ls --missing --global --json 2>/dev/null |
-        jq -r 'to_entries[] | .key as $tool | .value[] | "\($tool) \(.version)"' || true)
-    mise_count=$(echo "$mise_missing" | grep -vc '^$' || true)
-fi
-
-total_count=$((repo_count + aur_count + known_aur_transition_count + mise_count))
-if [ "$cursor_update_available" = true ]; then
-    total_count=$((total_count + 1))
-fi
-
-if [ "$total_count" -eq 0 ]; then
-    status "No updates available. Your system is up to date."
-    cleanup_and_return 0
-    return 0  # Ensure script execution stops here
-fi
-
-# Print current overview of updates
-status "Found $total_count package(s) that can be updated"
-
-if [ "$repo_count" -gt 0 ]; then
-    echo "System repository updates ($repo_count):"
-    echo "$repo_updates" | sort | awk '{print "  • " $1 " (" $2 " → " $4 ")"}'
-    echo ""
-fi
-
-if [ "$aur_count" -gt 0 ]; then
-    echo "AUR updates ($aur_count):"
-    echo "$aur_updates" | sort | awk -F' ' '{print "  • " $1 " (" $2 " → " $4 ")"}'
-    echo ""
-fi
-
-if [ "$known_aur_transition_count" -gt 0 ]; then
-    echo "AUR package transitions ($known_aur_transition_count):"
-    printf '%s\n' "${known_aur_transition_descriptions[@]}" | sort | awk '{print "  • " $0}'
-    echo ""
-fi
-
-if [ "$cursor_update_available" = true ]; then
-    echo "Application updates:"
-    echo "  • Cursor ($cursor_version_info)"
-    echo ""
-fi
-
-if [ "$mise_count" -gt 0 ]; then
-    echo "mise tools ($mise_count):"
-    echo "$mise_missing" | sort | awk '{print "  • " $1 " (" $2 ")"}'
-    echo ""
-fi
-
-# Step-by-step interactive selections
-update_repo=false
-if [ "$repo_count" -gt 0 ]; then
-    if gum confirm "Update system repository packages? ($repo_count packages available)"; then
-        update_repo=true
+    # Tool versions the global mise configuration asks for but that aren't installed, such as a
+    # version that a Manjikaze update pinned.
+    mise_missing=""
+    mise_count=0
+    if command -v mise &>/dev/null; then
+        refresh_mise_tools
+        mise_missing=$(cd "$HOME" && mise ls --missing --global --json 2>/dev/null |
+            jq -r 'to_entries[] | .key as $tool | .value[] | "\($tool) \(.version)"' || true)
+        mise_count=$(echo "$mise_missing" | grep -vc '^$' || true)
     fi
-fi
 
-apply_transitions=false
-if [ "$known_aur_transition_count" -gt 0 ]; then
-    if gum confirm "Apply AUR package transitions? (${known_aur_transition_descriptions[*]})"; then
-        apply_transitions=true
+    total_count=$((repo_count + aur_count + known_aur_transition_count + mise_count))
+    if [ "$cursor_update_available" = true ]; then
+        total_count=$((total_count + 1))
     fi
-fi
+}
 
-selected_aur_packages=()
-if [ "$aur_count" -gt 0 ]; then
-    status "Select AUR packages to update (unselected by default):"
+show_updates() {
+    status "Found $total_count package(s) that can be updated"
 
-    aur_options=()
-    while read -r line; do
-        [ -z "$line" ] && continue
-        pkg_name=$(echo "$line" | awk '{print $1}')
-        curr_ver=$(echo "$line" | awk '{print $2}')
-        new_ver=$(echo "$line" | awk '{print $4}')
-        aur_options+=("$pkg_name ($curr_ver -> $new_ver)")
-    done <<< "$aur_updates"
-
-    # Gum 2 no longer toggles with Space (Bubble Tea reports it as "space", not " ").
-    selected_options=$(printf "%s\n" "${aur_options[@]}" | gum choose --no-limit --show-help --header "x or Tab to select, Enter to confirm")
-
-    if [ -n "$selected_options" ]; then
-        while read -r opt; do
-            [ -z "$opt" ] && continue
-            pkg=$(echo "$opt" | awk '{print $1}')
-            selected_aur_packages+=("$pkg")
-        done <<< "$selected_options"
+    if [ "$repo_count" -gt 0 ]; then
+        echo "System repository updates ($repo_count):"
+        echo "$repo_updates" | sort | awk '{print "  • " $1 " (" $2 " → " $4 ")"}'
+        echo ""
     fi
-fi
 
-update_cursor=false
-if [ "$cursor_update_available" = true ]; then
-    if gum confirm "Update Cursor editor? ($cursor_version_info)"; then
-        update_cursor=true
+    if [ "$aur_count" -gt 0 ]; then
+        echo "AUR updates ($aur_count):"
+        echo "$aur_updates" | sort | awk -F' ' '{print "  • " $1 " (" $2 " → " $4 ")"}'
+        echo ""
     fi
-fi
 
-# Check if anything was selected
-selected_count=0
-if [ "$update_repo" = true ]; then
-    selected_count=$((selected_count + repo_count))
-fi
-if [ "$apply_transitions" = true ]; then
-    selected_count=$((selected_count + known_aur_transition_count))
-fi
-selected_count=$((selected_count + ${#selected_aur_packages[@]}))
-if [ "$update_cursor" = true ]; then
-    selected_count=$((selected_count + 1))
-fi
-# mise tools are always synced once the update proceeds.
-selected_count=$((selected_count + mise_count))
+    if [ "$known_aur_transition_count" -gt 0 ]; then
+        echo "AUR package transitions ($known_aur_transition_count):"
+        printf '%s\n' "${known_aur_transition_descriptions[@]}" | sort | awk '{print "  • " $0}'
+        echo ""
+    fi
 
-if [ "$selected_count" -eq 0 ]; then
-    status "No updates selected. Exiting."
-    cleanup_and_return 0
-    return 0
-fi
+    if [ "$cursor_update_available" = true ]; then
+        echo "Application updates:"
+        echo "  • Cursor ($cursor_version_info)"
+        echo ""
+    fi
 
-# Check if selected packages require a reboot
-reboot_suggested=false
-reboot_trigger_message=""
-selected_packages_for_reboot_check=""
+    if [ "$mise_count" -gt 0 ]; then
+        echo "mise tools ($mise_count):"
+        echo "$mise_missing" | sort | awk '{print "  • " $1 " (" $2 ")"}'
+        echo ""
+    fi
+}
 
-if [ "$update_repo" = true ]; then
-    selected_packages_for_reboot_check="${selected_packages_for_reboot_check} $(echo "$repo_updates" | awk '{print $1}' | tr '\n' ' ')"
-fi
-if [ ${#selected_aur_packages[@]} -gt 0 ]; then
-    selected_packages_for_reboot_check="${selected_packages_for_reboot_check} ${selected_aur_packages[*]}"
-fi
+# Sets update_repo, apply_transitions, selected_aur_packages, update_cursor and selected_count.
+choose_updates() {
+    update_repo=false
+    if [ "$repo_count" -gt 0 ]; then
+        if gum confirm "Update system repository packages? ($repo_count packages available)"; then
+            update_repo=true
+        fi
+    fi
 
-if [ -n "$selected_packages_for_reboot_check" ]; then
+    # AUR packages build against the system packages. Building them against packages that have
+    # an update waiting would need the newer versions: a partial upgrade.
+    local aur_allowed=true
+    if [ "$repo_count" -gt 0 ] && [ "$update_repo" = false ] &&
+        [ $((aur_count + known_aur_transition_count)) -gt 0 ]; then
+        aur_allowed=false
+        status "Skipping AUR updates: they are built against the system packages, so those have to be updated first."
+    fi
+
+    apply_transitions=false
+    if [ "$aur_allowed" = true ] && [ "$known_aur_transition_count" -gt 0 ]; then
+        if gum confirm "Apply AUR package transitions? (${known_aur_transition_descriptions[*]})"; then
+            apply_transitions=true
+        fi
+    fi
+
+    selected_aur_packages=()
+    if [ "$aur_allowed" = true ] && [ "$aur_count" -gt 0 ]; then
+        status "Select AUR packages to update (unselected by default):"
+
+        local aur_options=() line pkg_name curr_ver new_ver selected_options opt
+        while read -r line; do
+            [ -z "$line" ] && continue
+            pkg_name=$(echo "$line" | awk '{print $1}')
+            curr_ver=$(echo "$line" | awk '{print $2}')
+            new_ver=$(echo "$line" | awk '{print $4}')
+            aur_options+=("$pkg_name ($curr_ver -> $new_ver)")
+        done <<< "$aur_updates"
+
+        # Gum 2 no longer toggles with Space (Bubble Tea reports it as "space", not " ").
+        selected_options=$(printf "%s\n" "${aur_options[@]}" | gum choose --no-limit --show-help --header "x or Tab to select, Enter to confirm")
+
+        if [ -n "$selected_options" ]; then
+            while read -r opt; do
+                [ -z "$opt" ] && continue
+                selected_aur_packages+=("$(echo "$opt" | awk '{print $1}')")
+            done <<< "$selected_options"
+        fi
+    fi
+
+    update_cursor=false
+    if [ "$cursor_update_available" = true ]; then
+        if gum confirm "Update Cursor editor? ($cursor_version_info)"; then
+            update_cursor=true
+        fi
+    fi
+
+    selected_count=0
+    if [ "$update_repo" = true ]; then
+        selected_count=$((selected_count + repo_count))
+    fi
+    if [ "$apply_transitions" = true ]; then
+        selected_count=$((selected_count + known_aur_transition_count))
+    fi
+    selected_count=$((selected_count + ${#selected_aur_packages[@]}))
+    if [ "$update_cursor" = true ]; then
+        selected_count=$((selected_count + 1))
+    fi
+    # mise tools are always synced once the update proceeds.
+    selected_count=$((selected_count + mise_count))
+}
+
+# Sets reboot_suggested and reboot_trigger_message from the names of the selected packages.
+check_reboot_patterns() {
+    reboot_suggested=false
+    reboot_trigger_message=""
+    local selected_packages_for_reboot_check="" pkg_name pkg_name_lower pattern pattern_lower
+
+    if [ "$update_repo" = true ]; then
+        selected_packages_for_reboot_check="${selected_packages_for_reboot_check} $(echo "$repo_updates" | awk '{print $1}' | tr '\n' ' ')"
+    fi
+    if [ ${#selected_aur_packages[@]} -gt 0 ]; then
+        selected_packages_for_reboot_check="${selected_packages_for_reboot_check} ${selected_aur_packages[*]}"
+    fi
+
     for pkg_name in $selected_packages_for_reboot_check; do
         pkg_name_lower="${pkg_name,,}"
 
@@ -314,77 +280,80 @@ if [ -n "$selected_packages_for_reboot_check" ]; then
             break
         fi
     done
-fi
+}
 
-# Show summary of selected updates
-echo ""
-gum style --foreground 99 --bold "Selected Updates Summary:"
-if [ "$update_repo" = true ]; then
-    echo "  • System repository updates ($repo_count packages)"
-fi
-if [ "$apply_transitions" = true ]; then
-    echo "  • AUR transitions: ${known_aur_transition_descriptions[*]}"
-fi
-if [ ${#selected_aur_packages[@]} -gt 0 ]; then
-    echo "  • AUR packages to update (${#selected_aur_packages[@]}):"
-    for pkg in "${selected_aur_packages[@]}"; do
-        echo "    - $pkg"
-    done
-fi
-if [ "$update_cursor" = true ]; then
-    echo "  • Application: Cursor ($cursor_version_info)"
-fi
-if [ "$mise_count" -gt 0 ]; then
-    echo "  • mise tools ($mise_count)"
-fi
-
-if [ "$reboot_suggested" = true ]; then
+show_selection() {
     echo ""
-    status "$reboot_trigger_message"
-    status "IMPORTANT: This update may require a system reboot to apply fully and ensure stability."
-    echo "             It's recommended to reboot after the update completes."
-fi
-echo ""
+    gum style --foreground 99 --bold "Selected Updates Summary:"
+    if [ "$update_repo" = true ]; then
+        echo "  • System repository updates ($repo_count packages)"
+    fi
+    if [ "$apply_transitions" = true ]; then
+        echo "  • AUR transitions: ${known_aur_transition_descriptions[*]}"
+    fi
+    if [ ${#selected_aur_packages[@]} -gt 0 ]; then
+        echo "  • AUR packages to update (${#selected_aur_packages[@]}):"
+        local pkg
+        for pkg in "${selected_aur_packages[@]}"; do
+            echo "    - $pkg"
+        done
+    fi
+    if [ "$update_cursor" = true ]; then
+        echo "  • Application: Cursor ($cursor_version_info)"
+    fi
+    if [ "$mise_count" -gt 0 ]; then
+        echo "  • mise tools ($mise_count)"
+    fi
 
-if ! gum confirm "Proceed with the selected updates?"; then
-    status "Update cancelled."
-    cleanup_and_return 0
-    return 0
-fi
+    if [ "$reboot_suggested" = true ]; then
+        echo ""
+        status "$reboot_trigger_message"
+        status "IMPORTANT: This update may require a system reboot to apply fully and ensure stability."
+        echo "             It's recommended to reboot after the update completes."
+    fi
+    echo ""
+}
 
-# Execution phase
-status "Updating installed packages..."
+# The databases are synced right before the upgrade, so they are never newer than the packages
+# for longer than this step takes.
+update_system_packages() {
+    status "Updating system packages..."
+    if ! run_pacman_transaction -Sy --noconfirm --noprogressbar; then
+        # A failed sync can be a keyring problem.
+        refresh_keyrings
+        status "Retrying the database sync..."
+        run_pacman_transaction -Sy --noconfirm --noprogressbar || return 1
+    fi
 
-if [ "$update_repo" = true ]; then
     resolve_known_repo_transitions
 
     # Update keyrings first if there are keyring updates pending
-    keyring_updates=$(echo "$repo_updates" | grep -E "keyring" || true)
-    if [ -n "$keyring_updates" ]; then
+    if echo "$repo_updates" | grep -q "keyring"; then
         refresh_keyrings
     fi
 
-    status "Updating system packages..."
-    if ! sudo pacman -Su --noconfirm --noprogressbar; then
+    if ! run_pacman_transaction -Su --noconfirm --noprogressbar; then
         # If update fails, try refreshing keyring and retrying
         refresh_keyrings
         status "Retrying system update..."
-        sudo pacman -Su --noconfirm --noprogressbar
+        run_pacman_transaction -Su --noconfirm --noprogressbar || return 1
     fi
-fi
+}
 
-if [ "$apply_transitions" = true ]; then
-    resolve_known_aur_transitions
-fi
+update_aur_packages() {
+    if [ "$apply_transitions" = true ]; then
+        resolve_known_aur_transitions
+    fi
 
-if [ ${#selected_aur_packages[@]} -gt 0 ]; then
+    if [ ${#selected_aur_packages[@]} -eq 0 ]; then
+        return 0
+    fi
+
     status "Updating AUR packages..."
-    failed_packages=()
-
+    local failed_packages=() pkg
     for pkg in "${selected_aur_packages[@]}"; do
         status "Updating package $pkg..."
-        # PATH override ensures system tools like brz use system Python for building AUR packages
-        if PATH=/usr/bin:$PATH yay -S --needed --noconfirm --noprogressbar "$pkg"; then
+        if yay_system -S --needed --noconfirm --noprogressbar "$pkg"; then
             status "Updating package $pkg succeeded."
         else
             status "Updating package $pkg failed."
@@ -395,53 +364,126 @@ if [ ${#selected_aur_packages[@]} -gt 0 ]; then
     if [ ${#failed_packages[@]} -gt 0 ]; then
         status "Failed to install the following packages. Manual intervention is required: [${failed_packages[*]}]"
     fi
-fi
+}
 
-# Sync mise runtimes if mise is installed. The system upgrade may have brought a Manjikaze
-# package with newer pinned versions, so the managed files are refreshed again first.
-if command -v mise &>/dev/null; then
-    status "Syncing mise runtimes..."
-    refresh_mise_tools
-    (cd "$HOME" && mise install)
-    link_mise_tools
-fi
-
-# Update Cursor if selected
-if [ "$update_cursor" = true ]; then
-    cursor_track=$(get_cursor_release_track)
-    status "Updating Cursor..."
-    install_stable_signed
-    # Nightly doesn't have a remote version API, so update alongside stable when both tracks are active
-    if [[ "$cursor_track" == "stable+nightly" ]]; then
-        install_nightly_appimage
+finish_update() {
+    # Sync mise runtimes if mise is installed. The system upgrade may have brought a Manjikaze
+    # package with newer pinned versions, so the managed files are refreshed again first.
+    if command -v mise &>/dev/null; then
+        status "Syncing mise runtimes..."
+        refresh_mise_tools
+        (cd "$HOME" && mise install) || status "Could not sync the mise runtimes."
+        link_mise_tools
     fi
-    status "Cursor update complete!"
-fi
 
-# Clean up orphan packages (dependencies no longer required by any installed package)
-orphans=$(pacman -Qdtq 2>/dev/null || echo "")
-if [ -n "$orphans" ]; then
-    orphan_count=$(echo "$orphans" | wc -l)
-    status "Found $orphan_count orphan package(s) to remove..."
-    echo "$orphans" | xargs sudo pacman -Rns --noconfirm --noprogressbar
-    status "Orphan packages removed."
-fi
-
-status "System update completed."
-
-if [ "$reboot_suggested" = true ]; then
-    status "Reminder: $reboot_trigger_message"
-    status "A system reboot is highly recommended to apply these changes fully and ensure system stability."
-    if gum confirm "Do you want to reboot the system now?"; then
-        status "Rebooting system..."
-        # Attempt to re-enable sleep if disable_sleep was used, though reboot will reset states
-        if type enable_sleep &>/dev/null; then
-            enable_sleep
+    if [ "$update_cursor" = true ]; then
+        local cursor_track
+        cursor_track=$(get_cursor_release_track)
+        status "Updating Cursor..."
+        install_stable_signed
+        # Nightly doesn't have a remote version API, so update alongside stable when both tracks are active
+        if [[ "$cursor_track" == "stable+nightly" ]]; then
+            install_nightly_appimage
         fi
-        sudo reboot
-    else
-        status "Reboot cancelled by user. Please remember to reboot your system soon."
+        status "Cursor update complete!"
     fi
-fi
 
-cleanup_and_return 0
+    # Clean up orphan packages (dependencies no longer required by any installed package)
+    local orphans orphan_count
+    orphans=$(pacman -Qdtq 2>/dev/null || echo "")
+    if [ -n "$orphans" ]; then
+        orphan_count=$(echo "$orphans" | wc -l)
+        status "Found $orphan_count orphan package(s) to remove..."
+        echo "$orphans" | xargs sudo pacman -Rns --noconfirm --noprogressbar
+        status "Orphan packages removed."
+    fi
+
+    status "System update completed."
+
+    if [ "$reboot_suggested" = true ]; then
+        status "Reminder: $reboot_trigger_message"
+        status "A system reboot is highly recommended to apply these changes fully and ensure system stability."
+        if gum confirm "Do you want to reboot the system now?"; then
+            status "Rebooting system..."
+            enable_sleep
+            sudo reboot
+        else
+            status "Reboot cancelled by user. Please remember to reboot your system soon."
+        fi
+    fi
+}
+
+# Migrations ship with Manjikaze, which may itself be one of the system packages, and are written
+# for the upgraded system. They run after the system packages and before the AUR packages.
+run_update_migrations() {
+    run_migrations || status "Migrations finished with errors or were skipped."
+}
+
+# The order is fixed: system packages, then migrations, then AUR packages and the rest.
+run_update() {
+    gum style \
+        --foreground 99 \
+        --border double \
+        --border-foreground 99 \
+        --align center \
+        --width 50 \
+        --margin "1 0" \
+        --padding "0 2" \
+        "Manjikaze Update Wizard"
+
+    if ! update_has_free_space; then
+        status "Only $(($(free_space_bytes) / 1024 / 1024 / 1024)) GiB is free on /. An update needs at least $UPDATE_MIN_FREE_GIB GiB."
+        if ! gum confirm --default=false "Update anyway?"; then
+            status "Update cancelled. Free up some disk space and try again."
+            return 0
+        fi
+    fi
+
+    if ! ensure_update_tools; then
+        status "Could not install pacman-contrib, which the update needs."
+        return 1
+    fi
+
+    find_updates || return 1
+
+    if [ "$total_count" -eq 0 ]; then
+        status "No updates available. Your system is up to date."
+        run_update_migrations
+        return 0
+    fi
+
+    show_updates
+    choose_updates
+
+    if [ "$selected_count" -eq 0 ]; then
+        status "No updates selected."
+        run_update_migrations
+        return 0
+    fi
+
+    check_reboot_patterns
+    show_selection
+
+    if ! gum confirm "Proceed with the selected updates?"; then
+        status "Update cancelled."
+        return 0
+    fi
+
+    if [ "$update_repo" = true ]; then
+        prune_package_cache
+        if ! update_system_packages; then
+            status "The system packages could not be updated, so the migrations and AUR packages were skipped. Check the errors above and run the update again."
+            return 1
+        fi
+    fi
+
+    run_update_migrations
+    update_aur_packages
+    finish_update
+}
+
+disable_sleep
+update_exit_code=0
+run_update || update_exit_code=$?
+enable_sleep
+return "$update_exit_code"

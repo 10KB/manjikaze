@@ -156,10 +156,7 @@ main() {
         # First update manjikaze itself
         check_updates "$@"
 
-        # Run migrations after manjikaze update
-        run_migrations || status "Migration check/run finished with errors or cancellation."
-
-        # Then run system updates
+        # The update runs the migrations after the system packages, which may include Manjikaze.
         source "$MANJIKAZE_DIR/app/installations/update-installed-apps.sh"
         exit 0
     fi
