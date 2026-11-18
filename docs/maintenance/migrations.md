@@ -60,6 +60,7 @@ Migration files are named `<unix timestamp>_<description>.sh`, in lowercase with
 2. Start it with `#!/bin/bash`, followed by `set -e` as its first command
 3. Use `status` to report progress, and the helpers from `lib/common.sh` such as `install_package` and `is_installed`. `$MANJIKAZE_DIR` and `$STATE_FILE` are set as well
 4. End early with `return 0` when the migration doesn't apply to this system, for example because a feature isn't installed
+5. When the change only takes effect after a reboot, call `require_reboot "<reason>"`. The update then offers a reboot with that reason until the system has booted again
 
 Manjikaze sources the migration in a process of its own. Any command that fails, a `return` with a non-zero code or an `exit` with a non-zero code marks the migration as failed, and Manjikaze stops before the next migration. An `exit 0` ends only that migration, which then counts as done.
 

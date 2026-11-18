@@ -22,7 +22,18 @@ Run `manjikaze update`, or start Manjikaze and choose **Setup → Update install
 2. **System packages.** Older versions are removed from the package cache, keeping the two newest of every package. pacman then syncs the package databases and upgrades in a systemd scope of its own, so an upgrade of systemd or a desktop session that ends can't stop it halfway. When the upgrade fails, the update stops here.
 3. **Migrations.** Manjikaze can itself be one of the system packages, and [migrations](migrations.md) are written for the upgraded system, so they run after it.
 4. **AUR packages**, the ones you selected. They are built against the system packages, so Manjikaze only offers them when the system packages are up to date or part of this update.
-5. **The rest:** mise runtimes, Cursor, removing packages that nothing depends on anymore, and the question whether to reboot.
+5. **The rest:** mise runtimes, Cursor, removing packages that nothing depends on anymore, and a reboot when the system needs one.
+
+## When the Update Asks for a Reboot
+
+The update asks for a reboot only when the system shows it needs one, also when there was nothing to update:
+
+- **The running kernel was replaced.** A kernel package removes the modules of the version it replaces, so the running kernel can't load drivers it hasn't loaded yet.
+- **The CPU microcode was updated** since the system booted. Microcode loads at boot.
+- **The NVIDIA driver was updated** and the loaded driver is older, so apps that use the GPU fail until a reboot.
+- **A migration changed something** that only applies after a reboot.
+
+An unattended update says why a reboot is needed, and doesn't reboot.
 
 ## Updating Without Questions
 

@@ -78,6 +78,55 @@ yay_system() {
     PATH="/usr/bin:$PATH" "$yay" "$@"
 }
 
+# Where the checks below look. Tests point them at a scratch directory.
+UPDATE_KERNEL_MODULES_DIR="${UPDATE_KERNEL_MODULES_DIR:-/usr/lib/modules}"
+UPDATE_BOOT_DIR="${UPDATE_BOOT_DIR:-/boot}"
+UPDATE_SYS_MODULE_DIR="${UPDATE_SYS_MODULE_DIR:-/sys/module}"
+
+# A kernel package removes the modules of the version it replaces, so the running kernel can't load
+# a module it hasn't loaded yet, such as the driver for a device plugged in later. Only modules that
+# a package owns count: kernel-modules-hook keeps a copy of the running kernel's modules.
+running_kernel_installed() {
+    local builtin
+    builtin="$UPDATE_KERNEL_MODULES_DIR/$(uname -r)/modules.builtin"
+    [[ -f $builtin ]] && pacman -Qo "$builtin" > /dev/null 2>&1
+}
+
+# Microcode loads at boot, so an update of it only takes effect after a reboot.
+microcode_updated_since_boot() {
+    local boot_time image
+    boot_time=$(awk '/^btime/ {print $2}' /proc/stat)
+    for image in "$UPDATE_BOOT_DIR"/*-ucode.img; do
+        if [[ -f $image ]] && (($(stat -c %Y "$image") > boot_time)); then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# The NVIDIA kernel module and its libraries have to be the same version. After an update of the
+# driver, the loaded module stays the old one until a reboot, and apps that use the GPU fail.
+nvidia_driver_updated() {
+    local loaded installed
+    loaded=$(cat "$UPDATE_SYS_MODULE_DIR/nvidia/version" 2> /dev/null) || return 1
+    installed=$(modinfo -F version nvidia 2> /dev/null) || return 1
+    [[ -n $loaded && -n $installed && $loaded != "$installed" ]]
+}
+
+# Prints why the system needs a reboot, one reason per line, or nothing.
+reboot_reasons() {
+    if ! running_kernel_installed; then
+        echo "The running kernel $(uname -r) was replaced, so drivers that aren't loaded yet can't load."
+    fi
+    if microcode_updated_since_boot; then
+        echo "The CPU microcode was updated, and it loads at boot."
+    fi
+    if nvidia_driver_updated; then
+        echo "The NVIDIA driver was updated, so apps that use the GPU fail until the new one loads."
+    fi
+    required_reboot_reasons
+}
+
 UPDATE_LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/manjikaze/updates"
 UPDATE_LOGS_KEPT=60
 

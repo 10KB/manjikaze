@@ -30,7 +30,8 @@ stub yay 'if [[ $1 == -Qua ]]; then echo "${AUR_UPDATES:-}"; exit 0; fi
 echo "yay $*" >> "$TEST_TMP/order"
 [[ $1 != -Si && -z ${YAY_FAIL:-} ]]'
 stub pacman 'echo "pacman $*" >> "$TEST_TMP/order"
-exit 1'
+[[ $1 == -Qo && -z ${KERNEL_REPLACED:-} ]]'
+stub modinfo '[[ -n ${NVIDIA_INSTALLED:-} ]] && echo "$NVIDIA_INSTALLED"'
 stub df 'printf "Avail\n%s\n" "${FREE_BYTES:-107374182400}"'
 stub paccache ''
 stub mise 'echo "mise $*" >> "$TEST_TMP/order"'
@@ -47,6 +48,12 @@ new_manjikaze() {
     printf '#!/bin/bash\nset -e\n\necho migration >> "$TEST_TMP/order"\n' > "$MANJIKAZE/migrations/1000000001_pending.sh"
     export REPO_UPDATES="htop 3.3.0-1 -> 3.4.0-1" AUR_UPDATES="yazi-bin 1.0-1 -> 1.1-1"
     export GUM_DECLINE="" SUDO_FAIL="" YAY_FAIL="" PACMAN_OUTPUT="" FREE_BYTES=107374182400
+    # The running kernel is installed, and there is no microcode or NVIDIA driver.
+    export UPDATE_KERNEL_MODULES_DIR="$TEST_TMP/modules" UPDATE_BOOT_DIR="$TEST_TMP/boot" UPDATE_SYS_MODULE_DIR="$TEST_TMP/sys"
+    export KERNEL_REPLACED="" NVIDIA_INSTALLED=""
+    rm -rf "$UPDATE_KERNEL_MODULES_DIR" "$UPDATE_BOOT_DIR" "$UPDATE_SYS_MODULE_DIR"
+    mkdir -p "$UPDATE_KERNEL_MODULES_DIR/$(uname -r)" "$UPDATE_BOOT_DIR" "$UPDATE_SYS_MODULE_DIR"
+    touch "$UPDATE_KERNEL_MODULES_DIR/$(uname -r)/modules.builtin"
 }
 
 # The update runs in script, which passes what it shows through its terminal to stdout.
@@ -137,7 +144,7 @@ ran "pacman -Su" && ran "^migration$" && ran "^yay -S --needed .*yazi-bin" ||
 pass "an unattended update asks nothing and updates everything"
 
 new_manjikaze
-export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1"
+export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1" KERNEL_REPLACED=1
 run "$MANJIKAZE/bin/manjikaze" update -y
 ! ran "^sudo reboot" || fail "an unattended update doesn't reboot" "$(cat "$ORDER")"
 said "doesn't reboot" || fail "an unattended update says a reboot is needed" "$(output)"
@@ -177,13 +184,61 @@ said "The log of this update is in ${logs[0]}" || fail "the update says where it
 pass "every update leaves a log of its terminal"
 
 new_manjikaze
-export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1"
+export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1" KERNEL_REPLACED=1
 export PACMAN_OUTPUT=$'==> Building image from preset: /etc/mkinitcpio.d/linux612.preset: \'default\'\n==> ERROR: specified kernel image does not exist'
 run "$MANJIKAZE/bin/manjikaze" update
 [[ $exit_code -ne 0 ]] || fail "the update fails when an initramfs image wasn't built"
 ! ran "^sudo reboot" || fail "the update doesn't reboot when an initramfs image wasn't built" "$(cat "$ORDER")"
 said "may not boot" || fail "the update says the system may not boot" "$(output)"
 pass "an initramfs image that wasn't built stops the reboot"
+
+new_manjikaze
+export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1"
+run "$MANJIKAZE/bin/manjikaze" update
+! ran "^sudo reboot" || fail "a kernel package update that leaves the running kernel installed needs no reboot" "$(cat "$ORDER")"
+new_manjikaze
+export KERNEL_REPLACED=1
+run "$MANJIKAZE/bin/manjikaze" update
+ran "^sudo reboot" || fail "a replaced running kernel needs a reboot" "$(cat "$ORDER")"
+said "The running kernel $(uname -r) was replaced" || fail "the update says why it reboots" "$(output)"
+new_manjikaze
+export KERNEL_REPLACED=1 REPO_UPDATES="" AUR_UPDATES=""
+run "$MANJIKAZE/bin/manjikaze" update
+ran "^sudo reboot" || fail "an update without updates offers the reboot an earlier update needs" "$(cat "$ORDER")"
+pass "the running kernel decides whether a kernel update needs a reboot"
+
+new_manjikaze
+touch -d "2000-01-01" "$UPDATE_BOOT_DIR/intel-ucode.img"
+run "$MANJIKAZE/bin/manjikaze" update
+! ran "^sudo reboot" || fail "microcode from before the boot needs no reboot" "$(cat "$ORDER")"
+new_manjikaze
+touch -d "+1 hour" "$UPDATE_BOOT_DIR/intel-ucode.img"
+run "$MANJIKAZE/bin/manjikaze" update
+ran "^sudo reboot" || fail "microcode updated since the boot needs a reboot" "$(cat "$ORDER")"
+pass "microcode updated since the boot needs a reboot"
+
+new_manjikaze
+mkdir -p "$UPDATE_SYS_MODULE_DIR/nvidia"
+echo "580.95.05" > "$UPDATE_SYS_MODULE_DIR/nvidia/version"
+export NVIDIA_INSTALLED="580.95.05"
+run "$MANJIKAZE/bin/manjikaze" update
+! ran "^sudo reboot" || fail "a loaded NVIDIA driver of the installed version needs no reboot" "$(cat "$ORDER")"
+export NVIDIA_INSTALLED="580.105.08"
+run "$MANJIKAZE/bin/manjikaze" update
+ran "^sudo reboot" || fail "a loaded NVIDIA driver older than the installed one needs a reboot" "$(cat "$ORDER")"
+pass "an NVIDIA driver update needs a reboot"
+
+new_manjikaze
+printf '#!/bin/bash\nset -e\n\nrequire_reboot "The test changed something only a reboot applies."\n' > "$MANJIKAZE/migrations/1000000002_needs_reboot.sh"
+run "$MANJIKAZE/bin/manjikaze" update
+ran "^sudo reboot" || fail "a migration that requires a reboot gets one" "$(cat "$ORDER")"
+said "The test changed something only a reboot applies." || fail "the update gives the migration's reason" "$(output)"
+new_manjikaze
+mkdir -p "$HOME/.local/state/manjikaze"
+printf '%s\n%s\n' "00000000-0000-0000-0000-000000000000" "From an earlier boot." > "$HOME/.local/state/manjikaze/reboot-required"
+run "$MANJIKAZE/bin/manjikaze" update
+! ran "^sudo reboot" || fail "a reboot request from an earlier boot is done" "$(cat "$ORDER")"
+pass "a migration can require a reboot until the next boot"
 
 # check_update_log and new_update_log on their own.
 status() { echo "$1"; }

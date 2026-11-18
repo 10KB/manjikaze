@@ -22,6 +22,27 @@ is_installed() {
     pacman -Qi "$1" &> /dev/null
 }
 
+REBOOT_REQUIRED_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/manjikaze/reboot-required"
+
+# A migration whose change only a reboot applies calls this with the reason, and the update offers
+# a reboot. The request holds until the system boots again: the file starts with the boot id.
+require_reboot() {
+    local boot_id
+    boot_id=$(cat /proc/sys/kernel/random/boot_id)
+    mkdir -p "$(dirname "$REBOOT_REQUIRED_FILE")"
+    if [[ ! -f $REBOOT_REQUIRED_FILE || $(head -n 1 "$REBOOT_REQUIRED_FILE") != "$boot_id" ]]; then
+        echo "$boot_id" > "$REBOOT_REQUIRED_FILE"
+    fi
+    echo "$1" >> "$REBOOT_REQUIRED_FILE"
+}
+
+# Prints the reasons require_reboot recorded since the system booted.
+required_reboot_reasons() {
+    if [[ -f $REBOOT_REQUIRED_FILE && $(head -n 1 "$REBOOT_REQUIRED_FILE") == "$(cat /proc/sys/kernel/random/boot_id)" ]]; then
+        tail -n +2 "$REBOOT_REQUIRED_FILE" | sort -u
+    fi
+}
+
 disable_sleep() {
     if [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]]; then
         status "Disabling screen lock and sleep during installation..."
