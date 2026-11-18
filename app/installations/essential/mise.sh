@@ -2,6 +2,9 @@ install() {
     install_package "mise" aur
     activate_zsh_plugin "mise"
 
+    # The desktop session doesn't read .zshrc; this login profile gives it mise's shims.
+    sudo install -Dm644 "$MANJIKAZE_DIR/configs/profile.d/manjikaze-mise.sh" /etc/profile.d/manjikaze-mise.sh
+
     if [ ! -d ~/.config/mise ]; then
         mkdir -p ~/.config/mise
         cp "$MANJIKAZE_DIR/configs/mise.toml" ~/.config/mise/config.toml
@@ -17,5 +20,6 @@ install() {
 }
 
 uninstall() {
+    sudo rm -f /etc/profile.d/manjikaze-mise.sh
     uninstall_package "mise" aur
 }
