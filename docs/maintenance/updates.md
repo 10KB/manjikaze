@@ -31,6 +31,7 @@ Some command-line tools lag months behind in the Arch repositories. Manjikaze in
 - A project can pin another version in its own `mise.toml`, for shells inside that project.
 - Desktop apps and other programs that don't run in a shell with mise active use links in `~/.local/bin` to the programs of the pinned version. Manjikaze doesn't put mise's shims on their `PATH`: a shim takes its version from the `mise.toml` or `.tool-versions` of the directory it runs in, so a project could decide what runs on the host.
 - For `scw`, mise checks the download against the `SHA256SUMS` that Scaleway publishes.
+- Desktop apps and services don't read `.zshrc`, where mise is activated. They find these tools through mise's shims, which `/etc/profile.d/manjikaze-mise.sh` adds to the end of `PATH` when you log in. A program in `/usr/bin` keeps precedence there.
 
 To roll out a new version, change it in `configs/mise/<tool>.toml` in a pull request. Pick a release that is a few days old, so a broken or compromised release has time to come to light. Workstations install it with their first update after Manjikaze itself has updated.
 

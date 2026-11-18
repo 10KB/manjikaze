@@ -248,12 +248,14 @@ uninstall_package() {
         output=$(yay -Rs "$package" --noconfirm --noprogressbar 2>&1)
     else
         status "Uninstalling repository package $package and its unused dependencies..."
-        output=$(sudo pacman -Rs "$package" --noconfirm --noprogressbar --quiet 2>&1)
+        # pacman -R has no --quiet option and stops when it is given.
+        output=$(sudo pacman -Rs "$package" --noconfirm --noprogressbar 2>&1)
     fi
     local exit_code=$?
 
     if [[ $exit_code -ne 0 ]]; then
         status "Failed to uninstall $package"
+        printf '%s\n' "$output" | tail -n 5
 
         if ! gum confirm "Continue with uninstallation of other packages?"; then
             return 2 # Special code to indicate user-requested abort
