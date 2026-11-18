@@ -24,6 +24,7 @@ setup_menu=(
     ["5:Uninstall apps"]="load_module installations/uninstall-apps.sh"
     ["6:Rebuild installed apps"]="load_module installations/rebuild-installed-apps.sh"
     ["7:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
+    ["8:Update firmware"]="run_firmware_update"
 )
 
 declare -A configuration_menu=(
@@ -53,6 +54,10 @@ declare -A security_menu=(
 # The menu runs the update as manjikaze update, so it gets a log like any other update.
 run_logged_update() {
     "$MANJIKAZE_DIR/bin/manjikaze" update || status "The update didn't finish. See the messages above."
+}
+
+run_firmware_update() {
+    "$MANJIKAZE_DIR/bin/manjikaze" firmware || status "The firmware update didn't finish. See the messages above."
 }
 
 handle_menu() {

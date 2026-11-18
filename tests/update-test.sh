@@ -32,6 +32,17 @@ echo "yay $*" >> "$TEST_TMP/order"
 stub pacman 'echo "pacman $*" >> "$TEST_TMP/order"
 [[ $1 == -Qo && -z ${KERNEL_REPLACED:-} ]]'
 stub modinfo '[[ -n ${NVIDIA_INSTALLED:-} ]] && echo "$NVIDIA_INSTALLED"'
+stub fwupdmgr 'echo "fwupdmgr $*" >> "$TEST_TMP/order"
+case "$1" in
+    get-updates) echo "$FIRMWARE_JSON" ;;
+    security)
+        if [[ " $* " == *" --json "* ]]; then
+            echo "{\"SecurityAttributes\": []}"
+        else
+            printf "Host Security ID: \e[1mHSI:2! (v2.1.8)\e[0m\n\nHSI-1\n"
+        fi
+        ;;
+esac'
 stub df 'printf "Avail\n%s\n" "${FREE_BYTES:-107374182400}"'
 stub paccache ''
 stub mise 'echo "mise $*" >> "$TEST_TMP/order"'
@@ -50,7 +61,7 @@ new_manjikaze() {
     export GUM_DECLINE="" SUDO_FAIL="" YAY_FAIL="" PACMAN_OUTPUT="" FREE_BYTES=107374182400
     # The running kernel is installed, and there is no microcode or NVIDIA driver.
     export UPDATE_KERNEL_MODULES_DIR="$TEST_TMP/modules" UPDATE_BOOT_DIR="$TEST_TMP/boot" UPDATE_SYS_MODULE_DIR="$TEST_TMP/sys"
-    export KERNEL_REPLACED="" NVIDIA_INSTALLED=""
+    export KERNEL_REPLACED="" NVIDIA_INSTALLED="" FIRMWARE_JSON='{"Devices": []}'
     rm -rf "$UPDATE_KERNEL_MODULES_DIR" "$UPDATE_BOOT_DIR" "$UPDATE_SYS_MODULE_DIR"
     mkdir -p "$UPDATE_KERNEL_MODULES_DIR/$(uname -r)" "$UPDATE_BOOT_DIR" "$UPDATE_SYS_MODULE_DIR"
     touch "$UPDATE_KERNEL_MODULES_DIR/$(uname -r)/modules.builtin"
@@ -239,6 +250,35 @@ printf '%s\n%s\n' "00000000-0000-0000-0000-000000000000" "From an earlier boot."
 run "$MANJIKAZE/bin/manjikaze" update
 ! ran "^sudo reboot" || fail "a reboot request from an earlier boot is done" "$(cat "$ORDER")"
 pass "a migration can require a reboot until the next boot"
+
+firmware_update='{"Devices": [{"Name": "System Firmware", "Version": "1.2.3", "Releases": [{"Version": "1.3.0"}]}]}'
+security_file="$HOME/.local/state/manjikaze/host-security.json"
+
+new_manjikaze
+export FIRMWARE_JSON=$firmware_update
+run "$MANJIKAZE/bin/manjikaze" update
+said "System Firmware: 1.2.3 → 1.3.0" && said "manjikaze firmware" || fail "the update reports firmware updates" "$(output)"
+! ran "fwupdmgr update" || fail "the update doesn't install firmware" "$(cat "$ORDER")"
+[[ $(jq -r .HostSecurityId "$security_file") == "HSI:2! (v2.1.8)" ]] || fail "the update records the Host Security ID" "$(cat "$security_file" 2>&1)"
+jq -e '.Checked and .SecurityAttributes' "$security_file" > /dev/null || fail "the record keeps fwupd's report and the time of the check" "$(cat "$security_file")"
+new_manjikaze
+export FIRMWARE_JSON=$firmware_update REPO_UPDATES="" AUR_UPDATES=""
+run "$MANJIKAZE/bin/manjikaze" update
+said "System Firmware: 1.2.3 → 1.3.0" || fail "an update without package updates reports firmware updates too" "$(output)"
+pass "the update reports firmware updates and records the host security, without installing firmware"
+
+new_manjikaze
+export FIRMWARE_JSON=$firmware_update GUM_DECLINE="Install the firmware"
+run "$MANJIKAZE/bin/manjikaze" firmware
+said "HSI:2! (v2.1.8)" || fail "manjikaze firmware shows the Host Security ID" "$(output)"
+! ran "fwupdmgr update" || fail "manjikaze firmware asks before it installs" "$(cat "$ORDER")"
+export GUM_DECLINE=""
+run "$MANJIKAZE/bin/manjikaze" firmware
+ran "^sudo fwupdmgr update" || fail "manjikaze firmware installs the updates when told to" "$(cat "$ORDER")"
+new_manjikaze
+run "$MANJIKAZE/bin/manjikaze" firmware
+said "All firmware is up to date" && ! ran "fwupdmgr update" || fail "manjikaze firmware without updates installs nothing" "$(output)"
+pass "manjikaze firmware installs firmware updates after asking"
 
 # check_update_log and new_update_log on their own.
 status() { echo "$1"; }
