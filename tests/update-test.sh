@@ -255,6 +255,10 @@ firmware_update='{"Devices": [{"Name": "System Firmware", "Version": "1.2.3", "R
 security_file="$HOME/.local/state/manjikaze/host-security.json"
 
 new_manjikaze
+run "$MANJIKAZE/bin/manjikaze" update
+said "Firmware is up to date." && said "Host Security ID: HSI:2! (v2.1.8)." ||
+    fail "without firmware updates, the update says so and shows the Host Security ID" "$(output)"
+new_manjikaze
 export FIRMWARE_JSON=$firmware_update
 run "$MANJIKAZE/bin/manjikaze" update
 said "System Firmware: 1.2.3 → 1.3.0" && said "manjikaze firmware" || fail "the update reports firmware updates" "$(output)"
