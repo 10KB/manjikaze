@@ -248,12 +248,14 @@ uninstall_package() {
         output=$(yay -Rs "$package" --noconfirm --noprogressbar 2>&1)
     else
         status "Uninstalling repository package $package and its unused dependencies..."
-        output=$(sudo pacman -Rs "$package" --noconfirm --noprogressbar --quiet 2>&1)
+        # pacman -R has no --quiet option and stops when it is given.
+        output=$(sudo pacman -Rs "$package" --noconfirm --noprogressbar 2>&1)
     fi
     local exit_code=$?
 
     if [[ $exit_code -ne 0 ]]; then
         status "Failed to uninstall $package"
+        printf '%s\n' "$output" | tail -n 5
 
         if ! gum confirm "Continue with uninstallation of other packages?"; then
             return 2 # Special code to indicate user-requested abort
@@ -265,5 +267,100 @@ uninstall_package() {
         status "Package '$package' uninstalled successfully."
     fi
     set -e
+}
+
+# A CLI that Arch packages lag behind on comes from mise, at the version pinned in
+# configs/mise/<tool>.toml, named after the mise tool. Manjikaze owns the copy in
+# ~/.config/mise/conf.d, so a version bump in Manjikaze reaches every workstation with the
+# next update.
+MISE_MANAGED_DIR="$HOME/.config/mise/conf.d"
+
+# The version in the line <tool> = "<version>" of configs/mise/<tool>.toml.
+pinned_mise_version() {
+    sed -n "s/^$1 = \"\(.*\)\"$/\1/p" "$MANJIKAZE_DIR/configs/mise/$1.toml"
+}
+
+install_mise_tool() {
+    local tool=$1 version
+
+    if ! command -v mise &> /dev/null; then
+        status "mise is not installed. Install the essential apps first."
+        return 1
+    fi
+
+    mkdir -p "$MISE_MANAGED_DIR"
+    cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$MISE_MANAGED_DIR/manjikaze-$tool.toml"
+
+    version=$(pinned_mise_version "$tool")
+    status "Installing $tool $version with mise..."
+    if ! (cd "$HOME" && mise install "$tool@$version"); then
+        status "Failed to install $tool with mise."
+        return 1
+    fi
+    link_mise_tool "$tool"
+    status "Installed $tool with mise."
+}
+
+uninstall_mise_tool() {
+    local tool=$1
+    unlink_mise_tool "$tool"
+    rm -f "$MISE_MANAGED_DIR/manjikaze-$tool.toml"
+    status "Removed $tool from the mise configuration. Run 'mise prune' to delete versions nothing uses."
+}
+
+# Outside a shell where mise is active, such as in a desktop app, the tool runs through links in
+# ~/.local/bin to the programs of the pinned version. Never through mise's shims: a shim takes
+# its version from the mise.toml or .tool-versions of the directory it runs in, so a project
+# would decide what runs on the host.
+link_mise_tool() {
+    local tool=$1 version bin_dir program link
+    version=$(pinned_mise_version "$tool")
+    mkdir -p "$HOME/.local/bin"
+
+    while read -r bin_dir; do
+        for program in "$bin_dir"/*; do
+            if [[ ! -f $program || ! -x $program ]]; then
+                continue
+            fi
+            link="$HOME/.local/bin/$(basename "$program")"
+            if [[ -e $link || -L $link ]] && [[ $(readlink "$link") != */mise/installs/"$tool"/* ]]; then
+                status "Not linking $link: it exists and isn't a link to $tool."
+                continue
+            fi
+            ln -sfn "$program" "$link"
+        done
+    done < <(cd "$HOME" && mise bin-paths "$tool@$version")
+}
+
+unlink_mise_tool() {
+    local tool=$1 link
+    for link in "$HOME/.local/bin"/*; do
+        if [[ -L $link && $(readlink "$link") == */mise/installs/"$tool"/* ]]; then
+            rm "$link"
+        fi
+    done
+}
+
+link_mise_tools() {
+    local file tool
+    for file in "$MISE_MANAGED_DIR"/manjikaze-*.toml; do
+        tool=$(basename "$file" .toml)
+        tool=${tool#manjikaze-}
+        if [[ -f $file && -f "$MANJIKAZE_DIR/configs/mise/$tool.toml" ]]; then
+            link_mise_tool "$tool"
+        fi
+    done
+}
+
+# Copies the versions this Manjikaze pins over the managed files of the tools that are installed.
+refresh_mise_tools() {
+    local file tool
+    for file in "$MISE_MANAGED_DIR"/manjikaze-*.toml; do
+        tool=$(basename "$file" .toml)
+        tool=${tool#manjikaze-}
+        if [[ -f "$MANJIKAZE_DIR/configs/mise/$tool.toml" ]]; then
+            cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$file"
+        fi
+    done
 }
 

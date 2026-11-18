@@ -9,7 +9,7 @@
 
   "modules-left": ["custom/launcher", "hyprland/workspaces"],
   "modules-center": ["clock"],
-  "modules-right": ["custom/recording", "tray", "group/system"],
+  "modules-right": ["custom/recording", "privacy", "tray", "group/system"],
 
   "custom/launcher": {
     "format": "󰣇",
@@ -36,6 +36,14 @@
     "exec": "manjikaze-hypr-screenrecord waybar",
     "return-type": "json",
     "on-click": "manjikaze-hypr-screenrecord stop"
+  },
+
+  "privacy": {
+    "icon-size": 16,
+    "modules": [
+      { "type": "screenshare" },
+      { "type": "audio-in" }
+    ]
   },
 
   // The network and Bluetooth applets only run for their password and pairing prompts; the
