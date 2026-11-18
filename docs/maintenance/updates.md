@@ -24,6 +24,18 @@ Run `manjikaze update`, or start Manjikaze and choose **Setup → Update install
 4. **AUR packages**, the ones you selected. They are built against the system packages, so Manjikaze only offers them when the system packages are up to date or part of this update.
 5. **The rest:** mise runtimes, Cursor, removing packages that nothing depends on anymore, and the question whether to reboot.
 
+## Updating Without Questions
+
+`manjikaze update -y` runs the whole update without asking anything, for example from a timer or when an administrator asks for an update:
+
+- A git install of Manjikaze updates itself first. When local changes stand in the way, the update goes on with the version that is there; it never discards your changes.
+- It updates the system packages, every AUR package that has an update, and Cursor, and it runs the pending migrations.
+- With less than 5 GiB free on `/`, it stops instead of asking.
+- It doesn't reboot. When the update needs a reboot, it says so.
+- It exits with an error when it couldn't update, or when a migration or an AUR package failed. The other steps still run first.
+
+sudo still asks for your password once when it needs one.
+
 ## Tools Pinned with mise
 
 Some command-line tools lag months behind in the Arch repositories. Manjikaze installs those with [mise](https://mise.jdx.dev) at a version it pins. The Scaleway CLI (`scw`) is the first:

@@ -178,7 +178,7 @@ show_updates() {
 choose_updates() {
     update_repo=false
     if [ "$repo_count" -gt 0 ]; then
-        if gum confirm "Update system repository packages? ($repo_count packages available)"; then
+        if update_confirm "Update system repository packages? ($repo_count packages available)"; then
             update_repo=true
         fi
     fi
@@ -194,13 +194,15 @@ choose_updates() {
 
     apply_transitions=false
     if [ "$aur_allowed" = true ] && [ "$known_aur_transition_count" -gt 0 ]; then
-        if gum confirm "Apply AUR package transitions? (${known_aur_transition_descriptions[*]})"; then
+        if update_confirm "Apply AUR package transitions? (${known_aur_transition_descriptions[*]})"; then
             apply_transitions=true
         fi
     fi
 
     selected_aur_packages=()
-    if [ "$aur_allowed" = true ] && [ "$aur_count" -gt 0 ]; then
+    if [ "$aur_allowed" = true ] && [ "$aur_count" -gt 0 ] && update_unattended; then
+        readarray -t selected_aur_packages < <(echo "$aur_updates" | awk 'NF {print $1}')
+    elif [ "$aur_allowed" = true ] && [ "$aur_count" -gt 0 ]; then
         status "Select AUR packages to update (unselected by default):"
 
         local aur_options=() line pkg_name curr_ver new_ver selected_options opt
@@ -225,7 +227,7 @@ choose_updates() {
 
     update_cursor=false
     if [ "$cursor_update_available" = true ]; then
-        if gum confirm "Update Cursor editor? ($cursor_version_info)"; then
+        if update_confirm "Update Cursor editor? ($cursor_version_info)"; then
             update_cursor=true
         fi
     fi
@@ -363,6 +365,7 @@ update_aur_packages() {
 
     if [ ${#failed_packages[@]} -gt 0 ]; then
         status "Failed to install the following packages. Manual intervention is required: [${failed_packages[*]}]"
+        return 1
     fi
 }
 
@@ -403,7 +406,9 @@ finish_update() {
     if [ "$reboot_suggested" = true ]; then
         status "Reminder: $reboot_trigger_message"
         status "A system reboot is highly recommended to apply these changes fully and ensure system stability."
-        if gum confirm "Do you want to reboot the system now?"; then
+        if update_unattended; then
+            status "This update ran unattended, so it doesn't reboot. Reboot when it suits you."
+        elif gum confirm "Do you want to reboot the system now?"; then
             status "Rebooting system..."
             enable_sleep
             sudo reboot
@@ -416,7 +421,15 @@ finish_update() {
 # Migrations ship with Manjikaze, which may itself be one of the system packages, and are written
 # for the upgraded system. They run after the system packages and before the AUR packages.
 run_update_migrations() {
-    run_migrations || status "Migrations finished with errors or were skipped."
+    local options=()
+    if update_unattended; then
+        options=(--yes)
+    fi
+
+    if ! run_migrations "${options[@]}"; then
+        status "Migrations finished with errors or were skipped."
+        return 1
+    fi
 }
 
 # The order is fixed: system packages, then migrations, then AUR packages and the rest.
@@ -433,6 +446,9 @@ run_update() {
 
     if ! update_has_free_space; then
         status "Only $(($(free_space_bytes) / 1024 / 1024 / 1024)) GiB is free on /. An update needs at least $UPDATE_MIN_FREE_GIB GiB."
+        if update_unattended; then
+            return 1
+        fi
         if ! gum confirm --default=false "Update anyway?"; then
             status "Update cancelled. Free up some disk space and try again."
             return 0
@@ -448,8 +464,8 @@ run_update() {
 
     if [ "$total_count" -eq 0 ]; then
         status "No updates available. Your system is up to date."
-        run_update_migrations
-        return 0
+        run_update_migrations || update_unattended_failed
+        return
     fi
 
     show_updates
@@ -457,14 +473,14 @@ run_update() {
 
     if [ "$selected_count" -eq 0 ]; then
         status "No updates selected."
-        run_update_migrations
-        return 0
+        run_update_migrations || update_unattended_failed
+        return
     fi
 
     check_reboot_patterns
     show_selection
 
-    if ! gum confirm "Proceed with the selected updates?"; then
+    if ! update_confirm "Proceed with the selected updates?"; then
         status "Update cancelled."
         return 0
     fi
@@ -477,9 +493,21 @@ run_update() {
         fi
     fi
 
-    run_update_migrations
-    update_aur_packages
+    # The steps after the system packages go on when one of them fails. An unattended update
+    # still ends with an error then, so whoever started it sees that something needs a look.
+    local failed=false
+    run_update_migrations || failed=true
+    update_aur_packages || failed=true
     finish_update
+
+    if [ "$failed" = true ]; then
+        update_unattended_failed
+    fi
+}
+
+# Interactively the problem was already shown, and the menu stays open.
+update_unattended_failed() {
+    ! update_unattended
 }
 
 disable_sleep
