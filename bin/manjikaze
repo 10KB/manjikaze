@@ -131,13 +131,13 @@ main() {
     # Ensure the sudo keep-alive is always cleaned up, even on unexpected exit.
     trap 'stop_sudo_keepalive' EXIT
 
-    if [[ "$1" == "setup" ]]; then
-        setup_package_install
-        exit 0
-    fi
-
     # Runs before anything reads the state file
     setup_package_install
+    mark_migrations_done_on_new_install
+
+    if [[ "$1" == "setup" ]]; then
+        exit 0
+    fi
 
     if [[ "$1" == "migrate" ]]; then
         shift
