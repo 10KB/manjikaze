@@ -28,7 +28,8 @@ Some command-line tools lag months behind in the Arch repositories. Manjikaze in
 
 - `configs/mise/<tool>.toml`, named after the mise tool, holds the pinned version. Installing the tool copies it to `~/.config/mise/conf.d/manjikaze-<tool>.toml`, next to your own `~/.config/mise/config.toml`. Manjikaze overwrites that copy, so don't edit it.
 - `Update installed apps` copies the pinned versions again and lists the versions that aren't installed yet under "mise tools". They are installed when you proceed with the update.
-- A project can pin another version in its own `mise.toml`.
+- A project can pin another version in its own `mise.toml`, for shells inside that project.
+- Desktop apps and other programs that don't run in a shell with mise active use links in `~/.local/bin` to the programs of the pinned version. Manjikaze doesn't put mise's shims on their `PATH`: a shim takes its version from the `mise.toml` or `.tool-versions` of the directory it runs in, so a project could decide what runs on the host.
 - For `scw`, mise checks the download against the `SHA256SUMS` that Scaleway publishes.
 - Desktop apps and services don't read `.zshrc`, where mise is activated. They find these tools through mise's shims, which `/etc/profile.d/manjikaze-mise.sh` adds to the end of `PATH` when you log in. A program in `/usr/bin` keeps precedence there.
 
