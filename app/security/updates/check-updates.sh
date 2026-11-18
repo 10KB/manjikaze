@@ -39,19 +39,6 @@ check_for_updates() {
     echo "$total_updates"
 }
 
-# The update asks questions, and this service has no terminal of its own.
-open_update_terminal() {
-    if command -v alacritty >/dev/null 2>&1; then
-        alacritty -e manjikaze update
-    elif command -v kgx >/dev/null 2>&1; then
-        kgx -- manjikaze update
-    elif command -v gnome-terminal >/dev/null 2>&1; then
-        gnome-terminal -- manjikaze update
-    else
-        status "No terminal found to run 'manjikaze update' in."
-    fi
-}
-
 send_notification() {
     local total_updates="$1" action
 
@@ -65,8 +52,9 @@ send_notification() {
             "System Updates Available" \
             "$total_updates update(s) are available for your system.") || return 0
 
+        # The update asks questions, and this service has no terminal of its own.
         if [[ $action == update ]]; then
-            open_update_terminal
+            open_in_terminal "$MANJIKAZE_DIR/bin/manjikaze" update || true
         fi
     fi
 }

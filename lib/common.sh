@@ -22,6 +22,23 @@ is_installed() {
     pacman -Qi "$1" &> /dev/null
 }
 
+# Opens a terminal that runs the command, for the button of a notification. The terminal stays open
+# until Enter, so the output can be read.
+open_in_terminal() {
+    local wrapper=(bash -c '"$@"; code=$?; echo; read -rp "Press Enter to close this window. " _; exit "$code"' manjikaze-terminal)
+
+    if command -v alacritty > /dev/null 2>&1; then
+        alacritty -e "${wrapper[@]}" "$@"
+    elif command -v kgx > /dev/null 2>&1; then
+        kgx -- "${wrapper[@]}" "$@"
+    elif command -v gnome-terminal > /dev/null 2>&1; then
+        gnome-terminal -- "${wrapper[@]}" "$@"
+    else
+        status "No terminal found to run '$*' in."
+        return 1
+    fi
+}
+
 REBOOT_REQUIRED_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/manjikaze/reboot-required"
 
 # A migration whose change only a reboot applies calls this with the reason, and the update offers

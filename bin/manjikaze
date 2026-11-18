@@ -106,6 +106,7 @@ show_header() {
 
 # manjikaze migrate runs the pending migrations without asking.
 # manjikaze migrate --pending prints them, and exits 1 when there are none.
+# manjikaze migrate --notify shows a notice when there are any, for the service after login.
 migrate_command() {
     local pending
     pending=$(pending_migrations)
@@ -116,6 +117,11 @@ migrate_command() {
                 return 1
             fi
             echo "$pending"
+            ;;
+        --notify)
+            if [[ -n "$pending" ]]; then
+                notify_pending_migrations "$(wc -l <<< "$pending")"
+            fi
             ;;
         "")
             if [[ -z "$pending" ]]; then
@@ -128,7 +134,7 @@ migrate_command() {
             run_migrations --yes
             ;;
         *)
-            echo "Usage: manjikaze migrate [--pending]" >&2
+            echo "Usage: manjikaze migrate [--pending | --notify]" >&2
             return 2
             ;;
     esac

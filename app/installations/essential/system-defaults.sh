@@ -65,6 +65,9 @@ install() {
     configure_autologin_keyring
 
     source "$MANJIKAZE_DIR/app/security/updates/configure-update-checker.sh"
+
+    source "$MANJIKAZE_DIR/app/security/updates/migration-notice.sh"
+    install_migration_notice
 }
 
 uninstall() {
@@ -77,6 +80,9 @@ uninstall() {
     if is_c920_mic_disabled; then
         enable_c920_mic
     fi
+
+    source "$MANJIKAZE_DIR/app/security/updates/migration-notice.sh"
+    remove_migration_notice
 
     status "To give the login keyring a password again, use Passwords and Keys (seahorse)."
 }

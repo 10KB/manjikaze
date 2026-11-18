@@ -104,3 +104,44 @@ add_migration 1000000002_pending 'touch "$TEST_TMP/ran-2"'
 run "$MANJIKAZE/bin/manjikaze" migrate --pending
 [[ $(output) == 1000000002_pending ]] || fail "a package install keeps the git install's pending migrations" "$(output)$(errors)"
 pass "a package install takes over the git install's state instead of recording every migration"
+
+# The notice after login: notify-send prints the action that was clicked, and the terminal records
+# what it was asked to run.
+cat > "$TEST_TMP/bin/notify-send" << 'EOF'
+#!/bin/bash
+echo "$*" >> "$TEST_TMP/notify-send.calls"
+echo "${NOTIFY_ACTION:-}"
+EOF
+cat > "$TEST_TMP/bin/alacritty" << 'EOF'
+#!/bin/bash
+echo "$*" >> "$TEST_TMP/alacritty.calls"
+EOF
+printf '#!/bin/bash\n' > "$TEST_TMP/bin/gdbus"
+chmod +x "$TEST_TMP/bin/notify-send" "$TEST_TMP/bin/alacritty" "$TEST_TMP/bin/gdbus"
+
+new_manjikaze
+write_state "$STATE" 1000000001_done
+add_migration 1000000001_done 'touch "$TEST_TMP/ran-1"'
+add_migration 1000000002_pending 'touch "$TEST_TMP/ran-2"'
+add_migration 1000000003_pending 'touch "$TEST_TMP/ran-3"'
+export NOTIFY_ACTION=migrate
+run "$MANJIKAZE/bin/manjikaze" migrate --notify
+[[ $exit_code -eq 0 ]] || fail "migrate --notify succeeds" "$(errors)"
+grep -q "2 migration(s) are waiting" "$TEST_TMP/notify-send.calls" || fail "the notice says how many migrations are waiting" "$(cat "$TEST_TMP/notify-send.calls" 2>&1)"
+grep -q -- "--urgency=critical" "$TEST_TMP/notify-send.calls" || fail "the notice stays until it is closed"
+grep -q "$MANJIKAZE/bin/manjikaze migrate$" "$TEST_TMP/alacritty.calls" || fail "the button opens a terminal that runs manjikaze migrate" "$(cat "$TEST_TMP/alacritty.calls" 2>&1)"
+! compgen -G "$TEST_TMP/ran-*" > /dev/null || fail "the notice runs no migrations by itself"
+[[ ! -e $TEST_TMP/sudo.calls ]] || fail "the notice doesn't ask for sudo"
+export NOTIFY_ACTION=""
+rm -f "$TEST_TMP/alacritty.calls"
+run "$MANJIKAZE/bin/manjikaze" migrate --notify
+[[ ! -e $TEST_TMP/alacritty.calls ]] || fail "closing the notice opens no terminal"
+pass "migrate --notify shows the pending migrations with a button that applies them"
+
+new_manjikaze
+write_state "$STATE" 1000000001_done
+add_migration 1000000001_done 'touch "$TEST_TMP/ran-1"'
+run "$MANJIKAZE/bin/manjikaze" migrate --notify
+[[ $exit_code -eq 0 ]] || fail "migrate --notify succeeds without pending migrations" "$(errors)"
+[[ ! -e $TEST_TMP/notify-send.calls ]] || fail "without pending migrations there is no notice"
+pass "migrate --notify stays quiet without pending migrations"
