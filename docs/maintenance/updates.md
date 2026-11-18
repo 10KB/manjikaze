@@ -16,11 +16,13 @@ A [system package install](./system-package) skips this check: your package mana
 
 ## Updating Installed Applications
 
-Manjikaze provides a convenient menu option to update all installed applications:
+Run `manjikaze update`, or start Manjikaze and choose **Setup → Update installed apps**. The update lists what can be updated and asks what to include. It then works in a fixed order:
 
-1. Launch Manjikaze
-2. Navigate to `Setup > Update installed apps`
-3. The system will update all installed packages using both `pacman` and `yay`
+1. **Checks.** At least 5 GiB has to be free on `/`; with less, Manjikaze asks before it goes on. It looks for updates with `checkupdates`, which leaves the system's package databases alone until the upgrade itself. The update installs `pacman-contrib` for this when it's missing.
+2. **System packages.** Older versions are removed from the package cache, keeping the two newest of every package. pacman then syncs the package databases and upgrades in a systemd scope of its own, so an upgrade of systemd or a desktop session that ends can't stop it halfway. When the upgrade fails, the update stops here.
+3. **Migrations.** Manjikaze can itself be one of the system packages, and [migrations](migrations.md) are written for the upgraded system, so they run after it.
+4. **AUR packages**, the ones you selected. They are built against the system packages, so Manjikaze only offers them when the system packages are up to date or part of this update.
+5. **The rest:** mise runtimes, Cursor, removing packages that nothing depends on anymore, and the question whether to reboot.
 
 ## Tools Pinned with mise
 

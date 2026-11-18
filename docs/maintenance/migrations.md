@@ -17,7 +17,7 @@ Think of migrations as a way to incrementally upgrade your Manjikaze environment
 
 The migration system runs automatically when you start Manjikaze. Here's how it works:
 
-1. When you start Manjikaze or run `manjikaze update`, it checks for any pending migrations
+1. When you start Manjikaze, and during an [update](updates.md) right after the system packages, it checks for any pending migrations
 2. If pending migrations are found, you'll be asked if you want to run them
 3. Each migration runs in sequence, with newer migrations only running after older ones complete
 4. Each migration runs in a process of its own, so a migration that exits can't stop Manjikaze
