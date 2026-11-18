@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "$MANJIKAZE_DIR/lib/update.sh"
+source "$MANJIKAZE_DIR/lib/firmware.sh"
 source "$MANJIKAZE_DIR/app/installations/optional/cursor.sh"
 
 # Function to refresh package signing keys
@@ -440,6 +441,7 @@ run_update() {
     run_update_migrations || failed=true
     update_aur_packages || failed=true
     finish_update
+    report_firmware
 
     # The log shows what exit codes don't, such as an initramfs image that wasn't built.
     if ! check_update_log "${MANJIKAZE_UPDATE_LOG:-}"; then
@@ -462,6 +464,7 @@ update_unattended_failed() {
 finish_without_updates() {
     local failed=false
     run_update_migrations || failed=true
+    report_firmware
     offer_reboot
 
     if [ "$failed" = true ]; then

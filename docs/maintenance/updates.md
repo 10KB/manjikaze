@@ -35,6 +35,14 @@ The update asks for a reboot only when the system shows it needs one, also when 
 
 An unattended update says why a reboot is needed, and doesn't reboot.
 
+## Firmware Updates
+
+Firmware for the BIOS, SSDs, docks and other devices comes from the [LVFS](https://fwupd.org) through fwupd. The update refreshes the list of firmware updates and shows which devices have one, but it installs no firmware: some firmware updates finish during a reboot into the firmware updater, so they need you there.
+
+To install them, run `manjikaze firmware` or choose **Setup → Update firmware**. It shows the updates, asks, and then runs `fwupdmgr update`, which asks again before a device that needs a reboot. Keep a laptop on AC power.
+
+Every update and `manjikaze firmware` keep fwupd's security report in `~/.local/state/manjikaze/host-security.json`, with the time of the check and the Host Security ID (HSI). The HSI rates how well the firmware protects the system: a higher level means more of its security features are on, and an `!` after it means fwupd found a problem while the system runs. `fwupdmgr security` lists the checks behind it.
+
 ## Updating Without Questions
 
 `manjikaze update -y` runs the whole update without asking anything, for example from a timer or when an administrator asks for an update:
