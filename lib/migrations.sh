@@ -21,6 +21,26 @@ pending_migrations() {
     done < <(list_migrations)
 }
 
+# A new installation already has what earlier migrations changed, so they are recorded
+# without running. Call this after setup_package_install, which may copy an earlier state file.
+mark_migrations_done_on_new_install() {
+    if [[ -f "$STATE_FILE" ]]; then
+        return 0
+    fi
+
+    # Written without jq: check_prerequisites installs it later. The migrations check keeps
+    # migration ids to lowercase letters, digits and underscores, so they need no escaping.
+    local migration_id timestamp entries=()
+    timestamp=$(date --iso-8601=seconds)
+    while read -r migration_id; do
+        entries+=("\"$migration_id\": \"$timestamp\"")
+    done < <(list_migrations)
+
+    mkdir -p "$MANJIKAZE_DATA_DIR"
+    printf '{"migrations": {%s}, "audits": {}, "updates": {}}\n' "$(IFS=,; echo "${entries[*]}")" > "$STATE_FILE.tmp"
+    mv "$STATE_FILE.tmp" "$STATE_FILE"
+}
+
 # Each migration runs in a process of its own, so an exit in it can't stop Manjikaze.
 # The migration is sourced there, which lets it end early with return.
 run_migration() {

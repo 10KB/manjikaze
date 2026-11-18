@@ -24,6 +24,8 @@ The migration system runs automatically when you start Manjikaze. Here's how it 
 5. Successfully completed migrations are recorded in the state file
 6. If a migration fails, the process stops to prevent inconsistencies
 
+A new installation records the migrations it came with as done, without running them: its install scripts already include what those migrations change. A migration therefore needs a matching change in the install scripts, so that new installations get it too.
+
 ## Running Migrations from the Command Line
 
 - `manjikaze migrate` runs the pending migrations without asking first.

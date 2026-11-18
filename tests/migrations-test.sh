@@ -1,5 +1,5 @@
 #!/bin/bash
-# Running migrations and listing the pending ones.
+# Running migrations, listing the pending ones, and recording them on a new installation.
 set -euo pipefail
 
 source "$(dirname "$0")/lib.sh"
@@ -83,3 +83,24 @@ write_state "$STATE" 1000000001_done 1000000002_pending 1000000003_pending
 run "$MANJIKAZE/bin/manjikaze" migrate --pending
 [[ $exit_code -eq 1 && -z $(output) ]] || fail "migrate --pending prints nothing and exits 1 without pending migrations" "code $exit_code: $(output)"
 pass "migrate --pending lists pending migrations without running them"
+
+new_manjikaze
+add_migration 1000000001_earlier 'touch "$TEST_TMP/ran-1"'
+add_migration 1000000002_earlier 'touch "$TEST_TMP/ran-2"'
+run "$MANJIKAZE/bin/manjikaze" migrate --pending
+[[ $exit_code -eq 1 ]] || fail "a new installation has no pending migrations" "$(output)$(errors)"
+! compgen -G "$TEST_TMP/ran-*" > /dev/null || fail "a new installation does not run earlier migrations"
+recorded 1000000001_earlier && recorded 1000000002_earlier || fail "a new installation records earlier migrations" "$(cat "$STATE")"
+add_migration 1000000003_later 'touch "$TEST_TMP/ran-3"'
+run "$MANJIKAZE/bin/manjikaze" migrate --pending
+[[ $(output) == 1000000003_later ]] || fail "a migration added after the installation is pending" "$(output)"
+pass "a new installation records earlier migrations without running them"
+
+new_manjikaze
+echo "1.0.0" > "$MANJIKAZE/VERSION"
+write_state "$HOME/.manjikaze/.manjikaze_state.json" 1000000001_done
+add_migration 1000000001_done 'touch "$TEST_TMP/ran-1"'
+add_migration 1000000002_pending 'touch "$TEST_TMP/ran-2"'
+run "$MANJIKAZE/bin/manjikaze" migrate --pending
+[[ $(output) == 1000000002_pending ]] || fail "a package install keeps the git install's pending migrations" "$(output)$(errors)"
+pass "a package install takes over the git install's state instead of recording every migration"
