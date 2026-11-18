@@ -22,6 +22,7 @@ case "$1" in
     choose) cat ;;
 esac'
 stub sudo 'echo "sudo $*" >> "$TEST_TMP/order"
+if [[ "$*" == *"pacman -Su"* ]]; then printf "%s\n" "${PACMAN_OUTPUT:-}"; fi
 [[ -z ${SUDO_FAIL:-} || ! "$*" =~ $SUDO_FAIL ]]'
 stub checkupdates 'echo checkupdates >> "$TEST_TMP/order"
 if [[ -n ${REPO_UPDATES:-} ]]; then echo "$REPO_UPDATES"; else exit 2; fi'
@@ -45,7 +46,12 @@ new_manjikaze() {
     echo '{"migrations": {}, "audits": {}, "updates": {}}' > "$MANJIKAZE/.manjikaze_state.json"
     printf '#!/bin/bash\nset -e\n\necho migration >> "$TEST_TMP/order"\n' > "$MANJIKAZE/migrations/1000000001_pending.sh"
     export REPO_UPDATES="htop 3.3.0-1 -> 3.4.0-1" AUR_UPDATES="yazi-bin 1.0-1 -> 1.1-1"
-    export GUM_DECLINE="" SUDO_FAIL="" YAY_FAIL="" FREE_BYTES=107374182400
+    export GUM_DECLINE="" SUDO_FAIL="" YAY_FAIL="" PACMAN_OUTPUT="" FREE_BYTES=107374182400
+}
+
+# The update runs in script, which passes what it shows through its terminal to stdout.
+said() {
+    cat "$TEST_TMP/out" "$TEST_TMP/err" | grep -q -- "$1"
 }
 
 # A git install in ~/.manjikaze whose remote has one commit more.
@@ -114,7 +120,7 @@ pass "a failed system upgrade stops the update"
 new_manjikaze
 export FREE_BYTES=$((2 * 1024 * 1024 * 1024)) GUM_DECLINE="Update anyway"
 run "$MANJIKAZE/bin/manjikaze" update
-grep -q "Only 2 GiB is free" "$TEST_TMP/err" || fail "the update says how much space is free" "$(errors)"
+said "Only 2 GiB is free" || fail "the update says how much space is free" "$(output)"
 ! ran "pacman -S|paccache" || fail "the update stops when too little space is free" "$(cat "$ORDER")"
 export GUM_DECLINE=""
 run "$MANJIKAZE/bin/manjikaze" update
@@ -134,7 +140,7 @@ new_manjikaze
 export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1"
 run "$MANJIKAZE/bin/manjikaze" update -y
 ! ran "^sudo reboot" || fail "an unattended update doesn't reboot" "$(cat "$ORDER")"
-grep -q "doesn't reboot" "$TEST_TMP/err" || fail "an unattended update says a reboot is needed" "$(errors)"
+said "doesn't reboot" || fail "an unattended update says a reboot is needed" "$(output)"
 pass "an unattended update leaves the reboot to the user"
 
 new_manjikaze
@@ -160,3 +166,59 @@ run "$HOME/.manjikaze/bin/manjikaze" update -y
 ! asked || fail "updating the git install asks nothing" "$(cat "$TEST_TMP/gum.calls")"
 ran "pacman -Su" || fail "the update goes on after updating the git install" "$(cat "$ORDER")"
 pass "an unattended update updates a git install of Manjikaze first"
+
+new_manjikaze
+run "$MANJIKAZE/bin/manjikaze" update
+logs=("$HOME"/.local/state/manjikaze/updates/update-*.log)
+[[ ${#logs[@]} -eq 1 && -f ${logs[0]} ]] || fail "an update writes one log" "$(ls -la "$HOME/.local/state/manjikaze/updates" 2>&1)"
+grep -q "Updating system packages" "${logs[0]}" || fail "the log records what the update showed" "$(cat "${logs[0]}")"
+grep -q 'COMMAND_EXIT_CODE="0"' "${logs[0]}" || fail "the log records the exit code" "$(cat "${logs[0]}")"
+said "The log of this update is in ${logs[0]}" || fail "the update says where its log is" "$(output)"
+pass "every update leaves a log of its terminal"
+
+new_manjikaze
+export REPO_UPDATES="linux612 6.12.1-1 -> 6.12.2-1"
+export PACMAN_OUTPUT=$'==> Building image from preset: /etc/mkinitcpio.d/linux612.preset: \'default\'\n==> ERROR: specified kernel image does not exist'
+run "$MANJIKAZE/bin/manjikaze" update
+[[ $exit_code -ne 0 ]] || fail "the update fails when an initramfs image wasn't built"
+! ran "^sudo reboot" || fail "the update doesn't reboot when an initramfs image wasn't built" "$(cat "$ORDER")"
+said "may not boot" || fail "the update says the system may not boot" "$(output)"
+pass "an initramfs image that wasn't built stops the reboot"
+
+# check_update_log and new_update_log on their own.
+status() { echo "$1"; }
+source "$ROOT/lib/update.sh"
+sample="$TEST_TMP/sample.log"
+
+printf '%s\r\n' "==> Building image from preset: 'default'" $'\e[1m\e[32m==> Initcpio image generation successful\e[0m' > "$sample"
+run check_update_log "$sample"
+[[ $exit_code -eq 0 && -z $(output) ]] || fail "a log with a successful build reports nothing" "code $exit_code: $(output)"
+
+printf '%s\r\n' "==> Building image from preset: 'default'" $'\e[1m\e[31m==> ERROR:\e[0m file not found: x.rules' \
+    "==> WARNING: errors were encountered during the build. The image may not be complete." > "$sample"
+run check_update_log "$sample"
+[[ $exit_code -eq 0 ]] || fail "an image built with errors doesn't stop the update" "$(output)"
+grep -q "may not be complete" "$TEST_TMP/out" && grep -q "  ==> ERROR: file not found: x.rules$" "$TEST_TMP/out" ||
+    fail "an image built with errors is reported with its errors" "$(output)"
+
+printf '%s\r\n' "==> Building image from preset: 'default'" "==> ERROR: Initcpio image generation FAILED: 'zstd' reported an error" > "$sample"
+run check_update_log "$sample"
+[[ $exit_code -ne 0 ]] || fail "a failed image stops the update" "$(output)"
+
+printf '%s\r\n' "warning: /etc/pacman.conf installed as /etc/pacman.conf.pacnew" "Error! Bad return status for module build on kernel: 6.12" > "$sample"
+run check_update_log "$sample"
+grep -q "^  /etc/pacman.conf.pacnew$" "$TEST_TMP/out" || fail "new .pacnew files are listed" "$(output)"
+grep -q "Bad return status for module build" "$TEST_TMP/out" || fail "a DKMS build that failed is reported" "$(output)"
+pass "the log check stops on missing images and reports incomplete ones, DKMS errors and .pacnew files"
+
+mkdir -p "$UPDATE_LOG_DIR"
+for day in $(seq -w 1 65); do
+    touch "$UPDATE_LOG_DIR/update-2026-01-${day}T000000.log"
+done
+new_log=$(new_update_log)
+remaining=("$UPDATE_LOG_DIR"/update-*.log)
+[[ ${#remaining[@]} -eq $((UPDATE_LOGS_KEPT - 1)) ]] || fail "old logs are removed down to UPDATE_LOGS_KEPT with the new one" "${#remaining[@]} left"
+[[ ! -e $UPDATE_LOG_DIR/update-2026-01-01T000000.log && -e $UPDATE_LOG_DIR/update-2026-01-65T000000.log ]] ||
+    fail "the oldest logs are the ones removed"
+[[ $new_log == "$UPDATE_LOG_DIR"/update-*.log ]] || fail "new_update_log prints a path in the log directory" "$new_log"
+pass "the newest logs are kept"

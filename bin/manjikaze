@@ -27,6 +27,7 @@ fi
 source "$MANJIKAZE_DIR/lib/state.sh"
 source "$MANJIKAZE_DIR/lib/setup.sh"
 source "$MANJIKAZE_DIR/lib/migrations.sh"
+source "$MANJIKAZE_DIR/lib/update.sh"
 source "$MANJIKAZE_DIR/lib/audits.sh"
 source "$MANJIKAZE_DIR/lib/menus.sh"
 
@@ -162,6 +163,19 @@ main() {
                 exit 2
                 ;;
         esac
+
+        # Every update leaves a log. script records the terminal, questions included, while the
+        # update runs inside it, and exits with the update's exit code.
+        if [[ -z ${MANJIKAZE_UPDATE_LOG:-} ]] && command -v script > /dev/null; then
+            local log command
+            if log=$(new_update_log); then
+                export MANJIKAZE_UPDATE_LOG=$log
+                # script runs the command with $SHELL, which the command sets back for the update.
+                printf -v command 'export SHELL=%q; exec %s' "${SHELL:-/bin/bash}" "$(printf '%q ' "$0" "$@")"
+                exec env SHELL=/bin/bash script -qefc "$command" "$log"
+            fi
+            status "Could not create a log in $UPDATE_LOG_DIR, so this update isn't logged."
+        fi
 
         clear
         show_header

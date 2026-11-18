@@ -20,7 +20,7 @@ setup_menu=(
     ["1:Install essential apps"]="load_module installations/install-essential-apps.sh"
     ["2:Install recommended apps"]="load_module installations/install-recommended-apps.sh"
     ["3:Choose optional apps"]="load_module installations/install-optional-apps.sh"
-    ["4:Update installed apps"]="load_module installations/update-installed-apps.sh"
+    ["4:Update installed apps"]="run_logged_update"
     ["5:Uninstall apps"]="load_module installations/uninstall-apps.sh"
     ["6:Rebuild installed apps"]="load_module installations/rebuild-installed-apps.sh"
     ["7:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
@@ -49,6 +49,11 @@ declare -A security_menu=(
     ["9:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
     ["10:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
 )
+
+# The menu runs the update as manjikaze update, so it gets a log like any other update.
+run_logged_update() {
+    "$MANJIKAZE_DIR/bin/manjikaze" update || status "The update didn't finish. See the messages above."
+}
 
 handle_menu() {
     local -n menu_ref=$1

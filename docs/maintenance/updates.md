@@ -36,6 +36,17 @@ Run `manjikaze update`, or start Manjikaze and choose **Setup → Update install
 
 sudo still asks for your password once when it needs one.
 
+## Update Logs
+
+Every update writes a log to `~/.local/state/manjikaze/updates/`, one file per update named after the time it started. That includes unattended updates and updates started from the menu. The log records everything the update showed, the questions included, with the start and end time and the exit code. Manjikaze keeps the 60 most recent logs.
+
+At the end, the update checks its log for problems that exit codes don't show:
+
+- **An initramfs image that wasn't built.** The system may not boot, so the update doesn't offer a reboot and ends with an error. Fix what mkinitcpio reports in the log and rebuild the images with `sudo mkinitcpio -P` before you reboot.
+- **An initramfs image built with errors.** mkinitcpio wrote the image, but says it may not be complete. The update shows the errors; check them before you reboot.
+- **DKMS modules that didn't build**, such as the driver for DisplayLink docks. They won't load after a reboot.
+- **New `.pacnew` and `.pacsave` files:** configuration files that a package installed a new version of next to yours. Merge them, for example with `sudo pacdiff`.
+
 ## Tools Pinned with mise
 
 Some command-line tools lag months behind in the Arch repositories. Manjikaze installs those with [mise](https://mise.jdx.dev) at a version it pins. The Scaleway CLI (`scw`) is the first:

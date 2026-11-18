@@ -77,3 +77,62 @@ yay_system() {
     yay=$(command -v yay) || return 1
     PATH="/usr/bin:$PATH" "$yay" "$@"
 }
+
+UPDATE_LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/manjikaze/updates"
+UPDATE_LOGS_KEPT=60
+
+# Prints the path for the log of a new update, and removes the oldest logs so that
+# UPDATE_LOGS_KEPT remain with the new one.
+new_update_log() {
+    mkdir -p "$UPDATE_LOG_DIR" || return 1
+
+    local old
+    printf '%s\n' "$UPDATE_LOG_DIR"/update-*.log | sort -r | tail -n +"$UPDATE_LOGS_KEPT" |
+        while read -r old; do
+            if [[ -f $old ]]; then
+                rm -f -- "$old"
+            fi
+        done
+
+    echo "$UPDATE_LOG_DIR/update-$(date +%Y-%m-%dT%H%M%S).log"
+}
+
+# The log records a terminal: colours and carriage returns come off before it's searched.
+plain_update_log() {
+    sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/\r$//' "$1"
+}
+
+# Reports what an update's log shows beyond the exit codes: initramfs images that weren't built or
+# may be incomplete, DKMS modules that didn't build, and new .pacnew and .pacsave files. Fails when
+# an initramfs image wasn't built, because the system may not boot then.
+check_update_log() {
+    local text builds finished
+    [[ -f $1 ]] || return 0
+    text=$(plain_update_log "$1")
+
+    # mkinitcpio ends every image it builds with "successful", or with the warning that errors were
+    # encountered. A build with neither ended before it wrote its image.
+    builds=$(grep -c "Building image from preset" <<< "$text" || true)
+    finished=$(grep -c -E "Initcpio image generation successful|errors were encountered during the build" <<< "$text" || true)
+    if grep -q "image generation FAILED" <<< "$text" || ((finished < builds)); then
+        status "An initramfs image wasn't built, so the system may not boot. Don't reboot before you fix it: look for mkinitcpio in $1."
+        return 1
+    fi
+
+    if grep -q "errors were encountered during the build" <<< "$text"; then
+        status "mkinitcpio reported errors while building an initramfs image, so the image may not be complete:"
+        grep "==> ERROR:" <<< "$text" | sort -u | sed 's/^/  /'
+    fi
+
+    if grep -q "Error! " <<< "$text"; then
+        status "A DKMS kernel module didn't build, so it won't load after a reboot:"
+        grep "Error! " <<< "$text" | sort -u | sed 's/^/  /'
+    fi
+
+    local new_files
+    new_files=$(grep -o -E "(installed|saved) as [^ ]+\.(pacnew|pacsave)" <<< "$text" | awk '{print $3}' | sort -u)
+    if [[ -n $new_files ]]; then
+        status "These configuration files have a new version next to them. Merge them, for example with 'sudo pacdiff':"
+        sed 's/^/  /' <<< "$new_files"
+    fi
+}
