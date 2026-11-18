@@ -1,12 +1,12 @@
 #!/bin/bash
 # Runs the checks that CI runs on every pull request.
 # Usage: checks/run.sh [check...]
-# Checks: syntax shellcheck references configs swaync migrations (default: all of them)
+# Checks: syntax shellcheck references configs swaync migrations tests (default: all of them)
 set -e
 
 cd "$(dirname "$(readlink -f "$0")")/.."
 
-all_checks=(syntax shellcheck references configs swaync migrations)
+all_checks=(syntax shellcheck references configs swaync migrations tests)
 
 # Tracked Bash scripts: *.sh files, and the files in bin/ with a Bash shebang.
 shell_scripts() {
@@ -95,6 +95,10 @@ check_migrations() {
         fi
     done < <(git ls-files 'migrations/*')
     return "$failed"
+}
+
+check_tests() {
+    tests/run.sh
 }
 
 checks=("$@")

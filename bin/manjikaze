@@ -97,6 +97,36 @@ show_header() {
         "$subtitle"
 }
 
+# manjikaze migrate runs the pending migrations without asking.
+# manjikaze migrate --pending prints them, and exits 1 when there are none.
+migrate_command() {
+    local pending
+    pending=$(pending_migrations)
+
+    case "${1:-}" in
+        --pending)
+            if [[ -z "$pending" ]]; then
+                return 1
+            fi
+            echo "$pending"
+            ;;
+        "")
+            if [[ -z "$pending" ]]; then
+                status "No pending migrations."
+                return 0
+            fi
+            status "Requesting administrator privileges for system commands..."
+            sudo -v
+            start_sudo_keepalive
+            run_migrations --yes
+            ;;
+        *)
+            echo "Usage: manjikaze migrate [--pending]" >&2
+            return 2
+            ;;
+    esac
+}
+
 main() {
     # Ensure the sudo keep-alive is always cleaned up, even on unexpected exit.
     trap 'stop_sudo_keepalive' EXIT
@@ -108,6 +138,12 @@ main() {
 
     # Runs before anything reads the state file
     setup_package_install
+
+    if [[ "$1" == "migrate" ]]; then
+        shift
+        migrate_command "$@"
+        exit
+    fi
 
     if [[ "$1" == "update" ]]; then
         clear

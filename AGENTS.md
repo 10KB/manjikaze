@@ -14,8 +14,14 @@ Manjikaze provisions a Manjaro Linux development environment. The instructions b
 
 ## Checks
 
-- Run `checks/run.sh` before you commit; it needs `shellcheck`, `luac` and `python3`. CI runs the same checks on every pull request, and builds the documentation.
+- Run `checks/run.sh` before you commit; it needs `shellcheck`, `luac`, `python3` and `jq`. CI runs the same checks on every pull request, and builds the documentation.
 - Run a single check with `checks/run.sh <check>`, for example `checks/run.sh shellcheck`.
+
+## Tests
+
+- Behaviour tests live in `tests/<area>-test.sh` and run with `tests/run.sh`, which `checks/run.sh tests` also runs. They source `tests/lib.sh` for a scratch `HOME`, stubs for `gum` and `sudo`, and `pass` and `fail`.
+- A test must fail without the change it covers. Don't write tests that only repeat what the code says.
+- Migrations get no tests of their own. Move logic that needs a test into `lib/` or `bin/` and test it there.
 
 ## Documentation
 

@@ -17,17 +17,23 @@ Think of migrations as a way to incrementally upgrade your Manjikaze environment
 
 The migration system runs automatically when you start Manjikaze. Here's how it works:
 
-1. When you start Manjikaze, it checks for any pending migrations
+1. When you start Manjikaze or run `manjikaze update`, it checks for any pending migrations
 2. If pending migrations are found, you'll be asked if you want to run them
 3. Each migration runs in sequence, with newer migrations only running after older ones complete
-4. Successfully completed migrations are recorded in the state file
-5. If a migration fails, the process stops to prevent inconsistencies
+4. Each migration runs in a process of its own, so a migration that exits can't stop Manjikaze
+5. Successfully completed migrations are recorded in the state file
+6. If a migration fails, the process stops to prevent inconsistencies
+
+## Running Migrations from the Command Line
+
+- `manjikaze migrate` runs the pending migrations without asking first.
+- `manjikaze migrate --pending` prints the pending migrations, one per line, without running them or asking for sudo. It exits with 0 when migrations are pending and with 1 when there are none, so scripts can use it as a check.
 
 Migrations are designed to be idempotent - meaning they can be run multiple times safely without causing issues.
 
 ## Migration State Management
 
-Manjikaze keeps track of which migrations have already been applied through a state system. This state is stored in the `.manjikaze_state.json` file in your Manjikaze directory.
+Manjikaze keeps track of which migrations have already been applied through a state system. This state is stored in `.manjikaze_state.json`: in your Manjikaze directory for a git install, and in `~/.local/share/manjikaze/` for a [system package install](system-package.md).
 
 Each time a migration runs successfully, it gets recorded in this file with a timestamp indicating when it was applied. This ensures that migrations only run once, even if you restart Manjikaze multiple times.
 
@@ -44,19 +50,18 @@ Migrations can include various types of changes:
 
 ## Migration Naming Convention
 
-Migration files are named using a timestamp format (e.g., `1743535632.sh`), which ensures they run in the correct chronological order. The timestamp indicates when the migration was created, not when it should be run.
+Migration files are named `<unix timestamp>_<description>.sh`, in lowercase with underscores (e.g., `1773761794_install_git_lfs.sh`). The timestamp makes them run in the order they were created, and the file name without `.sh` is the id recorded in the state file. The checks that run on every pull request enforce this.
 
-## Adding Custom Migrations
+## Writing a Migration
 
-Advanced users can create their own migrations to customize Manjikaze further. To create a custom migration:
+1. Create a script in the `migrations/` directory, named as described above
+2. Start it with `#!/bin/bash`, followed by `set -e` as its first command
+3. Use `status` to report progress, and the helpers from `lib/common.sh` such as `install_package` and `is_installed`. `$MANJIKAZE_DIR` and `$STATE_FILE` are set as well
+4. End early with `return 0` when the migration doesn't apply to this system, for example because a feature isn't installed
 
-1. Create a new script in the `migrations/` directory with a name in timestamp format
-2. Make your script executable (`chmod +x`)
-3. Add the necessary commands to make your desired changes
-4. Use the `status` function to report progress
-5. Ensure proper error handling with appropriate exit codes
+Manjikaze sources the migration in a process of its own. Any command that fails, a `return` with a non-zero code or an `exit` with a non-zero code marks the migration as failed, and Manjikaze stops before the next migration. An `exit 0` ends only that migration, which then counts as done.
 
-Remember that custom migrations should follow the same principles as built-in ones - they should be idempotent, handle errors gracefully, and exit with appropriate status codes.
+Migrations should be idempotent and leave changes a user made to their own configuration alone.
 
 ## Troubleshooting Migrations
 
