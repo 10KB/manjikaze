@@ -26,6 +26,8 @@ Run **Configuration → Hyprland desktop** again at any time to update the confi
 
 The bar at the top works with the mouse too. The status icons on the right sit together in one button, like GNOME's system menu: click it for quick settings (Wi-Fi, Bluetooth, microphone, Stay awake, VPN, lock, power, volume) and notifications. Right-click the network, Bluetooth or volume icon to go straight to Wi-Fi networks, Bluetooth devices or sound devices, and scroll on the volume icon to change the volume. Icons with nothing to report stay hidden: the keyboard layout appears with more than one layout, Bluetooth while a device is connected, the bell when there are notifications or Do not disturb is on. Click the clock for a month calendar with week numbers; a click anywhere else or `Esc` closes it.
 
+When an app shares your screen or captures microphone audio through PipeWire, a red indicator appears in the top bar. Hover over the screen or microphone icon to see which app is using it. Each icon disappears when its capture ends.
+
 ## Keyboard Shortcuts
 
 The most used shortcuts are below; `Super + K` always shows the complete, current list.
