@@ -156,7 +156,18 @@ if [ -d ~/.local/share/cursor ]; then
     fi
 fi
 
-total_count=$((repo_count + aur_count + known_aur_transition_count))
+# Tool versions the global mise configuration asks for but that aren't installed, such as a
+# version that a Manjikaze update pinned.
+mise_missing=""
+mise_count=0
+if command -v mise &>/dev/null; then
+    refresh_mise_tools
+    mise_missing=$(cd "$HOME" && mise ls --missing --global --json 2>/dev/null |
+        jq -r 'to_entries[] | .key as $tool | .value[] | "\($tool) \(.version)"' || true)
+    mise_count=$(echo "$mise_missing" | grep -vc '^$' || true)
+fi
+
+total_count=$((repo_count + aur_count + known_aur_transition_count + mise_count))
 if [ "$cursor_update_available" = true ]; then
     total_count=$((total_count + 1))
 fi
@@ -191,6 +202,12 @@ fi
 if [ "$cursor_update_available" = true ]; then
     echo "Application updates:"
     echo "  • Cursor ($cursor_version_info)"
+    echo ""
+fi
+
+if [ "$mise_count" -gt 0 ]; then
+    echo "mise tools ($mise_count):"
+    echo "$mise_missing" | sort | awk '{print "  • " $1 " (" $2 ")"}'
     echo ""
 fi
 
@@ -253,6 +270,8 @@ selected_count=$((selected_count + ${#selected_aur_packages[@]}))
 if [ "$update_cursor" = true ]; then
     selected_count=$((selected_count + 1))
 fi
+# mise tools are always synced once the update proceeds.
+selected_count=$((selected_count + mise_count))
 
 if [ "$selected_count" -eq 0 ]; then
     status "No updates selected. Exiting."
@@ -315,6 +334,9 @@ fi
 if [ "$update_cursor" = true ]; then
     echo "  • Application: Cursor ($cursor_version_info)"
 fi
+if [ "$mise_count" -gt 0 ]; then
+    echo "  • mise tools ($mise_count)"
+fi
 
 if [ "$reboot_suggested" = true ]; then
     echo ""
@@ -375,10 +397,12 @@ if [ ${#selected_aur_packages[@]} -gt 0 ]; then
     fi
 fi
 
-# Sync mise runtimes if mise is installed
+# Sync mise runtimes if mise is installed. The system upgrade may have brought a Manjikaze
+# package with newer pinned versions, so the managed files are refreshed again first.
 if command -v mise &>/dev/null; then
     status "Syncing mise runtimes..."
-    mise install
+    refresh_mise_tools
+    (cd "$HOME" && mise install)
 fi
 
 # Update Cursor if selected

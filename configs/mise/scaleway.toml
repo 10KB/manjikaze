@@ -1,0 +1,4 @@
+# Managed by Manjikaze: every update overwrites this file. Pin another version in a
+# project's mise.toml if a project needs one.
+[tools]
+scaleway = "2.66.0"

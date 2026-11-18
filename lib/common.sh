@@ -267,3 +267,47 @@ uninstall_package() {
     set -e
 }
 
+# A CLI that Arch packages lag behind on comes from mise, at the version pinned in
+# configs/mise/<tool>.toml, named after the mise tool. Manjikaze owns the copy in
+# ~/.config/mise/conf.d, so a version bump in Manjikaze reaches every workstation with the
+# next update.
+MISE_MANAGED_DIR="$HOME/.config/mise/conf.d"
+
+install_mise_tool() {
+    local tool=$1
+
+    if ! command -v mise &> /dev/null; then
+        status "mise is not installed. Install the essential apps first."
+        return 1
+    fi
+
+    mkdir -p "$MISE_MANAGED_DIR"
+    cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$MISE_MANAGED_DIR/manjikaze-$tool.toml"
+
+    status "Installing $tool with mise..."
+    # From the home directory, so a project's mise.toml can't pick the version.
+    if ! (cd "$HOME" && mise install "$tool"); then
+        status "Failed to install $tool with mise."
+        return 1
+    fi
+    status "Installed $tool with mise."
+}
+
+uninstall_mise_tool() {
+    local tool=$1
+    rm -f "$MISE_MANAGED_DIR/manjikaze-$tool.toml"
+    status "Removed $tool from the mise configuration. Run 'mise prune' to delete versions nothing uses."
+}
+
+# Copies the versions this Manjikaze pins over the managed files of the tools that are installed.
+refresh_mise_tools() {
+    local file tool
+    for file in "$MISE_MANAGED_DIR"/manjikaze-*.toml; do
+        tool=$(basename "$file" .toml)
+        tool=${tool#manjikaze-}
+        if [[ -f "$MANJIKAZE_DIR/configs/mise/$tool.toml" ]]; then
+            cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$file"
+        fi
+    done
+}
+
