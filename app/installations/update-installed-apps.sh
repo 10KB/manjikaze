@@ -402,7 +402,9 @@ finish_update() {
     fi
 
     status "System update completed."
+}
 
+offer_reboot() {
     if [ "$reboot_suggested" = true ]; then
         status "Reminder: $reboot_trigger_message"
         status "A system reboot is highly recommended to apply these changes fully and ensure system stability."
@@ -500,6 +502,13 @@ run_update() {
     update_aur_packages || failed=true
     finish_update
 
+    # The log shows what exit codes don't, such as an initramfs image that wasn't built.
+    if ! check_update_log "${MANJIKAZE_UPDATE_LOG:-}"; then
+        status "The update doesn't offer a reboot until that is fixed."
+        return 1
+    fi
+    offer_reboot
+
     if [ "$failed" = true ]; then
         update_unattended_failed
     fi
@@ -514,4 +523,7 @@ disable_sleep
 update_exit_code=0
 run_update || update_exit_code=$?
 enable_sleep
+if [[ -n ${MANJIKAZE_UPDATE_LOG:-} ]]; then
+    status "The log of this update is in $MANJIKAZE_UPDATE_LOG."
+fi
 return "$update_exit_code"
