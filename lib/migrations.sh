@@ -41,6 +41,29 @@ mark_migrations_done_on_new_install() {
     mv "$STATE_FILE.tmp" "$STATE_FILE"
 }
 
+# Shows a notice that migrations are waiting, with a button that runs them in a terminal. An update
+# through pamac or 42kb brings migrations without running them; manjikaze-migration-notice.service
+# calls this after every login. It runs nothing by itself.
+notify_pending_migrations() {
+    local count=$1 action
+
+    # The notification server can start after the service.
+    gdbus wait --session --timeout 30 org.freedesktop.Notifications > /dev/null 2>&1 || true
+
+    # Waits until the notice closes, and prints the action that was clicked.
+    action=$(notify-send \
+        --app-name=Manjikaze \
+        --icon=system-software-update \
+        --urgency=critical \
+        --action="migrate=Apply now" \
+        "Manjikaze has changes to apply" \
+        "$count migration(s) are waiting. Apply them to keep this workstation on the Manjikaze baseline.") || return 0
+
+    if [[ $action == migrate ]]; then
+        open_in_terminal "$MANJIKAZE_DIR/bin/manjikaze" migrate
+    fi
+}
+
 # Each migration runs in a process of its own, so an exit in it can't stop Manjikaze.
 # The migration is sourced there, which lets it end early with return.
 run_migration() {

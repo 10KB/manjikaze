@@ -30,6 +30,11 @@ A new installation records the migrations it came with as done, without running 
 
 - `manjikaze migrate` runs the pending migrations without asking first.
 - `manjikaze migrate --pending` prints the pending migrations, one per line, without running them or asking for sudo. It exits with 0 when migrations are pending and with 1 when there are none, so scripts can use it as a check.
+- `manjikaze migrate --notify` shows a notice when migrations are pending, with a button that applies them in a terminal. It runs nothing by itself.
+
+## The Notice After Login
+
+An update through pamac, or of the Manjikaze package by another package manager, brings new migrations without running them. The user service `manjikaze-migration-notice.service` therefore runs `manjikaze migrate --notify` after every login, in GNOME and in Hyprland. The notice stays until you close it; **Apply now** opens a terminal that runs `manjikaze migrate` and asks for your password.
 
 Migrations are designed to be idempotent - meaning they can be run multiple times safely without causing issues.
 
