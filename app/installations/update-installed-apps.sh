@@ -3,27 +3,6 @@
 source "$MANJIKAZE_DIR/lib/update.sh"
 source "$MANJIKAZE_DIR/app/installations/optional/cursor.sh"
 
-REBOOT_PATTERNS=(
-    "firmware"    # For packages like linux-firmware, or other firmware blobs
-    "ucode"       # For microcode updates (amd-ucode, intel-ucode)
-    "dbus"
-    "glibc"
-    "systemd"
-    "gnutls"
-    "openssl"
-    "mesa"        # Graphics stack
-    "nvidia"      # NVIDIA drivers
-    "xf86-video-" # Common prefix for Xorg video drivers
-    "docker"
-    "containerd"
-    "runc"
-    "virtualbox"  # Virtualization software often has kernel modules
-    "vmware"      # Virtualization software often has kernel modules
-    "qemu"
-    "libvirt"
-    "kernel"      # Catch any explicit 'kernel' named packages if not 'linux*'
-)
-
 # Function to refresh package signing keys
 # This fixes "signature is unknown trust" errors that occur when keyring
 # packages are outdated or the local keyring hasn't been refreshed
@@ -247,43 +226,6 @@ choose_updates() {
     selected_count=$((selected_count + mise_count))
 }
 
-# Sets reboot_suggested and reboot_trigger_message from the names of the selected packages.
-check_reboot_patterns() {
-    reboot_suggested=false
-    reboot_trigger_message=""
-    local selected_packages_for_reboot_check="" pkg_name pkg_name_lower pattern pattern_lower
-
-    if [ "$update_repo" = true ]; then
-        selected_packages_for_reboot_check="${selected_packages_for_reboot_check} $(echo "$repo_updates" | awk '{print $1}' | tr '\n' ' ')"
-    fi
-    if [ ${#selected_aur_packages[@]} -gt 0 ]; then
-        selected_packages_for_reboot_check="${selected_packages_for_reboot_check} ${selected_aur_packages[*]}"
-    fi
-
-    for pkg_name in $selected_packages_for_reboot_check; do
-        pkg_name_lower="${pkg_name,,}"
-
-        if [[ "$pkg_name_lower" == linux* ]]; then
-            reboot_suggested=true
-            reboot_trigger_message="An update to a kernel package ('$pkg_name') was selected."
-            break
-        fi
-
-        for pattern in "${REBOOT_PATTERNS[@]}"; do
-            pattern_lower="${pattern,,}"
-            if [[ "$pkg_name_lower" == *"$pattern_lower"* ]]; then
-                reboot_suggested=true
-                reboot_trigger_message="An update to '$pkg_name' (matches general pattern '$pattern') was selected."
-                break
-            fi
-        done
-
-        if [ "$reboot_suggested" = true ]; then
-            break
-        fi
-    done
-}
-
 show_selection() {
     echo ""
     gum style --foreground 99 --bold "Selected Updates Summary:"
@@ -305,13 +247,6 @@ show_selection() {
     fi
     if [ "$mise_count" -gt 0 ]; then
         echo "  • mise tools ($mise_count)"
-    fi
-
-    if [ "$reboot_suggested" = true ]; then
-        echo ""
-        status "$reboot_trigger_message"
-        status "IMPORTANT: This update may require a system reboot to apply fully and ensure stability."
-        echo "             It's recommended to reboot after the update completes."
     fi
     echo ""
 }
@@ -404,19 +339,24 @@ finish_update() {
     status "System update completed."
 }
 
+# Asks for a reboot only when the system shows it needs one, also after an update by other means.
 offer_reboot() {
-    if [ "$reboot_suggested" = true ]; then
-        status "Reminder: $reboot_trigger_message"
-        status "A system reboot is highly recommended to apply these changes fully and ensure system stability."
-        if update_unattended; then
-            status "This update ran unattended, so it doesn't reboot. Reboot when it suits you."
-        elif gum confirm "Do you want to reboot the system now?"; then
-            status "Rebooting system..."
-            enable_sleep
-            sudo reboot
-        else
-            status "Reboot cancelled by user. Please remember to reboot your system soon."
-        fi
+    local reasons
+    reasons=$(reboot_reasons)
+    if [[ -z $reasons ]]; then
+        return 0
+    fi
+
+    status "A reboot is needed to finish the update:"
+    sed 's/^/  /' <<< "$reasons"
+    if update_unattended; then
+        status "This update ran unattended, so it doesn't reboot. Reboot when it suits you."
+    elif gum confirm "Do you want to reboot the system now?"; then
+        status "Rebooting system..."
+        enable_sleep
+        sudo reboot
+    else
+        status "Reboot cancelled by user. Please remember to reboot your system soon."
     fi
 }
 
@@ -466,7 +406,7 @@ run_update() {
 
     if [ "$total_count" -eq 0 ]; then
         status "No updates available. Your system is up to date."
-        run_update_migrations || update_unattended_failed
+        finish_without_updates
         return
     fi
 
@@ -475,11 +415,10 @@ run_update() {
 
     if [ "$selected_count" -eq 0 ]; then
         status "No updates selected."
-        run_update_migrations || update_unattended_failed
+        finish_without_updates
         return
     fi
 
-    check_reboot_patterns
     show_selection
 
     if ! update_confirm "Proceed with the selected updates?"; then
@@ -517,6 +456,17 @@ run_update() {
 # Interactively the problem was already shown, and the menu stays open.
 update_unattended_failed() {
     ! update_unattended
+}
+
+# Without package updates the migrations still run, and a reboot an earlier update needs is offered.
+finish_without_updates() {
+    local failed=false
+    run_update_migrations || failed=true
+    offer_reboot
+
+    if [ "$failed" = true ]; then
+        update_unattended_failed
+    fi
 }
 
 disable_sleep
