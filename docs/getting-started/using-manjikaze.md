@@ -24,7 +24,7 @@ Navigate through menus using the arrow keys and press Enter to select an option.
 
 The Setup menu allows you to manage application installation:
 
-1. **Install essential apps** - Installs core development tools and utilities required for most development tasks.
+1. **Install essential apps** - Installs core development tools and utilities required for most development tasks. It also sets system defaults: a 5 second shutdown timeout, the Logitech C920 microphone turned off (turn it back on under Configuration), a login keyring without a password when you log in automatically, and the weekly update check if you want it.
 2. **Install recommended apps** - Installs additional useful applications that enhance the development experience.
 3. **Choose optional apps** - Allows you to select and install specialized tools based on your specific needs.
 4. **Update installed apps** - Updates all applications installed through Manjikaze to their latest versions.
