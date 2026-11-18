@@ -403,6 +403,7 @@ if command -v mise &>/dev/null; then
     status "Syncing mise runtimes..."
     refresh_mise_tools
     (cd "$HOME" && mise install)
+    link_mise_tools
 fi
 
 # Update Cursor if selected
