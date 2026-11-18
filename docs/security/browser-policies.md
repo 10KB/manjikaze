@@ -29,7 +29,7 @@ Manjikaze creates these directories even when a browser isn't installed, so a br
 
 ## Applying the Policies
 
-A migration applies the policies when you start Manjikaze. To apply them again, for example after a policy file was changed or removed, run `manjikaze` and choose **Security → Apply browser policies**. Restart open browsers afterwards.
+A new installation gets the policies with the essential apps, under the name `browser-policies`. An existing installation gets them through a migration when you start Manjikaze. To apply them again, for example after a policy file was changed or removed, run `manjikaze` and choose **Security → Apply browser policies**. Restart open browsers afterwards.
 
 To see which policies are active, open `chrome://policy` in Chrome and Chromium, `brave://policy` in Brave or `about:policies` in Firefox.
 
@@ -45,13 +45,4 @@ The [Chrome Enterprise policy list](https://chromeenterprise.google/policies/), 
 
 ## Removing the Policies
 
-Delete Manjikaze's files from the Chromium-based browsers:
-
-```bash
-sudo rm /etc/opt/chrome/policies/managed/manjikaze.json \
-    /etc/chromium/policies/managed/manjikaze.json \
-    /etc/brave/policies/managed/manjikaze.json \
-    /etc/brave/policies/managed/manjikaze-brave.json
-```
-
-For Firefox, remove the policies listed above from `/etc/firefox/policies/policies.json`, or delete the file if you added nothing to it. Choosing **Apply browser policies** in Manjikaze adds the files again.
+Run `manjikaze`, choose **Setup → Uninstall apps** and select `browser-policies`. That deletes Manjikaze's files from the Chromium-based browsers and removes its policies from Firefox's `policies.json`; policies that someone else added stay, and the file goes when nothing is left. Restart open browsers afterwards. Choosing **Apply browser policies** adds the policies again.

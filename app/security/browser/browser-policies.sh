@@ -47,6 +47,44 @@ browser_policies_install_firefox() {
     return "$result"
 }
 
+# Removes every value that Manjikaze's policies.json sets, and then the objects that became empty,
+# so policies that someone else added stay. Without anything left, the file goes.
+browser_policies_remove_firefox() {
+    local remaining result=0
+    if [[ ! -f $BROWSER_POLICIES_FIREFOX_FILE ]]; then
+        return 0
+    fi
+    remaining=$(mktemp) || return 1
+
+    # paths(scalars) would skip the values that are false, so leaves are found by their type.
+    if ! jq --slurpfile ours "$BROWSER_POLICIES_SOURCE/firefox.json" \
+        'reduce ($ours[0] | paths(type != "object" and type != "array")) as $path (.; delpaths([$path]))
+            | walk(if type == "object" then with_entries(select(.value != {})) else . end)' \
+        "$BROWSER_POLICIES_FIREFOX_FILE" > "$remaining"; then
+        status "$BROWSER_POLICIES_FIREFOX_FILE is not valid JSON, so it was left unchanged."
+        rm -f "$remaining"
+        return 1
+    fi
+
+    if [[ $(jq -c . "$remaining") == "{}" ]]; then
+        sudo rm -f "$BROWSER_POLICIES_FIREFOX_FILE" || result=1
+    elif ! sudo install -m 644 "$remaining" "$BROWSER_POLICIES_FIREFOX_FILE"; then
+        result=1
+    fi
+    rm -f "$remaining"
+    return "$result"
+}
+
+remove_browser_policies() {
+    local dir
+    for dir in "${BROWSER_POLICIES_CHROMIUM_DIRS[@]}"; do
+        sudo rm -f "$dir/manjikaze.json" || return 1
+    done
+    sudo rm -f "$BROWSER_POLICIES_BRAVE_DIR/manjikaze-brave.json" || return 1
+    browser_policies_remove_firefox || return 1
+    status "Browser policies removed. Restart open browsers to unload them."
+}
+
 apply_browser_policies() {
     status "Applying browser policies for Chrome, Chromium and Brave..."
     if ! browser_policies_install_chromium; then
