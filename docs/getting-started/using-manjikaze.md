@@ -29,6 +29,7 @@ The Setup menu allows you to manage application installation:
 3. **Choose optional apps** - Allows you to select and install specialized tools based on your specific needs.
 4. **Update installed apps** - Updates all applications installed through Manjikaze to their latest versions.
 5. **Remove preinstalled apps** - Removes unnecessary preinstalled software packages from Manjaro.
+6. **Remove deprecated apps** - Lists apps that Manjikaze no longer installs but that are still on your system, and removes the ones you select (all preselected).
 
 ## Configuration Menu
 
