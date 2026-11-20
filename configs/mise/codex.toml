@@ -1,0 +1,5 @@
+# Managed by Manjikaze: every update overwrites this file. Manjikaze upgrades "latest" to the
+# newest release that is at least a day old. symlink_bins leaves out the helper programs in
+# the package, so only the CLI itself gets a link in ~/.local/bin.
+[tools]
+codex = { version = "latest", symlink_bins = true }
