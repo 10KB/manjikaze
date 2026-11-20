@@ -1,3 +1,5 @@
+source "$MANJIKAZE_DIR/lib/docker.sh"
+
 install() {
     status "Installing Docker..."
     if ! sudo pamac install docker docker-buildx iptables-nft --no-confirm; then
@@ -5,12 +7,7 @@ install() {
         return 1
     fi
 
-    if ! sudo usermod -aG docker "${USER}"; then
-        status "Failed to add user to docker group."
-        return 1
-    fi
-
-    # Limit log size to avoid running out of disk
+    # Limit log size to avoid running out of disk, also for the rootful daemon when someone starts it
     sudo mkdir -p /etc/docker
     if ! echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"5"}}' | sudo tee /etc/docker/daemon.json > /dev/null; then
         status "Failed to set Docker log limits."
@@ -54,8 +51,8 @@ install() {
         return 1
     fi
 
-    if ! sudo systemctl enable docker.service; then
-        status "Failed to enable Docker service."
+    # The rootful daemon stays off and the user stays out of the docker group.
+    if ! configure_rootless_docker; then
         return 1
     fi
 
@@ -63,6 +60,10 @@ install() {
 }
 
 uninstall() {
+    systemctl --user disable --now docker.socket docker.service 2> /dev/null || true
+    docker context use default > /dev/null 2>&1 || true
+    docker context rm rootless > /dev/null 2>&1 || true
+    uninstall_package "docker-rootless-extras" aur
     uninstall_package "docker" repo
     uninstall_package "docker-buildx" repo
 }
