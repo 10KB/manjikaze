@@ -59,6 +59,10 @@ Spotify is the world's most popular streaming music service, and the Linux appli
 
 Dropbox is a way to sync files between machines while keeping a backup in the cloud.
 
+### VLC
+
+VLC is a media player for video and audio files. Manjikaze installs it with all its plugins, so it has the codecs to play nearly any file.
+
 ### Kubernetes tools
 
 To manage Kubernetes clusters, Manjikaze includes the following tools:
