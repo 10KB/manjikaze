@@ -20,11 +20,12 @@ setup_menu=(
     ["1:Install essential apps"]="load_module installations/install-essential-apps.sh"
     ["2:Install recommended apps"]="load_module installations/install-recommended-apps.sh"
     ["3:Choose optional apps"]="load_module installations/install-optional-apps.sh"
-    ["4:Update installed apps"]="run_logged_update"
-    ["5:Uninstall apps"]="load_module installations/uninstall-apps.sh"
-    ["6:Rebuild installed apps"]="load_module installations/rebuild-installed-apps.sh"
-    ["7:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
-    ["8:Update firmware"]="run_firmware_update"
+    ["4:Choose AI agents"]="load_module installations/choose-ai-agents.sh"
+    ["5:Update installed apps"]="run_logged_update"
+    ["6:Uninstall apps"]="load_module installations/uninstall-apps.sh"
+    ["7:Rebuild installed apps"]="load_module installations/rebuild-installed-apps.sh"
+    ["8:Remove preinstalled apps"]="load_module installations/remove-preinstalled-apps.sh"
+    ["9:Update firmware"]="run_firmware_update"
 )
 
 declare -A configuration_menu=(
