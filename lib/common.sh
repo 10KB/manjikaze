@@ -307,19 +307,54 @@ uninstall_package() {
     set -e
 }
 
-# A CLI that Arch packages lag behind on comes from mise, at the version pinned in
-# configs/mise/<tool>.toml, named after the mise tool. Manjikaze owns the copy in
-# ~/.config/mise/conf.d, so a version bump in Manjikaze reaches every workstation with the
-# next update.
-MISE_MANAGED_DIR="$HOME/.config/mise/conf.d"
-
-# The version in the line <tool> = "<version>" of configs/mise/<tool>.toml.
-pinned_mise_version() {
-    sed -n "s/^$1 = \"\(.*\)\"$/\1/p" "$MANJIKAZE_DIR/configs/mise/$1.toml"
+# Copies a file to a system path. sudo only runs when the file there differs.
+install_system_file() {
+    local source=$1 target=$2
+    if cmp -s "$source" "$target"; then
+        return 0
+    fi
+    sudo mkdir -p "$(dirname "$target")"
+    sudo cp "$source" "$target"
 }
 
+# A CLI that Arch packages lag behind on comes from mise, at the version in
+# configs/mise/<tool>.toml, named after the mise tool: a pinned version, or "latest" for a CLI
+# that releases too often to pin. Manjikaze owns the copy in ~/.config/mise/conf.d, so a change
+# in Manjikaze reaches every workstation with the next update.
+MISE_MANAGED_DIR="$HOME/.config/mise/conf.d"
+
+# "latest" means the newest release that is at least this old, so a broken or compromised
+# release has time to come to light. Pinned versions don't depend on it.
+MISE_MANAGED_MIN_RELEASE_AGE="24h"
+
+# From $HOME, so the mise.toml of a project doesn't apply.
+managed_mise() {
+    (cd "$HOME" && MISE_MINIMUM_RELEASE_AGE=$MISE_MANAGED_MIN_RELEASE_AGE mise "$@")
+}
+
+# The version in the line <tool> = "<version>" or <tool> = { version = "<version>", ... } of
+# configs/mise/<tool>.toml.
+managed_mise_version() {
+    sed -n -E "s/^$1 = (\{ *version = )?\"([^\"]*)\".*$/\2/p" "$MANJIKAZE_DIR/configs/mise/$1.toml"
+}
+
+# The tools installed with install_mise_tool that this Manjikaze still has a version file for.
+managed_mise_tools() {
+    local file tool
+    for file in "$MISE_MANAGED_DIR"/manjikaze-*.toml; do
+        tool=$(basename "$file" .toml)
+        tool=${tool#manjikaze-}
+        if [[ -f $file && -f "$MANJIKAZE_DIR/configs/mise/$tool.toml" ]]; then
+            echo "$tool"
+        fi
+    done
+}
+
+# install_mise_tool <tool> [<copy> <program>...]: the copy that the vendor's own installer made,
+# and the programs it linked into ~/.local/bin, make way once mise has installed the tool.
 install_mise_tool() {
-    local tool=$1 version
+    local tool=$1 vendor_copy=${2:-} version
+    local vendor_programs=("${@:3}")
 
     if ! command -v mise &> /dev/null; then
         status "mise is not installed. Install the essential apps first."
@@ -329,14 +364,43 @@ install_mise_tool() {
     mkdir -p "$MISE_MANAGED_DIR"
     cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$MISE_MANAGED_DIR/manjikaze-$tool.toml"
 
-    version=$(pinned_mise_version "$tool")
+    version=$(managed_mise_version "$tool")
     status "Installing $tool $version with mise..."
-    if ! (cd "$HOME" && mise install "$tool@$version"); then
+    if ! managed_mise install "$tool@$version"; then
         status "Failed to install $tool with mise."
         return 1
     fi
+    if [[ -n $vendor_copy ]]; then
+        remove_vendor_install "$vendor_copy" "${vendor_programs[@]}"
+    fi
     link_mise_tool "$tool"
     status "Installed $tool with mise."
+}
+
+# remove_vendor_install <copy> <program>...: removes the links ~/.local/bin/<program> into the
+# copy, and the copy itself, a directory or a file. The copy stays while a process runs from it:
+# such a process may start itself again.
+remove_vendor_install() {
+    local copy=$1 name=$2 program link proc exe
+    for program in "${@:2}"; do
+        link="$HOME/.local/bin/$program"
+        if [[ -L $link && $(readlink "$link") == "$copy"/* ]]; then
+            rm "$link"
+        fi
+    done
+    if [[ -L $copy || ! -e $copy ]]; then
+        return 0
+    fi
+
+    for proc in /proc/[0-9]*/exe; do
+        exe=$(readlink "$proc" 2> /dev/null) || continue
+        if [[ $exe == "$copy" || $exe == "$copy"/* ]]; then
+            status "$name still runs from $copy. Close it and choose it again to remove that copy."
+            return 0
+        fi
+    done
+    rm -rf "$copy"
+    status "Removed the $name that its own installer put in $copy."
 }
 
 uninstall_mise_tool() {
@@ -347,12 +411,13 @@ uninstall_mise_tool() {
 }
 
 # Outside a shell where mise is active, such as in a desktop app, the tool runs through links in
-# ~/.local/bin to the programs of the pinned version. Never through mise's shims: a shim takes
+# ~/.local/bin to the programs of Manjikaze's version. Never through mise's shims: a shim takes
 # its version from the mise.toml or .tool-versions of the directory it runs in, so a project
-# would decide what runs on the host.
+# would decide what runs on the host. For "latest", the links go through mise's latest
+# directory, which moves along with every upgrade.
 link_mise_tool() {
     local tool=$1 version bin_dir program link
-    version=$(pinned_mise_version "$tool")
+    version=$(managed_mise_version "$tool")
     mkdir -p "$HOME/.local/bin"
 
     while read -r bin_dir; do
@@ -380,25 +445,39 @@ unlink_mise_tool() {
 }
 
 link_mise_tools() {
-    local file tool
-    for file in "$MISE_MANAGED_DIR"/manjikaze-*.toml; do
-        tool=$(basename "$file" .toml)
-        tool=${tool#manjikaze-}
-        if [[ -f $file && -f "$MANJIKAZE_DIR/configs/mise/$tool.toml" ]]; then
-            link_mise_tool "$tool"
-        fi
-    done
+    local tool
+    while read -r tool; do
+        link_mise_tool "$tool"
+    done < <(managed_mise_tools)
 }
 
-# Copies the versions this Manjikaze pins over the managed files of the tools that are installed.
+# Copies the versions this Manjikaze sets over the managed files of the tools that are installed.
 refresh_mise_tools() {
-    local file tool
-    for file in "$MISE_MANAGED_DIR"/manjikaze-*.toml; do
-        tool=$(basename "$file" .toml)
-        tool=${tool#manjikaze-}
-        if [[ -f "$MANJIKAZE_DIR/configs/mise/$tool.toml" ]]; then
-            cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$file"
-        fi
-    done
+    local tool
+    while read -r tool; do
+        cp "$MANJIKAZE_DIR/configs/mise/$tool.toml" "$MISE_MANAGED_DIR/manjikaze-$tool.toml"
+    done < <(managed_mise_tools)
+}
+
+# Prints "<tool> <installed version> <newer version>" for the tools on "latest" that have a
+# release that is old enough.
+outdated_mise_tools() {
+    local tools
+    readarray -t tools < <(managed_mise_tools)
+    if [[ ${#tools[@]} -eq 0 ]]; then
+        return 0
+    fi
+    managed_mise outdated --json "${tools[@]}" 2> /dev/null |
+        jq -r '.[] | select(.current != null) | "\(.name) \(.current) \(.latest)"' || true
+}
+
+# Installs the managed tools that are missing and upgrades the ones on "latest".
+upgrade_mise_tools() {
+    local tools
+    readarray -t tools < <(managed_mise_tools)
+    if [[ ${#tools[@]} -eq 0 ]]; then
+        return 0
+    fi
+    managed_mise install "${tools[@]}" && managed_mise upgrade "${tools[@]}"
 }
 

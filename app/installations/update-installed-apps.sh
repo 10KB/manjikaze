@@ -77,8 +77,8 @@ resolve_known_aur_transitions() {
     fi
 }
 
-# Sets repo_updates, the AUR updates and transitions, the Cursor update, the missing mise tools
-# and total_count.
+# Sets repo_updates, the AUR updates and transitions, the Cursor update, the missing and outdated
+# mise tools and total_count.
 find_updates() {
     status "Checking for available updates..."
     if ! repo_updates=$(list_repo_updates); then
@@ -104,14 +104,17 @@ find_updates() {
     fi
 
     # Tool versions the global mise configuration asks for but that aren't installed, such as a
-    # version that a Manjikaze update pinned.
+    # version that a Manjikaze update pinned, and newer releases of the tools Manjikaze keeps on
+    # "latest".
     mise_missing=""
+    mise_outdated=""
     mise_count=0
     if command -v mise &>/dev/null; then
         refresh_mise_tools
         mise_missing=$(cd "$HOME" && mise ls --missing --global --json 2>/dev/null |
             jq -r 'to_entries[] | .key as $tool | .value[] | "\($tool) \(.version)"' || true)
-        mise_count=$(echo "$mise_missing" | grep -vc '^$' || true)
+        mise_outdated=$(outdated_mise_tools)
+        mise_count=$(printf '%s\n%s\n' "$mise_missing" "$mise_outdated" | grep -vc '^$' || true)
     fi
 
     total_count=$((repo_count + aur_count + known_aur_transition_count + mise_count))
@@ -149,7 +152,10 @@ show_updates() {
 
     if [ "$mise_count" -gt 0 ]; then
         echo "mise tools ($mise_count):"
-        echo "$mise_missing" | sort | awk '{print "  • " $1 " (" $2 ")"}'
+        {
+            echo "$mise_missing" | awk 'NF {print "  • " $1 " (" $2 ")"}'
+            echo "$mise_outdated" | awk 'NF {print "  • " $1 " (" $2 " → " $3 ")"}'
+        } | sort
         echo ""
     fi
 }
@@ -311,6 +317,7 @@ finish_update() {
     if command -v mise &>/dev/null; then
         status "Syncing mise runtimes..."
         refresh_mise_tools
+        upgrade_mise_tools || status "Could not update the tools Manjikaze installs with mise."
         (cd "$HOME" && mise install) || status "Could not sync the mise runtimes."
         link_mise_tools
     fi

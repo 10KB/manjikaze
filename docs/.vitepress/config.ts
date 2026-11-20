@@ -26,6 +26,7 @@ const docsSidebar = [
             { text: 'Runtime Manager', link: '/features/mise-runtime-manager' },
             { text: 'AWS Tools', link: '/features/aws-tools' },
             { text: 'Cursor Installation', link: '/features/cursor-installation' },
+            { text: 'AI Agents', link: '/features/ai-agents' },
         ],
     },
     {

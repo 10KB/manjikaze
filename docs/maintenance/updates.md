@@ -66,17 +66,18 @@ At the end, the update checks its log for problems that exit codes don't show:
 - **DKMS modules that didn't build**, such as the driver for DisplayLink docks. They won't load after a reboot.
 - **New `.pacnew` and `.pacsave` files:** configuration files that a package installed a new version of next to yours. Merge them, for example with `sudo pacdiff`.
 
-## Tools Pinned with mise
+## Tools Installed with mise
 
-Some command-line tools lag months behind in the Arch repositories. Manjikaze installs those with [mise](https://mise.jdx.dev) at a version it pins. The Scaleway CLI (`scw`) is the first:
+Some command-line tools lag months behind in the Arch repositories, and some release too often to pin. Manjikaze installs those with [mise](https://mise.jdx.dev): the Scaleway CLI (`scw`) and the [AI agents](../features/ai-agents.md).
 
-- `configs/mise/<tool>.toml`, named after the mise tool, holds the pinned version. Installing the tool copies it to `~/.config/mise/conf.d/manjikaze-<tool>.toml`, next to your own `~/.config/mise/config.toml`. Manjikaze overwrites that copy, so don't edit it.
-- `Update installed apps` copies the pinned versions again and lists the versions that aren't installed yet under "mise tools". They are installed when you proceed with the update.
+- `configs/mise/<tool>.toml`, named after the mise tool, holds the version. Installing the tool copies it to `~/.config/mise/conf.d/manjikaze-<tool>.toml`, next to your own `~/.config/mise/config.toml`. Manjikaze overwrites that copy, so don't edit it.
+- The version is pinned, as for `scw`, or `latest`, as for the AI agents. Manjikaze takes `latest` to mean the newest release that is at least a day old, so a broken or compromised release has time to come to light. The Cursor CLI is the exception: Cursor publishes only its newest release.
+- `Update installed apps` copies the versions again. Under "mise tools" it lists the versions that aren't installed yet, and the newer releases of the tools on `latest`. They are installed when you proceed with the update.
 - A project can pin another version in its own `mise.toml`, for shells inside that project.
-- Desktop apps and other programs that don't run in a shell with mise active use links in `~/.local/bin` to the programs of the pinned version. Manjikaze doesn't put mise's shims on their `PATH`: a shim takes its version from the `mise.toml` or `.tool-versions` of the directory it runs in, so a project could decide what runs on the host.
-- For `scw`, mise checks the download against the `SHA256SUMS` that Scaleway publishes.
+- Desktop apps and other programs that don't run in a shell with mise active use links in `~/.local/bin` to the programs of Manjikaze's version. For a tool on `latest`, the link follows every upgrade. Manjikaze doesn't put mise's shims on their `PATH`: a shim takes its version from the `mise.toml` or `.tool-versions` of the directory it runs in, so a project could decide what runs on the host.
+- For `scw` and Claude Code, mise checks the download against the checksum file that Scaleway and Anthropic publish. For Codex and the Antigravity CLI, there is no checksum file, so mise compares the download with the checksum that GitHub reports for the release. That catches a damaged download, but not a release that was replaced. Cursor publishes no checksum for its CLI, and its own installer doesn't check one either.
 
-To roll out a new version, change it in `configs/mise/<tool>.toml` in a pull request. Pick a release that is a few days old, so a broken or compromised release has time to come to light. Workstations install it with their first update after Manjikaze itself has updated.
+To roll out a new version of a pinned tool, change it in `configs/mise/<tool>.toml` in a pull request. Pick a release that is a few days old. Workstations install it with their first update after Manjikaze itself has updated.
 
 ## Update Frequency
 

@@ -45,7 +45,8 @@ case "$1" in
 esac'
 stub df 'printf "Avail\n%s\n" "${FREE_BYTES:-107374182400}"'
 stub paccache ''
-stub mise 'echo "mise $*" >> "$TEST_TMP/order"'
+stub mise 'echo "mise $*${MISE_MINIMUM_RELEASE_AGE:+ (age $MISE_MINIMUM_RELEASE_AGE)}" >> "$TEST_TMP/order"
+if [[ $1 == outdated ]]; then echo "${MISE_OUTDATED:-}"; fi'
 stub gsettings ''
 stub clear ''
 
@@ -61,7 +62,7 @@ new_manjikaze() {
     export GUM_DECLINE="" SUDO_FAIL="" YAY_FAIL="" PACMAN_OUTPUT="" FREE_BYTES=107374182400
     # The running kernel is installed, and there is no microcode or NVIDIA driver.
     export UPDATE_KERNEL_MODULES_DIR="$TEST_TMP/modules" UPDATE_BOOT_DIR="$TEST_TMP/boot" UPDATE_SYS_MODULE_DIR="$TEST_TMP/sys"
-    export KERNEL_REPLACED="" NVIDIA_INSTALLED="" FIRMWARE_JSON='{"Devices": []}'
+    export KERNEL_REPLACED="" NVIDIA_INSTALLED="" FIRMWARE_JSON='{"Devices": []}' MISE_OUTDATED=""
     rm -rf "$UPDATE_KERNEL_MODULES_DIR" "$UPDATE_BOOT_DIR" "$UPDATE_SYS_MODULE_DIR"
     mkdir -p "$UPDATE_KERNEL_MODULES_DIR/$(uname -r)" "$UPDATE_BOOT_DIR" "$UPDATE_SYS_MODULE_DIR"
     touch "$UPDATE_KERNEL_MODULES_DIR/$(uname -r)/modules.builtin"
@@ -176,6 +177,19 @@ ran "^mise install" || fail "the steps after a failed AUR package still run" "$(
 run "$MANJIKAZE/bin/manjikaze" update
 [[ $exit_code -eq 0 ]] || fail "an interactive update reports a failed AUR package without failing" "$(errors)"
 pass "an unattended update finishes and then fails when an AUR package failed"
+
+new_manjikaze
+export REPO_UPDATES="" AUR_UPDATES=""
+mkdir -p "$MANJIKAZE/configs/mise" "$HOME/.config/mise/conf.d"
+printf '[tools]\nclaude = "latest"\n' > "$MANJIKAZE/configs/mise/claude.toml"
+cp "$MANJIKAZE/configs/mise/claude.toml" "$HOME/.config/mise/conf.d/manjikaze-claude.toml"
+export MISE_OUTDATED='{"claude": {"name": "claude", "requested": "latest", "current": "2.1.320", "latest": "2.1.323"}}'
+run "$MANJIKAZE/bin/manjikaze" update -y
+[[ $exit_code -eq 0 ]] || fail "an update with only a newer mise tool succeeds" "$(errors)"
+said "claude (2.1.320 → 2.1.323)" || fail "the update lists the newer release of a tool on latest" "$(output)"
+ran "^mise outdated --json claude \(age 24h\)$" || fail "only releases that are a day old count" "$(cat "$ORDER")"
+ran "^mise upgrade claude \(age 24h\)$" || fail "the update upgrades the tools on latest" "$(cat "$ORDER")"
+pass "tools on latest get the newest release that is a day old"
 
 new_git_install
 export GUM_DECLINE=".*"

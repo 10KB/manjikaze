@@ -1,0 +1,5 @@
+# Managed by Manjikaze: every update overwrites this file. Cursor publishes only its newest
+# release, so "latest" is that one, however new. The package holds its own node and rg: the
+# postinstall puts only the CLI in bin, and bin_path puts that on PATH, so they don't shadow yours.
+[tools]
+cursor-agent = { version = "latest", bin_path = "bin", postinstall = "mkdir -p \"$MISE_TOOL_INSTALL_PATH/bin\" && ln -sfn ../dist-package/cursor-agent \"$MISE_TOOL_INSTALL_PATH/bin/cursor-agent\" && ln -sfn ../dist-package/cursor-agent \"$MISE_TOOL_INSTALL_PATH/bin/agent\"" }

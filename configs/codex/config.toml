@@ -1,0 +1,2 @@
+# Installed by Manjikaze: mise updates Codex, so Codex doesn't check for updates itself.
+check_for_update_on_startup = false
