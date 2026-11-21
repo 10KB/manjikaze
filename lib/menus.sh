@@ -49,6 +49,7 @@ declare -A security_menu=(
     ["8:Restore GPG keys to new YubiKey"]="load_module security/yubikey/yubikey-gpg-restore.sh"
     ["9:Configure YubiKey for AWS Vault MFA"]="load_module security/yubikey/yubikey-aws-vault.sh"
     ["10:Configure weekly update checks"]="load_module security/updates/configure-update-checker.sh"
+    ["11:Apply browser policies"]="load_module security/browser/apply-browser-policies.sh"
 )
 
 # The menu runs the update as manjikaze update, so it gets a log like any other update.

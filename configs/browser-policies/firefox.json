@@ -1,0 +1,25 @@
+{
+    "policies": {
+        "DisableTelemetry": true,
+        "DisableFirefoxStudies": true,
+        "FirefoxHome": {
+            "SponsoredTopSites": false,
+            "SponsoredStories": false
+        },
+        "FirefoxSuggest": {
+            "SponsoredSuggestions": false,
+            "ImproveSuggest": false
+        },
+        "UserMessaging": {
+            "ExtensionRecommendations": false,
+            "FeatureRecommendations": false,
+            "MoreFromMozilla": false
+        },
+        "ExtensionSettings": {
+            "{446900e4-71c2-419f-a6a7-df9c091e268b}": {
+                "installation_mode": "force_installed",
+                "install_url": "https://addons.mozilla.org/firefox/downloads/latest/bitwarden-password-manager/latest.xpi"
+            }
+        }
+    }
+}
