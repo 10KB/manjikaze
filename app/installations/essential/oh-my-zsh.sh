@@ -8,6 +8,7 @@ install() {
 
     if [ -d ~/.oh-my-zsh ]; then
         status "Oh My Zsh is already installed."
+        refresh_shell_defaults
         return 0
     fi
 
@@ -40,6 +41,8 @@ install() {
         status "Failed to set DEFAULT_USER in .zshrc."
         return 1
     fi
+
+    refresh_shell_defaults
 
     # Source .zshrc to apply changes
     if ! source ~/.zshrc; then

@@ -63,6 +63,31 @@ The git plugin provides many helpful aliases for common Git operations:
 
 For a complete list of Git aliases, run `alias | grep git` in your terminal.
 
+#### Git Worktrees
+
+A worktree is a second checkout of the same repository, on another branch, so you can work on several branches at once, for example with an agent in each. Manjikaze adds these commands:
+
+| Command        | What it does                                                                                                   |
+| -------------- | -------------------------------------------------------------------------------------------------------------- |
+| `wt`           | A menu to check out a worktree's branch, or to go to, create or remove a worktree                              |
+| `wt <branch>`  | Makes the branch the active one of the main checkout. If the branch has a worktree, that worktree is removed |
+| `wta <branch>` | Creates a worktree for the branch at `../<repository>--<branch>` and goes there                                |
+| `wtd`          | Removes the worktree you are in and its branch, after asking, and goes back to the main checkout               |
+
+A typical flow: agents work on several tasks at once, each in a worktree of its own. When one is done, `wt <branch>` (or **Check out a worktree's branch** in the menu) checks its branch out in the main checkout and removes the worktree. A dev server that runs from the main checkout picks up the files, and you go on in that branch.
+
+- **Check out a worktree's branch** lists the worktrees with a branch. Changes in the worktree that aren't committed come along after you confirm. It stops when the main checkout has changes that aren't committed.
+- **Go to a worktree** lists the other worktrees by their branch, the main checkout included.
+- **New worktree** lists the branches that don't have a worktree yet, also those that are only on `origin`. Type a name that doesn't exist to create a new branch from the current commit.
+- **Remove a worktree** lists every worktree except the main checkout. If you are in the one you remove, you end up in the main checkout.
+- A worktree goes to `../<repository>--<branch>`, and a `/` in the branch name becomes `-` in the directory name.
+- Changes that aren't committed, and commits that aren't merged, are only thrown away when you confirm that separately. A branch that was squash-merged on GitHub and deleted there counts as not merged, so you are asked.
+- In a new worktree, mise asks again before it trusts the project's `mise.toml`.
+- An agent session, such as Claude Code, locks the worktree it works in. Before `wt` checks out its branch or removes it, it shows the lock reason and asks whether to unlock it. The process in the reason may run in a devcontainer, so `wt` can't check whether the session is still running.
+- A worktree that an agent made in a devcontainer is registered with its path in the container, such as `/usr/src/app/.claude/worktrees/<name>`. `wt` finds it in the repository here, and can check out its branch or remove it. Before it does, it points the worktree's links to the paths here, so git can no longer use that worktree in the devcontainer. **Go to a worktree** goes there without changing it, but git only works in it inside the devcontainer.
+
+The git plugin's own `gwt` aliases (`gwta`, `gwtls`, `gwtrm`) remain available for plain `git worktree` commands.
+
 ## Modern CLI Tools
 
 Manjikaze includes several modern replacements for traditional Unix tools to enhance your command-line experience:
@@ -193,6 +218,8 @@ You can customize your shell environment by editing the following files:
 
 -   `~/.zshrc` - Main Zsh configuration file
 -   `~/.oh-my-zsh/custom/` - Directory for custom plugins and themes
+
+Manjikaze keeps its own shell functions, such as `wt`, in `~/.oh-my-zsh/custom/manjikaze.zsh` and replaces that file when it changes. Put your own settings in `~/.zshrc` or in another file in that directory.
 
 To add new Oh My Zsh plugins, edit the plugins line in your `.zshrc` file:
 

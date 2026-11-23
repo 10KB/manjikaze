@@ -22,6 +22,17 @@ is_installed() {
     pacman -Qi "$1" &> /dev/null
 }
 
+# Manjikaze's shell functions and defaults, in a file oh-my-zsh loads after its plugins. It's
+# replaced whenever it differs, so a change reaches every workstation without editing ~/.zshrc.
+refresh_shell_defaults() {
+    local custom="$HOME/.oh-my-zsh/custom"
+    if [[ ! -d $custom ]] || cmp -s "$MANJIKAZE_DIR/configs/zsh/manjikaze.zsh" "$custom/manjikaze.zsh"; then
+        return 0
+    fi
+    cp "$MANJIKAZE_DIR/configs/zsh/manjikaze.zsh" "$custom/manjikaze.zsh" ||
+        status "Could not update $custom/manjikaze.zsh."
+}
+
 # Opens a terminal that runs the command, for the button of a notification. The terminal stays open
 # until Enter, so the output can be read.
 open_in_terminal() {

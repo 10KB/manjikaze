@@ -147,6 +147,7 @@ main() {
     # Runs before anything reads the state file
     setup_package_install
     mark_migrations_done_on_new_install
+    refresh_shell_defaults
 
     if [[ "$1" == "setup" ]]; then
         exit 0
