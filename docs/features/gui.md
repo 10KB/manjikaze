@@ -44,6 +44,8 @@ Cursor is an AI-enhanced code editor based on VSCode.
 
 Signal is a secure messaging application with end-to-end encryption.
 
+Signal keeps the key to its database in GNOME Keyring, in GNOME and in Hyprland, so the same messages open in both sessions. The setting lives in `~/.config/signal-desktop-flags.conf`.
+
 ### SmartGit / GitKraken
 
 Git clients with graphical interfaces:
