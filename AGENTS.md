@@ -11,6 +11,7 @@ Manjikaze provisions a Manjaro Linux development environment. The instructions b
 - Use `pacman` for official repository packages and `yay` for AUR packages. For package transactions, include `--noconfirm --noprogressbar --quiet` where supported.
 - Pass `-s` to `curl` commands for silent output.
 - Use the existing `status` function for progress messages when it is available; keep logging consistent with the surrounding scripts.
+- Put shell functions and aliases in `configs/zsh/manjikaze.zsh`, which Manjikaze keeps up to date in `~/.oh-my-zsh/custom/`. Don't edit `~/.zshrc` for them.
 - A new installation records every migration as done without running it. Make the same change in the install scripts as in the migration, so new installations get it too.
 
 ## Checks

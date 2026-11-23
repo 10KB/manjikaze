@@ -19,7 +19,38 @@ cat > "$TEST_TMP/bin/gum" << 'EOF'
 echo "$*" >> "$TEST_TMP/gum.calls"
 case "$1" in
     log) echo "${*: -1}" >&2 ;;
-    confirm) [[ ${GUM_CONFIRM:-no} == yes ]] ;;
+    # GUM_CONFIRM answers every confirm, or each in turn ("yes no"); the last answer then repeats.
+    confirm)
+        read -ra answers <<< "${GUM_CONFIRM:-no}"
+        asked=$(grep -c '^confirm' "$TEST_TMP/gum.calls")
+        answer=${answers[asked - 1]:-${answers[-1]}}
+        [[ $answer == yes ]]
+        ;;
+    # GUM_PICK answers choose, filter and input in turn, one line each. The options of the last
+    # choose or filter go to $TEST_TMP/gum.options. choose fails when the answer isn't an option.
+    choose | filter | input)
+        options=()
+        if [[ $1 == choose ]]; then
+            for argument in "${@:2}"; do
+                [[ $argument == --* ]] || options+=("$argument")
+            done
+        elif [[ $1 == filter ]]; then
+            mapfile -t options
+        fi
+        [[ $1 == input ]] || printf '%s\n' "${options[@]}" > "$TEST_TMP/gum.options"
+
+        mapfile -t answers <<< "${GUM_PICK:-}"
+        asked=$(grep -cE '^(choose|filter|input)' "$TEST_TMP/gum.calls")
+        answer=${answers[asked - 1]:-}
+        if [[ -z $answer ]]; then
+            exit 1
+        fi
+        if [[ $1 == choose ]] && ! printf '%s\n' "${options[@]}" | grep -qxF -- "$answer"; then
+            echo "gum choose: $answer is not one of: ${options[*]}" >&2
+            exit 1
+        fi
+        echo "$answer"
+        ;;
 esac
 EOF
 
