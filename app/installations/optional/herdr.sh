@@ -14,7 +14,9 @@ install() {
     fi
 
     status "Installing herdr, Bun and the devcontainer CLI with mise..."
-    if ! mise use -g herdr@latest bun@latest npm:@devcontainers/cli@latest; then
+    # mise installs an npm package only once the Node version it is configured with is installed,
+    # and from $HOME so a project's mise.toml doesn't pick that version.
+    if ! (cd "$HOME" && mise install node && mise use -g herdr@latest bun@latest npm:@devcontainers/cli@latest); then
         status "Failed to install herdr tooling with mise."
         return 1
     fi
