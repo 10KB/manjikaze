@@ -38,6 +38,7 @@ const docsSidebar = [
             { text: 'Yubikey Integration', link: '/security/yubikey' },
             { text: 'YubiKey GPG & SSH', link: '/security/yubikey-gpg-ssh' },
             { text: 'Disk Encryption', link: '/security/disk-encryption' },
+            { text: 'Rootless Docker', link: '/security/docker' },
         ],
     },
     {

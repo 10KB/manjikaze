@@ -7,3 +7,4 @@ Manjikaze includes several security features designed to protect your system and
 - [Security Audits](audits.md) - Automated security checks that run at startup
 - [Yubikey Integration](yubikey.md) - Using Yubikey for authentication and disk encryption
 - [Disk Encryption](disk-encryption.md) - Full disk encryption with LUKS and Yubikey
+- [Rootless Docker](docker.md) - Docker without root, and without the `docker` group
