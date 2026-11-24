@@ -78,6 +78,16 @@ Some command-line tools lag months behind in the Arch repositories. Manjikaze in
 
 To roll out a new version, change it in `configs/mise/<tool>.toml` in a pull request. Pick a release that is a few days old, so a broken or compromised release has time to come to light. Workstations install it with their first update after Manjikaze itself has updated.
 
+## Tailscale
+
+Tailscale updates itself, outside `Update installed apps`. Manjikaze installs it from the static binaries that Tailscale publishes and switches on Tailscale's automatic updates. `tailscaled` then installs each new stable release when Tailscale's coordination server offers it: it checks the download against Tailscale's signing keys and restarts. It waits while someone is connected to the workstation over Tailscale SSH.
+
+- `tailscale version` shows the installed version. `sudo tailscale update` installs the latest release right away.
+- `sudo tailscale set --auto-update=false` switches the automatic updates off. Tailscale then stays at its version until you run `sudo tailscale update`.
+- Manjikaze only checks the first download against the checksum on Tailscale's own server, which catches a broken download and nothing more.
+
+A workstation that had Manjaro's `tailscale` package moves to these binaries with a migration, when `tailscaled` is running. Your login, and a changed `/etc/default/tailscaled`, stay.
+
 ## Update Frequency
 
 It's recommended to run the update command at least every two weeks to keep your system up-to-date. Regular updates help maintain:

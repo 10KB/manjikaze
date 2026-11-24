@@ -1,3 +1,5 @@
+source "$MANJIKAZE_DIR/lib/tailscale.sh"
+
 HERDR_OVIS_REF="v0.4.13"
 HERDR_DEVCONTAINER_REF="v0.7.3"
 HERDR_OVIS_PORT=7317
@@ -164,28 +166,16 @@ herdr_configure_firewall() {
     fi
 }
 
-herdr_tailscale_running() {
-    tailscale status --json 2> /dev/null | grep -q '"BackendState": "Running"'
-}
-
 herdr_configure_tailscale() {
-    install_package "tailscale" repo
-
-    if ! sudo systemctl enable --now tailscaled.service; then
-        status "Failed to start the Tailscale daemon."
-        return 1
-    fi
+    install_tailscale || return 1
 
     if ! sudo tailscale set --operator="$USER"; then
         status "Failed to set $USER as Tailscale operator."
     fi
 
-    if ! herdr_tailscale_running; then
-        status "Log in to Tailscale with the link below..."
-        if ! sudo tailscale up; then
-            status "Tailscale login failed. Phone access is not configured."
-            return 1
-        fi
+    if ! log_in_to_tailscale; then
+        status "Phone access is not configured."
+        return 1
     fi
 
     if gum confirm "Enable Tailscale SSH as a fallback for phone access?"; then
@@ -194,7 +184,7 @@ herdr_configure_tailscale() {
 }
 
 herdr_configure_tailscale_serve() {
-    if ! herdr_tailscale_running; then
+    if ! tailscale_running; then
         status "Tailscale is not running. Skipping the Ovis serve route."
         return 0
     fi
