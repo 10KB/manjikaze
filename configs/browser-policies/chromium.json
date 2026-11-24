@@ -1,0 +1,8 @@
+{
+    "MetricsReportingEnabled": false,
+    "UrlKeyedAnonymizedDataCollectionEnabled": false,
+    "PromotionsEnabled": false,
+    "ExtensionInstallForcelist": [
+        "nngceckbapebfimnlniiiahkandclblb;https://clients2.google.com/service/update2/crx"
+    ]
+}
