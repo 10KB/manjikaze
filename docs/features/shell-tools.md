@@ -181,6 +181,12 @@ Detailed documentation for AWS tools is available in the [AWS-specific documenta
 
 Manjikaze optionally includes the Azure CLI and Azure Kubelogin for working with Azure and AKS (Azure Kubernetes Service).
 
+## Tailscale
+
+The optional `tailscale` app installs [Tailscale](https://tailscale.com), starts its daemon and logs you in. The `herdr` app installs Tailscale the same way.
+
+Tailscale comes from the static binaries that Tailscale publishes, in `/usr/local/bin`, and not from Manjaro's `tailscale` package. Manjaro's stable branch gets a release weeks after it comes out, and with the package installed Tailscale's own updater refuses to run. The binaries [update themselves](../maintenance/updates.md#tailscale).
+
 ## Herdr Agent Workspace
 
 The optional `herdr` app sets up [Herdr](https://herdr.dev) to run several coding agents in parallel, with the agents inside your devcontainers and access from your phone. It installs:
